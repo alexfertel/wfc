@@ -18,9 +18,9 @@ class WFCProblem:
         """
         raise NotImplementedError
 
-    def valid_adjacency(self, p1, p2):
+    def valid_adjacency(self, id1, id2):
         """
-        This method approximates a function that maps two patterns into an identifier (predicate). 
+        This method approximates a function that maps two pattern identifiers into a boolean (predicate). 
         """
         raise NotImplementedError
 
