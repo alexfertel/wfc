@@ -1,3 +1,5 @@
+# import random
+
 class CSP:
     """
     This type represents a Constraint Statisfaction Problem.
@@ -9,7 +11,31 @@ class CSP:
         self.constraints = constraints
 
 
-def ac3(csp):
+def backtracking_search(csp: CSP, SUV = mrv, ODV = lcv):
+    def backtrack(assignment: dict, csp: CSP):
+        if len(assignment) == len(csp.variables):
+            return assignment
+        
+        var = SUV(csp, assignment)
+
+
+
+    return backtrack({}, csp)
+
+def mrv(csp: CSP, assignment: dict):
+    unassigned = [var for var in csp.variables if not var in assignment]
+    domains = [csp.domains[var] for var in unassigned]
+    pairs = list(zip(unassigned, domains))
+    pairs.sort(key=lambda x: len(x[1]))
+  
+    # Maybe insert a random here when choosing between tied pairs.
+    return pairs[0][0]
+
+def lcv(csp: CSP, var: int):
+    pass
+
+
+def ac3(csp: CSP):
     q = list(csp.arcs)
 
     if q:
@@ -23,7 +49,7 @@ def ac3(csp):
     
     return True
 
-def revise(csp, vars):
+def revise(csp: CSP, vars: tuple):
     (i, j) = vars
     revised = False
     for x in csp.domains[i].copy():
