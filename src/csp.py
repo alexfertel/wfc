@@ -1,3 +1,14 @@
+class CSP:
+    """
+    This type represents a Constraint Statisfaction Problem.
+    """
+    def __init__(self, variables, arcs, domains, constraints):
+        self.variables = variables
+        self.arcs = arcs
+        self.domains = domains
+        self.constraints = constraints
+
+
 def ac3(csp):
     q = list(csp.arcs)
 
@@ -12,12 +23,23 @@ def ac3(csp):
     
     return True
 
-def revise(csp, (i, j)):
+def revise(csp, vars):
+    (i, j) = vars
     revised = False
-    for x in cps.domains[i]:
-        # TODO
+    for x in csp.domains[i].copy():
         # if no value y in D j allows (x ,y) to satisfy the constraint between X i and X j then
-        csp.domains[i].remove(x)
-        revised = True
+        allowed = csp.constraints[(i, j)]
+        satisfies = False
+        for y in csp.domains[j]:
+            if (x, y) in allowed:
+                satisfies = True
+        
+        if not satisfies:
+            print((x, y))
+            csp.domains[i].remove(x)
+            revised = True
 
     return revised
+
+
+
