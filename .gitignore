@@ -10,7 +10,7 @@ logs/
 .vscode/
 .idea
 
-paper/*[log, out, aux, gz]
+paper/**/*[log, out, aux, gz, cls, brf, lof, bib]
 
 bib
 config.py
