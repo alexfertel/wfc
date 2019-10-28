@@ -1,35 +1,94 @@
-# import random
+import random
+import itertools as itl
+from copy import deepcopy
+
+
+class Variable:
+    def __init__(self, name, index, domain, value = None):
+        self.name = name
+        self.index = index
+        self.value = value
+        self.domain = domain
+        self.mutable_domain = self.domain.copy()
+
+
+class Arc:
+    def __init__(self, head, tail, constraint = None):
+        self.head = head
+        self.tail = tail
+        self.constraint = constraint if constraint else {}
+
+    def __getitem__(self, index):
+        if index == 0:
+            return self.tail
+        elif index = 1:
+            return self.head
+        else:
+            raise IndexError
+
+    def __setitem__(self, index, value):
+        if index == 0:
+            self.tail = value
+        elif index = 1:
+            self.head = value
+        else:
+            raise IndexError
+
+
 
 class CSP:
     """
     This type represents a Constraint Statisfaction Problem.
     """
-    def __init__(self, variables, arcs, domains, constraints):
+    def __init__(self, variables, arcs):
         self.variables = variables
         self.arcs = arcs
-        self.domains = domains
-        self.constraints = constraints
+
+    def neighbours(self, variable):
+        return [arc.head for arc in self.arcs if arc.tail == variable]
+
+    def reset(self):
+        for var in self.variables:
+            var.value = None
+            var.mutable_domain = domain
+
+    def is_complete(self):
+        for var in self.variables:
+            if not var.value:
+                return False
+        return True
+
+    def current_assignment(self):
+        return {var.name: var.value for var in self.variables}
+
+    def unassigned(self):
+        return [var for var in self.variables if not var.value]
 
 
 def backtracking_search(csp: CSP, SUV = mrv, ODV = lcv):
-    def backtrack(assignment: dict, csp: CSP):
-        if len(assignment) == len(csp.variables):
-            return assignment
+    def backtrack(csp: CSP):
+        if csp.is_complete():
+            return csp.current_assignment()
         
-        var = SUV(csp, assignment)
+        var = SUV(csp)
 
+        for value in var.mutable_domain:
+            # if value is consistent with assignment then
+            # What is the above????
 
 
     return backtrack({}, csp)
 
-def mrv(csp: CSP, assignment: dict):
-    unassigned = [var for var in csp.variables if not var in assignment]
-    domains = [csp.domains[var] for var in unassigned]
-    pairs = list(zip(unassigned, domains))
-    pairs.sort(key=lambda x: len(x[1]))
-  
-    # Maybe insert a random here when choosing between tied pairs.
-    return pairs[0][0]
+
+# def forward_chekcing(csp):
+#     def backtrack(assignment: dict)
+
+
+
+def mrv(csp: CSP):
+    groups = itl.groupby(csp.unassigned, key=lambda var: len(var.mutable_domain))
+    groups.sort()
+    return random.choice(groups[0])
 
 def lcv(csp: CSP, var: int):
     pass
