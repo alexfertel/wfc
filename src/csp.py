@@ -58,9 +58,12 @@ class CSP:
         return [arc.head for arc in self.arcs if arc.tail == variable]
 
     def reset(self):
-        for var in self.variables:
+        vars = [var for var in self.variables]
+        for var in vars:
             var.value = None
-            var.mutable_domain = domain
+            # var.mutable_domain = domain
+        
+        return CSP(vars, self.arcs.copy())
 
     def is_complete(self):
         for var in self.variables:
@@ -126,24 +129,28 @@ def revise(csp: CSP, arc: Arc):
                 satisfies = True
         
         if not satisfies:
-            print((x, y))
+            # print((x, y))
             arc.tail.mutable_domain.remove(x)
             revised = True
 
     return revised
 
-def backtracking_search(csp: CSP, SUV = mrv, ODV = lcv):
-    def backtrack(csp: CSP):
+def backtracking_search(csp: CSP, SUV = mrv, ODV = lcv, inference = ac3):
+    def backtrack(csp: CSP, assignment):
         if csp.is_complete():
-            return csp.current_assignment()
+            return assignment
         
         var = SUV(csp)
 
-        for value in var.mutable_domain:
+        for value in var.mutable_domain.copy():
             # if value is consistent with assignment then
             # What is the above????
-            var.value = value
+            assignment[var.index] = value
+            # var.value = value
+            
 
+            if inference(csp):
+                result = backtrack()
 
 
     return backtrack({}, csp)
