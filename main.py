@@ -1,14 +1,13 @@
 #!/usr/bin/python3
 
 import sys
-from tests.ac3_tests import csp_lib_test
+from tests.test_texture_gen import test_pattern_extraction
 
 def main():
     print("Hi!!!")
 
 def tests():
-        # map_coloring_test()
-        csp_lib_test()
+    test_pattern_extraction()
 
 if __name__ == "__main__":
     if "--debug" in sys.argv:
