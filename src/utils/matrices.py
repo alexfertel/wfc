@@ -10,18 +10,32 @@ def overlapping_submatrices(matrix, size):
     return submatrices
 
 
-def matrix_edges(matrix, side):
-    if not 0 <= side < 5:
-        raise Exception(f"`side` should be one of [0, 1, 2, 3].")
+def matrix_frontier(matrix, direction):
+    dx, dy = direction
+    d = [-1, 0, 1]
+
+    if not dx in d or not dy in d:
+        raise Exception(f"`dx` and `dy` must be one of [-1, 0, 1].")
 
     n, m = matrix.shape
-    if side == 0:
-        return matrix[0, 0: n]
-    if side == 1:
+    
+    if direction == (0, -1):  # North
+        return matrix[0, 0: m]
+    if direction == (1, -1):  # Northeast
+        return matrix[0, m - 1]
+    if direction == (1, 0):  # East
         return matrix[0: n, m - 1]
-    if side == 2:
+    if direction == (1, 1):  # Southeast
+        return matrix[n - 1, m - 1]
+    if direction == (0, 1):  # South
         return matrix[n - 1, 0: m]
-    if side == 3:
+    if direction == (-1, 1):  # Southwest
+        return matrix[n - 1, 0]
+    if direction == (-1, 0):  # West
         return matrix[0: n, 0]
+    if direction == (-1, -1):  # Northwest
+        return matrix[0, 0]
+
+    return False
 
 
