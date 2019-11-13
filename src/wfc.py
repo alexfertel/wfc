@@ -16,7 +16,7 @@ class WFCProblem:
         """
         raise NotImplementedError
 
-    def valid_adjacency(self, id1, id2):
+    def valid_adjacency(self, id1, id2, **kwargs):
         """
         This method approximates a function that maps two pattern identifiers into a boolean (predicate). 
         """
@@ -28,6 +28,5 @@ class WFCProblem:
         """
         raise NotImplementedError
         
-
 
 

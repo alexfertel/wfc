@@ -51,7 +51,7 @@ class TextureGeneration(WFCProblem):
 
     def learn_adjacencies(self, patterns):
         """
-        `Build propagator` in mxm original algorithm implementation.
+        This is what mxm called `Build propagator` in the original algorithm implementation.
 
         Takes the list of patterns and builds an index data-structure that
         maps an identifier and a direction into a list of identifiers that
@@ -86,8 +86,15 @@ class TextureGeneration(WFCProblem):
         self.propagator = propagator
         return self.propagator
 
+    def valid_adjacency(self, id1, id2, **kwargs):
+        return id2 in self.propagator[(id1, kwargs['direction'])]
+
     def render_pattern(self, identifier):
         for p, i in self.p2i.items():
             if identifier == i:
                 return p
         return False
+
+    # def generate_4d(self, slots):
+
+
