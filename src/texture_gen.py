@@ -1,7 +1,7 @@
 import numpy as np
 
 from .wfc import WFCProblem
-from .utils import matrices
+from .utils import matrices, directions, matrix_frontier
 
 class TextureGeneration(WFCProblem):
     def __init__(self, example):
@@ -9,6 +9,7 @@ class TextureGeneration(WFCProblem):
         
         self.p2i = {}
         self.pcount = 0
+        self.propagator = {}
 
     def extract_patterns(self, size):
         """
@@ -35,6 +36,50 @@ class TextureGeneration(WFCProblem):
         self.p2i[string_repr] = self.pcount
         self.pcount += 1
         return self.pcount - 1
+
+    def get_id(self, pattern):
+        """
+        This function returns the mapped identifier of the input pattern.
+
+        :param pattern: The pattern to be mapped.
+        """
+        string_repr = np.array2string(pattern)
+        return self.p2i[string_repr]
+
+    def learn_adjacencies(self, patterns):
+        """
+        `Build propagator` in mxm original algorithm implementation.
+
+        Takes the list of patterns and builds an index data-structure that
+        maps an identifier and a direction into a list of identifiers that
+        may be adjacent to it.
+
+        :param patterns: The patterns to build the data-structure of.
+        """
+        # Pre-compute frontier matrix
+        frontiers = {}
+        for pat in patterns:
+            for d in directions:
+                frontier[(self.get_id(pat), d)] = matrix_frontier(pat, d)
+
+        # Build propagator
+        propagator = {}
+        for lap in patterns:
+            lap_id = self.get_id(lap)
+
+            matches = []
+            for d in directions:
+                for over in patterns:
+                    over_id = self.get_id(over)
+
+                    if frontier[(lap_id, d)] == frontier[(over_id, -d)]
+                        matches.append(over_id)
+            
+            propagator[(lap_id, d)] = matches
+
+        # This takes care of overwriting the old propagator
+        self.propagator = propagator
+        return self.propagator
 
     def render_pattern(self, identifier):
         for p, i in self.p2i.items():

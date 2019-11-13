@@ -1,5 +1,7 @@
 import numpy as np
 
+directions = [(x, y) for x in (-1, 0, 1) for y in (-1, 0, 1)]
+
 def overlapping_submatrices(matrix, size):
     n, m = matrix.shape
     submatrices = []
@@ -11,11 +13,8 @@ def overlapping_submatrices(matrix, size):
 
 
 def matrix_frontier(matrix, direction):
-    dx, dy = direction
-    d = [-1, 0, 1]
-
-    if not dx in d or not dy in d:
-        raise Exception(f"`dx` and `dy` must be one of [-1, 0, 1].")
+    if not direction in directions:
+        raise Exception(f"`direction` must be one of `directions`.")
 
     n, m = matrix.shape
     
@@ -38,4 +37,13 @@ def matrix_frontier(matrix, direction):
 
     return False
 
+def overlaps(lap, over):
+    
 
+    olaps = [(matrix_frontier(lap, d1), matrix_frontier(over, d2)) for d1 in directions for d2 in directions]
+    return filter(lambda x: x[0] == x[1], olaps)
+
+
+
+        
+    
