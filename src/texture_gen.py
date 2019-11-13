@@ -1,7 +1,7 @@
 import numpy as np
 
 from .wfc import WFCProblem
-from .utils import matrices, directions, matrix_frontier
+from .utils import matrices as mxs
 
 class TextureGeneration(WFCProblem):
     def __init__(self, example):
@@ -20,8 +20,11 @@ class TextureGeneration(WFCProblem):
         if size < 1:
             return []
 
-        return matrices.overlapping_submatrices(self.example, size)
+        return mxs.overlapping_submatrices(self.example, size)
 
+    def classify_patterns(self, patterns):
+        for pat in patterns:
+            self.classify_pattern(pat)
 
     def classify_pattern(self, pattern):
         """
@@ -59,8 +62,9 @@ class TextureGeneration(WFCProblem):
         # Pre-compute frontier matrix
         frontiers = {}
         for pat in patterns:
-            for d in directions:
-                frontier[(self.get_id(pat), d)] = matrix_frontier(pat, d)
+            for d in mxs.directions():
+                print(pat)
+                frontiers[(self.get_id(pat), d)] = mxs.matrix_frontier(pat, d)
 
         # Build propagator
         propagator = {}
@@ -68,11 +72,12 @@ class TextureGeneration(WFCProblem):
             lap_id = self.get_id(lap)
 
             matches = []
-            for d in directions:
+            for d in mxs.directions():
                 for over in patterns:
                     over_id = self.get_id(over)
 
-                    if frontier[(lap_id, d)] == frontier[(over_id, -d)]
+                    print(frontiers[(lap_id, d)], frontiers[(over_id, (-d[0], -d[1]))])
+                    if frontiers[(lap_id, d)] == frontiers[(over_id, (-d[0], -d[1]))]:
                         matches.append(over_id)
             
             propagator[(lap_id, d)] = matches
