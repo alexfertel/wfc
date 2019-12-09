@@ -10,6 +10,9 @@ class TextureGeneration(WFCProblem):
         self.p2i = {}
         self.pcount = 0
         self.propagator = {}
+        self.patterns = []
+
+
 
     def extract_patterns(self, size):
         """
@@ -20,7 +23,8 @@ class TextureGeneration(WFCProblem):
         if size < 1:
             return []
 
-        return mxs.overlapping_submatrices(self.example, size)
+        self.patterns = mxs.overlapping_submatrices(self.example, size)
+        return self.patterns
 
     def classify_patterns(self, patterns):
         for pat in patterns:
@@ -63,7 +67,7 @@ class TextureGeneration(WFCProblem):
         frontiers = {}
         for pat in patterns:
             for d in mxs.directions():
-                print(pat)
+                # print(pat)
                 frontiers[(self.get_id(pat), d)] = mxs.matrix_frontier(pat, d)
 
         # Build propagator
@@ -76,7 +80,7 @@ class TextureGeneration(WFCProblem):
                 for over in patterns:
                     over_id = self.get_id(over)
 
-                    print(frontiers[(lap_id, d)], frontiers[(over_id, (-d[0], -d[1]))])
+                    # print(frontiers[(lap_id, d)], frontiers[(over_id, (-d[0], -d[1]))])
                     if frontiers[(lap_id, d)] == frontiers[(over_id, (-d[0], -d[1]))]:
                         matches.append(over_id)
             
@@ -95,6 +99,30 @@ class TextureGeneration(WFCProblem):
                 return p
         return False
 
-    # def generate_4d(self, slots):
+    def generate(self, size):
+        h, w = size
 
+        # Each discretized tile in the output sample maintains a list
+        # of legal patterns that could define the pixel value(s) in that
+        # tile. Absent any constraints, such as at the start of the al-
+        # gorithm, every pattern is legal in any tile.
+        slots = np.empty(size)
+        for i in range(h): for j in range(w): slots[i][j] = [p for p in patterns]
+
+        # We maintain a boolean matrix that acts as our wave, i.e., if a tile
+        # has been collapsed, it's value is false
+        wave = np.ones(size)
+
+        # We have to precalculate each entropy, which would be 
+        
+
+        
+        while wave.sum() < h * w:
+            observe()
+            collapse()
+
+    # The problem is that we want to have the entropy of a tile, but in the
+    # paper the entropy gets computed from a pattern.
+    
+        
 
