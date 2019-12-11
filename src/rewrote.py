@@ -2,6 +2,10 @@ from collections import Counter
 import numpy as np
 import heapq as hq
 
+# 4-neighbourhood
+dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+
 class Pattern:
     def __init__(self, matrix, index):
         self.matrix = matrix
@@ -12,7 +16,9 @@ class Pattern:
         return self.matrix[0][0]
     
 class Slot:
-    def __init__(self):
+    def __init__(self, pos):
+        self.pos = pos
+
         # This is used when rendering the slot.
         self.color = None
 
@@ -42,6 +48,11 @@ class Slot:
         # slot in the heap, thus needing to know if a cell is collapsed
         # when popping it from the heap.
         self.collapsed = False
+
+        # This is used when propagating a pattern selection for
+        # a given slot. 
+        self.tile_enabler_counts = [[len(self.patterns) for _ in dirs] for _ in self.patterns]
+
 
     # Make the set of slots a lattice.
     def __lt__(self, other):
@@ -106,6 +117,9 @@ class WFC:
         # slot with the minimum entropy.
         self.heap = []
 
+        # This is the forward checking stack
+        self.stack = []
+
     # Preprocess input image to extract patterns, compute frequency hints
     # and build adjacency rules.
     def preprocess(self, example, n):
@@ -113,9 +127,6 @@ class WFC:
 
         # Extract patterns without wrapping.
         self.patterns = extract_patterns(example, n)
-
-        # 4-neighbourhood
-        dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
         # Learn adjacencies
         for p1, p2 in zip(self.patterns, self.patterns):
@@ -144,7 +155,7 @@ class WFC:
         x, y = pos
 
         slot = self.grid[x][y]
-        index = slot.choose_pattern()
+        index = slot.choose_pattern(self.frequency_hints)
 
         # TODO:
         # Since we chose a pattern to lock, should we do
@@ -156,6 +167,13 @@ class WFC:
         # other possibilities.
         # slot.possibilities = [False for i, p in enumerate(slot.possibilities) if i != index]
         slot.possibilities = [False for p in self.patterns if p.index != index]
+
+        # Update the color of the slot
+        slot.color = self.patterns[index].color
+
+        # for dx, dy in dirs:
+        #     self.stack.append((self.grid[x + dx][y + dy], -(dx, dy)))
+        self.stack.append(((x, y), index))
         
     def run(self, size):
         x, y = size
@@ -165,9 +183,10 @@ class WFC:
         # Retrieve the cell with the minimum entropy
         s = hp.heappop(self.heap)
 
-        # Sample a pattern
-        s.choose_pattern()
-
+        # Collapse the slot
+        self.collapse(s.pos)
+        
+        self.propagate()
 
 
     def init_grid(self):
@@ -180,18 +199,46 @@ class WFC:
         for i in range(x):
             for j in range(y):
                 s = Slot()
+                s.pos = (i, j)
                 s.possibilities = [True for _ in self.patterns]
                 s.patterns = self.patterns
                 s.sumOfWeights = sow
                 s.sumOfWeightsLogs = sowl
-
 
                 self.grid[i][j] = s
 
                 # Push the slot to the heap
                 hp.heappush(self.heap, s)
     
-    
+    def propagate(self):
+        # """
+        # Initially the stack has four elements, which are the neighbours 
+        # of the collapsed slot. 
+        # """
+        """
+        Initially, the stack has one element which is the first collapsed
+        slot in this iteration of the algorithm.
+        """
+
+        while self.stack:
+            # Get the top of the stack
+            (x, y), pat_index = self.stack.pop()
+
+            for dx, dy in dirs:
+                
+
+
+
+            # if not in_range(slot.pos) or slot.collapsed:
+            #     continue
+
+            
+            
+            
+
+    def in_range(self, pos):
+        x, y = pos
+        return 0 <= x < len(self.grid) and 0 <= y < len(self.grid[0])
 
 
 def compatible(p1, p2, d):
