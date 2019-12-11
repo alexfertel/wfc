@@ -18,6 +18,7 @@ class Slot:
 
         # This is the possibility space of the slot.
         self.possibilities = []
+        self.patterns = []
 
         # We maintain a cummulative frequency array, where we store
         # the relative frequencies, so when sampling the probability
@@ -68,21 +69,31 @@ class Slot:
         self.sumOfWeights -= frequency
         self.sumOfWeightsLogs -= np.log(frequency ** 2)
 
-    def choose_pattern(self):
+    def choose_pattern(self, fh):
         # Sample the uniform distribution
         sample = np.randint(self.sumOfWeights)
+
+        # Filter possible tiles
+        possible = [p for p in self.patterns if self.possibilities[i]]
+        
+        # Build a cummulative su tosamplefrom that
+        s = 0
+        cummulativeFrequencies = [] 
+        for p in self.patterns:
+            s += fh[p.index]
+            cummulativeFrequencies.append(s) 
 
         # Use binary search to get what pattern will be rendered
         index = np.searchsorted(self.cummulativeFrequencies, sample)
 
-        return index
+        return possible[index].index
 
 class WFC:
     def __init__(self):
         self.patterns = []
         self.adjacency_rules = {}
         
-        # How likely a given modules is to appear in any slot.
+        # How likely a given module is to appear in any slot.
         self.frequency_hints = Counter()
         self.p2i = {}
         self i2p = {}
@@ -90,6 +101,10 @@ class WFC:
         # Resulting grid
         # TODO: Include it as a parameter?
         self.grid = []
+
+        # This is the entropy heap. This will return the 
+        # slot with the minimum entropy.
+        self.heap = []
 
     # Preprocess input image to extract patterns, compute frequency hints
     # and build adjacency rules.
@@ -109,13 +124,11 @@ class WFC:
 
                 # Maybe this isn't needed.
                 self.adjacency_rules[(p2, p1, -d)] = compatible(p2, p1, -d)
-        
-        # 
-
 
 
     def extract_patterns(self, matrix, size):
         n, m = matrix.shape
+
         submatrices = []
         for i in range(n - size + 1):
             for j in range(m - size + 1):
@@ -141,8 +154,45 @@ class WFC:
 
         # Since we locked in a pattern, remove all
         # other possibilities.
-        slot.possibilities = [False for i, p in enumerate(slot.possibilities) if i != index]
+        # slot.possibilities = [False for i, p in enumerate(slot.possibilities) if i != index]
+        slot.possibilities = [False for p in self.patterns if p.index != index]
         
+    def run(self, size):
+        x, y = size
+        
+        init_grid(grid)
+
+        # Retrieve the cell with the minimum entropy
+        s = hp.heappop(self.heap)
+
+        # Sample a pattern
+        s.choose_pattern()
+
+
+
+    def init_grid(self):
+        self.grid = np.empty(size)
+        
+        sow = sum(self.frequency_hints.values())
+        sowl = sum([self.frequency_hints[p.index] * np.log(self.frequency_hints[p.index]) for p in self.patterns])
+
+        # Populate the grid with slots
+        for i in range(x):
+            for j in range(y):
+                s = Slot()
+                s.possibilities = [True for _ in self.patterns]
+                s.patterns = self.patterns
+                s.sumOfWeights = sow
+                s.sumOfWeightsLogs = sowl
+
+
+                self.grid[i][j] = s
+
+                # Push the slot to the heap
+                hp.heappush(self.heap, s)
+    
+    
+
 
 def compatible(p1, p2, d):
     return matrix_lap(p1, d) == matrix_lap(p2, -d)
