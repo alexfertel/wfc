@@ -49,9 +49,6 @@ class Slot:
         # when popping it from the heap.
         self.collapsed = False
 
-        # This is used when propagating a pattern selection for
-        # a given slot. 
-        self.tile_enabler_counts = [[len(self.patterns) for _ in dirs] for _ in self.patterns]
 
 
     # Make the set of slots a lattice.
@@ -120,6 +117,9 @@ class WFC:
         # This is the forward checking stack
         self.stack = []
 
+        # When this is zero, we finished generating
+        self.uncollapsed_count = 0
+
     # Preprocess input image to extract patterns, compute frequency hints
     # and build adjacency rules.
     def preprocess(self, example, n):
@@ -173,23 +173,30 @@ class WFC:
 
         # for dx, dy in dirs:
         #     self.stack.append((self.grid[x + dx][y + dy], -(dx, dy)))
-        self.stack.append(((x, y), index))
+        self.stack.append((x, y))
         
+        self.uncollapsed_count += 1
+
     def run(self, size):
         x, y = size
         
-        init_grid(grid)
+        # So ugly! T_T
+        init_grid(size)
 
-        # Retrieve the cell with the minimum entropy
-        s = hp.heappop(self.heap)
+        # There are N * M uncollapsed cells (the size of the grid)
+        # at the beginning.
+        self.uncollapsed_count = x * y
+        while self.uncollapsed_count:
+            # Retrieve the cell with the minimum entropy
+            s = hp.heappop(self.heap)
 
-        # Collapse the slot
-        self.collapse(s.pos)
-        
-        self.propagate()
+            # Collapse the slot
+            self.collapse(s.pos)
+            
+            self.propagate()
 
 
-    def init_grid(self):
+    def init_grid(self, size):
         self.grid = np.empty(size)
         
         sow = sum(self.frequency_hints.values())
@@ -211,26 +218,49 @@ class WFC:
                 hp.heappush(self.heap, s)
     
     def propagate(self):
-        # """
-        # Initially the stack has four elements, which are the neighbours 
-        # of the collapsed slot. 
-        # """
-        """
-        Initially, the stack has one element which is the first collapsed
-        slot in this iteration of the algorithm.
-        """
-
         while self.stack:
-            # Get the top of the stack
-            (x, y), pat_index = self.stack.pop()
+            x, y = self.stack.pop()
+            (dx, dy) = pattern_size = self.patterns[0].shape
 
-            for dx, dy in dirs:
-                
+            # Iterate over every slot that
+            # may have patterns in common with 
+            # latest collapsed slot
+            for i in range(x - dx + 1, x + 1):
+                for j in range(y - dy + 1, y + 1):
+                    slot = self.grid[i][j]
+
+                    # If it is out of the grid, ignore.
+                    # If it has already been collapsed, ignore
+                    if not in_range(slot.pos) or slot.collapsed:
+                        continue
+                    
+                    # For each pattern in the possibility space
+                    # of this slot, try fitting it here, which
+                    # means (matching it with the current collapsed
+                    # slots on the grid) seeing if it matches with
+                    # the recently collapsed slot.
+                    new_possibilities = []
+                    for pattern in slot.possibilities:
+                        if pattern.matrix[dx - i][dy - j] == slot.color:
+                            new_possibilities.append(pattern)
+                    
+                    # Update the possibility space removing the 
+                    # patterns that would break the generation
+                    # with sort of a forward checking algorithm.
+                    slot.possibilities = new_possibilities
+
+                    # Contradiction! We have to start again
+                    if not len(new_possibilities):
+                        raise Exception("Contradiction!")
+
+                    # We may collapse this cell
+                    if len(new_possibilities) == 1:
+                        self.collapse(slot.pos)                        
 
 
 
-            # if not in_range(slot.pos) or slot.collapsed:
-            #     continue
+        # Update slot colors
+
 
             
             
@@ -258,5 +288,4 @@ def matrix_lap(matrix, direction):
         return matrix[:, :-1]
 
     return False
-
 
