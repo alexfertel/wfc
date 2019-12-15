@@ -12,7 +12,7 @@ import time
 class WFC:
     def __init__(self):
         self.patterns = []
-        # self.adjacency_rules = {}
+        self.adjacency_rules = {}
         
         # How likely a given module is to appear in any slot.
         self.weights = []
@@ -30,12 +30,17 @@ class WFC:
         self.patterns = self.extract_patterns(matrix, n)
 
         # Learn adjacencies
-        # for p1, p2 in zip(self.patterns, self.patterns):
-        #     for d in dirs:
-                # self.adjacency_rules[(p1, p2, d)] = compatible(p1, p2, d)
+        for p1 in self.patterns:
+            for p2 in self.patterns:
+                for d in dirs:
+                    self.adjacency_rules[(p1.index, p2.index, d)] = compatible(p1, p2, d)
 
-                # Maybe this isn't needed.
-                # self.adjacency_rules[(p2, p1, -d)] = compatible(p2, p1, -d)
+                    # Maybe this isn't needed.
+                    self.adjacency_rules[(p2.index, p1.index, (-d[0], -d[1]))] = compatible(p2, p1, (-d[0], -d[1]))
+
+        # for item in self.patterns:
+        #    pprint(item.matrix) 
+        # pprint(self.adjacency_rules)
 
 
     def extract_patterns(self, matrix, size):
@@ -76,14 +81,17 @@ class WFC:
         # Since we locked in a pattern, remove all
         # other possibilities.
         # slot.possibilities = [False for i, p in enumerate(slot.possibilities) if i != index]
-        slot.possibilities = [False for p in self.patterns if p.index != index]
+        for p in self.patterns:
+            if p.index != index:
+                slot.possibilities[p.index] = False
+        # slot.possibilities = [False for p in self.patterns if p.index != index]
 
         # Update the color of the slot
         slot.color = self.patterns[index].color
 
         # for dx, dy in dirs:
         #     self.stack.append((self.grid[x + dx][y + dy], -(dx, dy)))
-        self.stack.append((x, y))
+        self.stack.append(((x, y), index))
         
         self.uncollapsed_count -= 1
 
@@ -155,89 +163,134 @@ class WFC:
     
     def propagate(self):
         while self.stack:
-            x, y = self.stack.pop()
-            (dx, dy) = pattern_size = self.patterns[0].matrix.shape
-            # collapsed_slot = self.grid[x][y]
+            (x, y), index = self.stack.pop()
+            # (dx, dy) = pattern_size = self.patterns[0].matrix.shape
+            collapsed_slot = self.grid[x][y]
 
             # Iterate over every slot that
             # may have patterns in common with 
             # latest collapsed slot
             # print(x, y, dx, dy)
-            for i in range(x - dx + 1, x + 1):
-                for j in range(y - dy + 1, y + 1):
-                    # If it is out of the grid, ignore.
-                    # If it has already been collapsed, ignore
-                    if not self.in_range((i, j)):
-                        continue
 
-                    slot = self.grid[i][j]
+            for d in dirs:
+                dx, dy = d
+                if not self.in_range((x + dx, y + dy)):
+                    continue
 
-                    if slot.collapsed:
-                        continue
+                slot = self.grid[x + dx][y + dy]
+
+                if slot.collapsed:
+                    continue
+
+                # possibilities_count = sum(slot.possibilities)
+                for p in self.patterns:
+                    if not self.adjacency_rules[(index, p.index, d)]:
+                        
+                        # pprint(self.patterns[index].matrix)
+                        # pprint(p.matrix)
+                        # pprint(d)
+                        # pprint(p.index)
+                        # pprint(slot.possibilities)
+                        slot.remove_pattern(p, self.weights)
+                        # possibilities_count -= 1                            
+                        # pprint(collapsed_slot.pos)
+                        # pprint(slot.pos)
+                        # print(f"Collapsing slot {collapsed_slot.pos} with pattern")
+                        # pprint(self.patterns[index].matrix)
+                        # print(f"removed pattern \n{p.matrix}\n for slot {slot.pos}")
+
+
+                        # Contradiction! We have to start again
+                        if not sum(slot.possibilities):
+                            # pprint(collapsed_slot.pos)
+                            # pprint(slot.pos)
+                            
+                            # pprint(slot.possibilities)
+                            return False
+                            # raise Exception("Contradiction!")
+
+
+                                        
+                # We may collapse this cell
+                if sum(slot.possibilities) == 1:
+                    self.collapse(slot.pos)                        
+
+                self.entropies[x + dx][y + dy] = slot.entropy
+            # for i in range(x - dx + 1, x + 1):
+            #     for j in range(y - dy + 1, y + 1):
+            #         # If it is out of the grid, ignore.
+            #         # If it has already been collapsed, ignore
+            #         if not self.in_range((i, j)):
+            #             continue
+
+            #         slot = self.grid[i][j]
+
+            #         if slot.collapsed:
+            #             continue
                     
-                    # For each pattern in the possibility space
-                    # of this slot, try fitting it here, which
-                    # means (matching it with the current collapsed
-                    # slots on the grid) seeing if it matches with
-                    # the recently collapsed slot.
+            #         # For each pattern in the possibility space
+            #         # of this slot, try fitting it here, which
+            #         # means (matching it with the current collapsed
+            #         # slots on the grid) seeing if it matches with
+            #         # the recently collapsed slot.
                     
-                    possibilities_count = sum(slot.possibilities)
-                    for pattern in slot.patterns:
-                        # print(pattern.matrix)
-                        # print(i, j)
-                        # print(dx, dy)
-                        # print(pattern.matrix[x - i][y - j])
-                        # print(slot.color)
-                        # print(collapsed_slot.color)
+            #         possibilities_count = sum(slot.possibilities)
+            #         for pattern in slot.patterns:
+            #             # print(pattern.matrix)
+            #             # print(i, j)
+            #             # print(dx, dy)
+            #             # print(pattern.matrix[x - i][y - j])
+            #             # print(slot.color)
+            #             # print(collapsed_slot.color)
 
-                        if slot.possibilities[pattern.index]:
-                            for n in range(dx):
-                                for m in range(dy):
-                                    if not self.in_range((i + n, j + m)):
-                                        continue
+            #             if slot.possibilities[pattern.index]:
+            #                 for n in range(dx):
+            #                     for m in range(dy):
+            #                         if not self.in_range((i + n, j + m)):
+            #                             continue
 
-                                    subslot = self.grid[i + n][j + m]
+            #                         subslot = self.grid[i + n][j + m]
 
-                                    if subslot.color == -1:
-                                        continue
+            #                         if subslot.color == -1:
+            #                             continue
 
-                                    if pattern.matrix[n][m] != subslot.color:
-                                        slot.remove_pattern(pattern, self.weights)
-                                        possibilities_count -= 1                            
+            #                         if pattern.matrix[n][m] != subslot.color:
+            #                             slot.remove_pattern(pattern, self.weights)
+            #                             possibilities_count -= 1                            
 
-                                        # Contradiction! We have to start again
-                                        if not possibilities_count:
-                                            self.restart()
-                                            return False
-                                            # raise Exception("Contradiction!")
+            #                             # Contradiction! We have to start again
+            #                             if not possibilities_count:
+            #                                 self.restart()
+            #                                 return False
+            #                                 # raise Exception("Contradiction!")
 
-                                        self.entropies[i][j] = slot.entropy
+            #                             self.entropies[i][j] = slot.entropy
 
 
-                        # if slot.possibilities[pattern.index] and pattern.matrix[x - i][y - j] != collapsed_slot.color:
-                            # slot.remove_pattern(pattern, self.weights)
-                            # possibilities_count -= 1                            
+            #             # if slot.possibilities[pattern.index] and pattern.matrix[x - i][y - j] != collapsed_slot.color:
+            #                 # slot.remove_pattern(pattern, self.weights)
+            #                 # possibilities_count -= 1                            
 
-                            # # Contradiction! We have to start again
-                            # if not possibilities_count:
-                            #     self.restart()
-                            #     return False
-                            #     # raise Exception("Contradiction!")
+            #                 # # Contradiction! We have to start again
+            #                 # if not possibilities_count:
+            #                 #     self.restart()
+            #                 #     return False
+            #                 #     # raise Exception("Contradiction!")
 
-                            # self.entropies[i][j] = slot.entropy
-                            # new_patterns.append(pattern)
-                        # else:
-                            # slot.possibilities[pattern.index] = False
+            #                 # self.entropies[i][j] = slot.entropy
+            #                 # new_patterns.append(pattern)
+            #             # else:
+            #                 # slot.possibilities[pattern.index] = False
                     
-                    # Update the possibility space removing the 
-                    # patterns that would break the generation
-                    # with sort of a forward checking algorithm.
-                    # slot.patterns = new_patterns
+            #         # Update the possibility space removing the 
+            #         # patterns that would break the generation
+            #         # with sort of a forward checking algorithm.
+            #         # slot.patterns = new_patterns
 
 
-                    # We may collapse this cell
-                    if possibilities_count == 1:
-                        self.collapse(slot.pos)                        
+            #         # We may collapse this cell
+            #         if possibilities_count == 1:
+            #             self.collapse(slot.pos)                        
 
         return True
 
@@ -273,21 +326,28 @@ class WFC:
         return 0 <= x < len(self.grid) and 0 <= y < len(self.grid[0])
 
 
-# def compatible(p1, p2, d):
-#     return matrix_lap(p1, d) == matrix_lap(p2, -d)
+def compatible(p1, p2, d):
+    x, y = d
+    m1 = matrix_lap(p1.matrix, (x, y))
+    m2 = matrix_lap(p2.matrix, (-x, -y))
+    # print(m1, m2)
+    return (m1 == m2).all()
 
 
-# def matrix_lap(matrix, direction):
-#     n, m = matrix.shape
+
+def matrix_lap(matrix, direction):
+    # print((matrix[: -1, :] == [[0,0,0],[0,1,1]]))
+    # matrix = np.asarray(matrix)
+    n, m = matrix.shape
     
-#     if direction == (0, -1):  # North
-#         return matrix[: -1, :]
-#     if direction == (1, 0):  # East
-#         return matrix[:, 1:]
-#     if direction == (0, 1):  # South
-#         return matrix[1:, :]
-#     if direction == (-1, 0):  # West
-#         return matrix[:, :-1]
+    if direction == (0, -1):  # North
+        return matrix[: -1, :]
+    if direction == (1, 0):  # East
+        return matrix[:, 1:]
+    if direction == (0, 1):  # South
+        return matrix[1:, :]
+    if direction == (-1, 0):  # West
+        return matrix[:, :-1]
 
-#     return False
+    return False
 

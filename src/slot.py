@@ -60,15 +60,16 @@ class Slot:
         return np.log(self.sumOfWeights) - (self.sumOfWeightsLogs) / self.sumOfWeights + self.noise
 
     def remove_pattern(self, pattern, weights):
-        # Remove pattern from possibility space.
-        self.possibilities[pattern.index] = False
+        if self.possibilities[pattern.index]:
+            # Remove pattern from possibility space.
+            self.possibilities[pattern.index] = False
 
-        # This is the relative frequency of the pattern.
-        frequency = weights[pattern.index]
+            # This is the relative frequency of the pattern.
+            frequency = weights[pattern.index]
 
-        # Update the entropy to maintain its computation constant.
-        self.sumOfWeights -= frequency
-        self.sumOfWeightsLogs -= frequency * np.log(frequency)
+            # Update the entropy to maintain its computation constant.
+            self.sumOfWeights -= frequency
+            self.sumOfWeightsLogs -= frequency * np.log(frequency)
 
     def choose_pattern(self, weights):
         # Sample the uniform distribution

@@ -25,12 +25,15 @@ def main():
         [0, 1, 1, 1],
         ]
 
-    wfc.preprocess(red_maze, 3)
+    wfc.preprocess(red_maze, 2)
     # pprint(wfc.frequency_hints)
 
 
-    grid = wfc.run((10, 10))
-    pprint(grid)
+    grid = wfc.run((28, 28))
+    for row in grid:
+        print(row)
+    
+    # print(grid)
     
     # for _ in range(50):
     #     grid = wfc.run((15, 15))
