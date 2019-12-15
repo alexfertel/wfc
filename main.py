@@ -11,13 +11,13 @@ def main():
     # This is the example used in the paper:
     # "WaveFunctionCollapse is Constraint Solving in the Wild"
     # called "Red Maze".
-    red_maze = [
-        [0, 0, 0, 0, 0],
-        [0, 1, 1, 1, 0],
-        [0, 1, 2, 1, 0],
-        [0, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0]
-        ]
+    # red_maze = [
+    #     [0, 0, 0, 0, 0],
+    #     [0, 1, 1, 1, 0],
+    #     [0, 1, 2, 1, 0],
+    #     [0, 1, 1, 1, 0],
+    #     [0, 0, 0, 0, 0]
+    #     ]
     red_maze = [
         [0, 0, 0, 0],
         [0, 1, 1, 1],
@@ -26,16 +26,18 @@ def main():
         ]
 
     wfc.preprocess(red_maze, 2)
+    grid = wfc.run((10, 10))
+    pprint(grid)
     
-    for _ in range(50):
-        grid = wfc.run((15, 15))
+    # for _ in range(50):
+    #     grid = wfc.run((15, 15))
 
-        for i in range(15):
-            for j in range(15):
-                if grid[i][j] == 2:
-                    print("Found one!")
-                    pprint(grid)
-                    break
+    #     for i in range(15):
+    #         for j in range(15):
+    #             if grid[i][j] == 2:
+    #                 print("Found one!")
+    #                 pprint(grid)
+    #                 break
 
 
     # for item in wfc.patterns:
