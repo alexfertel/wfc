@@ -59,39 +59,24 @@ class Slot:
         if self.collapsed: return float('inf')  # Maybe this doesn't make sense, should be checked
         return np.log(self.sumOfWeights) - (self.sumOfWeightsLogs) / self.sumOfWeights + self.noise
 
-    def remove_pattern(self, pattern, frequency_hints):
+    def remove_pattern(self, pattern, weights):
         # Remove pattern from possibility space.
         self.possibilities[pattern.index] = False
 
         # This is the relative frequency of the pattern.
-        frequency = frequency_hints[pattern.index]
+        frequency = weights[pattern.index]
 
         # Update the entropy to maintain its computation constant.
         self.sumOfWeights -= frequency
-        self.sumOfWeightsLogs -= np.log(frequency ** 2)
+        self.sumOfWeightsLogs -= frequency * np.log(frequency)
 
-    def choose_pattern(self, fh):
+    def choose_pattern(self, weights):
         # Sample the uniform distribution
-        sample = np.random.randint(self.sumOfWeights)
+        p = []
+        for pattern in self.patterns:
+            if self.possibilities[pattern.index]:
+                for _ in range(weights[pattern.index]):
+                    p.append(pattern.index)
 
-        # Filter possible tiles
-        # print(len(self.possibilities))
-        # print(len(self.patterns))
-        possible = []
-        for p in self.patterns:
-            if self.possibilities:
-                possible.append(p)
-                
-        # possible = [p for p in self.patterns if self.possibilities[p.index]]
-        
-        # Build a cummulative sum to sample from
-        s = 0
-        cummulativeFrequencies = [] 
-        for p in self.patterns:
-            s += fh[p.index]
-            cummulativeFrequencies.append(s) 
 
-        # Use binary search to get what pattern will be rendered
-        index = np.searchsorted(self.cummulativeFrequencies, sample)
-
-        return possible[index].index
+        return np.random.choice(p)

@@ -15,9 +15,9 @@ class WFC:
         # self.adjacency_rules = {}
         
         # How likely a given module is to appear in any slot.
-        self.frequency_hints = Counter()
-        self.p2i = {}
-        self.i2p = {}
+        self.weights = []
+        # self.p2i = {}
+        # self.i2p = {}
 
         self.restart()
 
@@ -56,8 +56,7 @@ class WFC:
         unique, counts = np.unique(submatrices, return_counts=True, axis=0)
         patterns = [Pattern(pat, index) for index, pat in enumerate(unique)]
 
-        for pattern in patterns:
-            self.frequency_hints[pattern.index] = counts[pattern.index]
+        self.weights = np.array(counts)
 
         return patterns
 
@@ -66,7 +65,7 @@ class WFC:
         x, y = pos
 
         slot = self.grid[x][y]
-        index = slot.choose_pattern(self.frequency_hints)
+        index = slot.choose_pattern(self.weights)
 
         # TODO:
         # Since we chose a pattern to lock, should we do
@@ -96,11 +95,10 @@ class WFC:
         x, y = size
 
         if max_contradictions_allowed < 0:
-            return np.zeros(size) 
+            return np.zeros(size)
 
         self.restart()
 
-        
         # So ugly! T_T
         self.init_grid(size)
 
@@ -109,8 +107,8 @@ class WFC:
         self.uncollapsed_count = x * y
         propagated = True
         while propagated and self.uncollapsed_count:
-            # time.sleep(1)
-            # pprint(self.entropies)
+            time.sleep(1)
+            pprint(self.entropies)
             # Retrieve the cell with the minimum entropy
             # print(len(self.heap))
             # s = hq.heappop(self.heap)
@@ -125,7 +123,6 @@ class WFC:
 
         if not propagated:
             print("Contradiction")
-        # return render(self.grid) if propagated else self.run(size, max_contradictions_allowed - 1)
         return render(self.grid) if propagated else self.run(size, max_contradictions_allowed - 1)
 
     def init_grid(self, size):
@@ -134,8 +131,8 @@ class WFC:
         self.grid = [[0 for _ in range(y)] for _ in range(x)]
         self.entropies = np.ones(size)
         
-        sow = sum(self.frequency_hints.values())
-        sowl = sum([self.frequency_hints[p.index] * np.log(self.frequency_hints[p.index]) for p in self.patterns])
+        sow = sum(self.weights)
+        sowl = sum([self.weights[p.index] * np.log(self.weights[p.index]) for p in self.patterns])
 
         # Populate the grid with slots
         for i in range(x):
@@ -184,7 +181,7 @@ class WFC:
                     # slots on the grid) seeing if it matches with
                     # the recently collapsed slot.
                     
-                    new_patterns = []
+                    possibilities_count = sum(slot.possibilities)
                     for pattern in slot.patterns:
                         # print(pattern.matrix)
                         # print(i, j)
@@ -193,24 +190,29 @@ class WFC:
                         # print(slot.color)
                         # print(collapsed_slot.color)
 
-                        if pattern.matrix[x - i][y - j] == collapsed_slot.color:
-                            new_patterns.append(pattern)
-                        else:
-                            slot.possibilities[pattern.index] = False
+                        if slot.possibilities[pattern.index] and pattern.matrix[x - i][y - j] != collapsed_slot.color:
+                            slot.remove_pattern(pattern, self.weights)
+                            possibilities_count -= 1                            
+
+                            # Contradiction! We have to start again
+                            if not possibilities_count:
+                                self.restart()
+                                return False
+                                # raise Exception("Contradiction!")
+
+                            self.entropies[i][j] = slot.entropy
+                            # new_patterns.append(pattern)
+                        # else:
+                            # slot.possibilities[pattern.index] = False
                     
                     # Update the possibility space removing the 
                     # patterns that would break the generation
                     # with sort of a forward checking algorithm.
-                    slot.patterns = new_patterns
+                    # slot.patterns = new_patterns
 
-                    # Contradiction! We have to start again
-                    if not len(new_patterns):
-                        self.restart()
-                        return False
-                        # raise Exception("Contradiction!")
 
                     # We may collapse this cell
-                    if len(new_patterns) == 1:
+                    if possibilities_count == 1:
                         self.collapse(slot.pos)                        
 
         return True

@@ -29,7 +29,7 @@ def main():
     # pprint(wfc.frequency_hints)
 
 
-    grid = wfc.run((5, 5))
+    grid = wfc.run((10, 10))
     pprint(grid)
     
     # for _ in range(50):
