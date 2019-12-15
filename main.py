@@ -25,7 +25,7 @@ def main():
         [0, 1, 1, 1],
         ]
 
-    wfc.preprocess(red_maze, 2)
+    wfc.preprocess(red_maze, 3)
     # pprint(wfc.frequency_hints)
 
 

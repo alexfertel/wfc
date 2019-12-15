@@ -107,8 +107,8 @@ class WFC:
         self.uncollapsed_count = x * y
         propagated = True
         while propagated and self.uncollapsed_count:
-            time.sleep(1)
-            pprint(self.entropies)
+            # time.sleep(1)
+            # pprint(self.entropies)
             # Retrieve the cell with the minimum entropy
             # print(len(self.heap))
             # s = hq.heappop(self.heap)
@@ -157,7 +157,7 @@ class WFC:
         while self.stack:
             x, y = self.stack.pop()
             (dx, dy) = pattern_size = self.patterns[0].matrix.shape
-            collapsed_slot = self.grid[x][y]
+            # collapsed_slot = self.grid[x][y]
 
             # Iterate over every slot that
             # may have patterns in common with 
@@ -190,17 +190,41 @@ class WFC:
                         # print(slot.color)
                         # print(collapsed_slot.color)
 
-                        if slot.possibilities[pattern.index] and pattern.matrix[x - i][y - j] != collapsed_slot.color:
-                            slot.remove_pattern(pattern, self.weights)
-                            possibilities_count -= 1                            
+                        if slot.possibilities[pattern.index]:
+                            for n in range(dx):
+                                for m in range(dy):
+                                    if not self.in_range((i + n, j + m)):
+                                        continue
 
-                            # Contradiction! We have to start again
-                            if not possibilities_count:
-                                self.restart()
-                                return False
-                                # raise Exception("Contradiction!")
+                                    subslot = self.grid[i + n][j + m]
 
-                            self.entropies[i][j] = slot.entropy
+                                    if subslot.color == -1:
+                                        continue
+
+                                    if pattern.matrix[n][m] != subslot.color:
+                                        slot.remove_pattern(pattern, self.weights)
+                                        possibilities_count -= 1                            
+
+                                        # Contradiction! We have to start again
+                                        if not possibilities_count:
+                                            self.restart()
+                                            return False
+                                            # raise Exception("Contradiction!")
+
+                                        self.entropies[i][j] = slot.entropy
+
+
+                        # if slot.possibilities[pattern.index] and pattern.matrix[x - i][y - j] != collapsed_slot.color:
+                            # slot.remove_pattern(pattern, self.weights)
+                            # possibilities_count -= 1                            
+
+                            # # Contradiction! We have to start again
+                            # if not possibilities_count:
+                            #     self.restart()
+                            #     return False
+                            #     # raise Exception("Contradiction!")
+
+                            # self.entropies[i][j] = slot.entropy
                             # new_patterns.append(pattern)
                         # else:
                             # slot.possibilities[pattern.index] = False
