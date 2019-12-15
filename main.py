@@ -3,6 +3,7 @@
 import sys
 # from tests.test_texture_gen import test_pattern_extraction, test_build_propagator
 from src.wfc import WFC
+from src.graphics import Texture
 from pprint import pprint
 
 def main():
@@ -18,21 +19,28 @@ def main():
     #     [0, 1, 1, 1, 0],
     #     [0, 0, 0, 0, 0]
     #     ]
-    red_maze = [
-        [0, 0, 0, 0],
-        [0, 1, 1, 1],
-        [0, 1, 2, 1],
-        [0, 1, 1, 1],
-        ]
+    # red_maze = [
+    #     [0, 0, 0, 0],
+    #     [0, 1, 1, 1],
+    #     [0, 1, 2, 1],
+    #     [0, 1, 1, 1],
+    #     ]
 
+    tex = Texture("Red Maze")
+
+    red_maze = tex.sample
     wfc.preprocess(red_maze, 2)
     # pprint(wfc.frequency_hints)
 
 
-    grid = wfc.run((28, 28))
-    for row in grid:
-        print(row)
+    wfc.run((5, 5), 50)
     
+    for row in wfc.history[-1]:
+        print(row)
+
+    tex.save(wfc.history[-1])
+
+
     # print(grid)
     
     # for _ in range(50):
@@ -50,6 +58,8 @@ def main():
     #    pprint(item.matrix) 
 
 
+def samples(name):
+    tex = Texture(name)
 
 def tests():
     test_pattern_extraction()
@@ -58,6 +68,9 @@ def tests():
 if __name__ == "__main__":
     if "--debug" in sys.argv:
         tests() 
+        exit()
+    if "--sample" in sys.argv:
+        samples(sys.argv[2]) 
         exit()
 
     main()

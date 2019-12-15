@@ -128,10 +128,15 @@ class WFC:
             # pprint(self.grid)
             propagated = self.propagate()
 
+            self.history.append(self.grid.copy())
+
+
 
         if not propagated:
             print("Contradiction")
         return render(self.grid) if propagated else self.run(size, max_contradictions_allowed - 1)
+
+
 
     def init_grid(self, size):
         x, y = size
@@ -160,6 +165,7 @@ class WFC:
                 # Push the slot to the heap
                 # hq.heappush(self.heap, s)
 
+        self.history.append(self.grid.copy())
     
     def propagate(self):
         while self.stack:
@@ -320,6 +326,8 @@ class WFC:
 
         # # When this is zero, we finished generating
         # self.uncollapsed_count = 0
+
+        self.history = []
 
     def in_range(self, pos):
         x, y = pos
