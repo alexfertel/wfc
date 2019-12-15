@@ -7,7 +7,7 @@ from .utils import dirs, render
 
 import numpy as np
 import heapq as hq
-
+import time
 
 class WFC:
     def __init__(self):
@@ -44,12 +44,22 @@ class WFC:
         submatrices = []
         for i in range(n - size + 1):
             for j in range(m - size + 1):
-                pat = Pattern(matrix[i: i + size, j: j + size])
-                pat.index = len(submatrices)
-                self.frequency_hints[pat.index] += 1
-                submatrices.append(pat)
+                sm = matrix[i: i + size, j: j + size]
+                submatrices.append(sm)
 
-        return submatrices
+                # Add rotations. We argue reflections
+                # and rotations should be allowed not always
+                for _ in range(3):
+                    sm = np.rot90(sm)
+                    submatrices.append(sm)
+
+        unique, counts = np.unique(submatrices, return_counts=True, axis=0)
+        patterns = [Pattern(pat, index) for index, pat in enumerate(unique)]
+
+        for pattern in patterns:
+            self.frequency_hints[pattern.index] = counts[pattern.index]
+
+        return patterns
 
     
     def collapse(self, pos):
@@ -76,7 +86,11 @@ class WFC:
         #     self.stack.append((self.grid[x + dx][y + dy], -(dx, dy)))
         self.stack.append((x, y))
         
-        # self.uncollapsed_count -= 1
+        self.uncollapsed_count -= 1
+
+        # Update this slot's entropy
+        self.entropies[x][y] = slot.entropy
+
 
     def run(self, size, max_contradictions_allowed=10):
         x, y = size
@@ -92,12 +106,15 @@ class WFC:
 
         # There are N * M uncollapsed cells (the size of the grid)
         # at the beginning.
-        # self.uncollapsed_count = x * y
+        self.uncollapsed_count = x * y
         propagated = True
-        while propagated and self.heap:
+        while propagated and self.uncollapsed_count:
+            # time.sleep(1)
+            # pprint(self.entropies)
             # Retrieve the cell with the minimum entropy
             # print(len(self.heap))
-            s = hq.heappop(self.heap)
+            # s = hq.heappop(self.heap)
+            s = self.observe()
 
             # Collapse the slot
             self.collapse(s.pos)
@@ -106,12 +123,16 @@ class WFC:
             propagated = self.propagate()
 
 
+        if not propagated:
+            print("Contradiction")
+        # return render(self.grid) if propagated else self.run(size, max_contradictions_allowed - 1)
         return render(self.grid) if propagated else self.run(size, max_contradictions_allowed - 1)
 
     def init_grid(self, size):
         x, y = size
 
         self.grid = [[0 for _ in range(y)] for _ in range(x)]
+        self.entropies = np.ones(size)
         
         sow = sum(self.frequency_hints.values())
         sowl = sum([self.frequency_hints[p.index] * np.log(self.frequency_hints[p.index]) for p in self.patterns])
@@ -128,8 +149,12 @@ class WFC:
 
                 self.grid[i][j] = s
 
+                # Update the entropy
+                self.entropies[i][j] = s.entropy
+
                 # Push the slot to the heap
-                hq.heappush(self.heap, s)
+                # hq.heappush(self.heap, s)
+
     
     def propagate(self):
         while self.stack:
@@ -166,6 +191,7 @@ class WFC:
                         # print(dx, dy)
                         # print(pattern.matrix[x - i][y - j])
                         # print(slot.color)
+                        # print(collapsed_slot.color)
 
                         if pattern.matrix[x - i][y - j] == collapsed_slot.color:
                             new_patterns.append(pattern)
@@ -191,6 +217,11 @@ class WFC:
 
         # Update slot colors
 
+    def observe(self):
+        index = np.argmin(self.entropies)
+        i, j = np.unravel_index(index, self.entropies.shape)
+        slot = self.grid[i][j]
+        return slot
 
             
     def restart(self):
@@ -200,7 +231,10 @@ class WFC:
 
         # This is the entropy heap. This will return the 
         # slot with the minimum entropy.
-        self.heap = []
+        # self.heap = []
+
+        # # For now we'll use a matrix to store entropies
+        # self.entropies = np.array()
 
         # This is the forward checking stack
         self.stack = []

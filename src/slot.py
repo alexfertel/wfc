@@ -56,7 +56,7 @@ class Slot:
         entropy definition and we apply a random noise to avoid
         having to break ties.
         """
-        if self.collapsed: return 0  # Maybe this doesn't make sense, should be checked
+        if self.collapsed: return float('inf')  # Maybe this doesn't make sense, should be checked
         return np.log(self.sumOfWeights) - (self.sumOfWeightsLogs) / self.sumOfWeights + self.noise
 
     def remove_pattern(self, pattern, frequency_hints):
