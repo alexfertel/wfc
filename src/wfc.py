@@ -63,6 +63,9 @@ class WFC:
                     sm = np.rot90(sm)
                     submatrices.append(sm)
 
+                    sm = np.flip(sm)
+                    submatrices.append(sm)
+
         unique, counts = np.unique(submatrices, return_counts=True, axis=0)
         patterns = [Pattern(pat, index) for index, pat in enumerate(unique)]
 
