@@ -1,11 +1,11 @@
 # 4-neighbourhood
 dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-
+# dirs = [(x, y) for x in (-1, 0, 1) for y in (-1, 0, 1) if x != 0 or y != 0]
 
 import numpy as np
 
 def directions():
-    return [(x, y) for x in (-1, 0, 1) for y in (-1, 0, 1)]
+    return [(x, y) for x in (-1, 0, 1) for y in (-1, 0, 1) if x != 0 or y != 0]
 
 def overlapping_submatrices(matrix, size):
     n, m = matrix.shape

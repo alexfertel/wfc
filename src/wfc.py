@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import defaultdict
 from pprint import pprint
 
 from .pattern import Pattern
@@ -12,7 +12,7 @@ import time
 class WFC:
     def __init__(self):
         self.patterns = []
-        self.adjacency_rules = {}
+        self.adjacency_rules = defaultdict(list)
         
         # How likely a given module is to appear in any slot.
         self.weights = []
@@ -32,11 +32,16 @@ class WFC:
         # Learn adjacencies
         for p1 in self.patterns:
             for p2 in self.patterns:
-                for d in dirs:
-                    self.adjacency_rules[(p1.index, p2.index, d)] = compatible(p1, p2, d)
+                for x, y in dirs:
+                    d = (x, y)
+                    if compatible(p1, p2, d):
+                        self.adjacency_rules[(p1.index, d)].append(p2.index)
+                        self.adjacency_rules[(p2.index, (-x, -y))].append(p1.index)
 
-                    # Maybe this isn't needed.
-                    self.adjacency_rules[(p2.index, p1.index, (-d[0], -d[1]))] = compatible(p2, p1, (-d[0], -d[1]))
+                    # self.adjacency_rules[(p1.index, p2.index, d)] = compatible(p1, p2, d)
+
+                    # # Maybe this isn't needed.
+                    # self.adjacency_rules[(p2.index, p1.index, (-d[0], -d[1]))] = compatible(p2, p1, (-d[0], -d[1]))
 
         # for item in self.patterns:
         #    pprint(item.matrix) 
@@ -91,7 +96,7 @@ class WFC:
 
         # for dx, dy in dirs:
         #     self.stack.append((self.grid[x + dx][y + dy], -(dx, dy)))
-        self.stack.append(((x, y), index))
+        self.stack.append((x, y))
         
         self.uncollapsed_count -= 1
 
@@ -117,6 +122,9 @@ class WFC:
         while propagated and self.uncollapsed_count:
             # time.sleep(1)
             # pprint(self.entropies)
+            # for row in self.entropies:
+            #     print(row)
+
             # Retrieve the cell with the minimum entropy
             # print(len(self.heap))
             # s = hq.heappop(self.heap)
@@ -128,11 +136,18 @@ class WFC:
             # pprint(self.grid)
             propagated = self.propagate()
 
-            self.history.append(self.grid.copy())
+            snapshot = []
+            for row in self.grid:
+                sr = []
+                for slot in row:
+                    sr.append(slot.color)
+                snapshot.append(sr)
+            self.history.append(snapshot)
 
 
 
         if not propagated:
+            pprint(self.grid)
             print("Contradiction")
         return render(self.grid) if propagated else self.run(size, max_contradictions_allowed - 1)
 
@@ -165,63 +180,108 @@ class WFC:
                 # Push the slot to the heap
                 # hq.heappush(self.heap, s)
 
-        self.history.append(self.grid.copy())
+        # self.history.append(self.grid.copy())
     
     def propagate(self):
         while self.stack:
-            (x, y), index = self.stack.pop()
+            x, y = self.stack.pop()
             # (dx, dy) = pattern_size = self.patterns[0].matrix.shape
-            collapsed_slot = self.grid[x][y]
+            triggering_slot = self.grid[x][y]
 
             # Iterate over every slot that
             # may have patterns in common with 
             # latest collapsed slot
             # print(x, y, dx, dy)
 
+
+            # Get the possible patterns for the triggering_slot
+            ps1 = [p for p in triggering_slot.patterns if triggering_slot.possibilities[p.index]]
+
             for d in dirs:
                 dx, dy = d
                 if not self.in_range((x + dx, y + dy)):
                     continue
 
-                slot = self.grid[x + dx][y + dy]
+                triggered_slot = self.grid[x + dx][y + dy]
 
-                if slot.collapsed:
+                if triggered_slot.collapsed:
                     continue
 
-                # possibilities_count = sum(slot.possibilities)
-                for p in self.patterns:
-                    if not self.adjacency_rules[(index, p.index, d)]:
-                        
-                        # pprint(self.patterns[index].matrix)
-                        # pprint(p.matrix)
-                        # pprint(d)
-                        # pprint(p.index)
-                        # pprint(slot.possibilities)
-                        slot.remove_pattern(p, self.weights)
-                        # possibilities_count -= 1                            
-                        # pprint(collapsed_slot.pos)
-                        # pprint(slot.pos)
-                        # print(f"Collapsing slot {collapsed_slot.pos} with pattern")
-                        # pprint(self.patterns[index].matrix)
-                        # print(f"removed pattern \n{p.matrix}\n for slot {slot.pos}")
+                # Get the possible patterns for the triggered_slot
+                ps2 = [p for p in triggered_slot.patterns if triggered_slot.possibilities[p.index]]
 
+                domains = []
+                for p1 in ps1:
+                    domains.extend(self.adjacency_rules[p1.index, d])
 
-                        # Contradiction! We have to start again
-                        if not sum(slot.possibilities):
-                            # pprint(collapsed_slot.pos)
-                            # pprint(slot.pos)
-                            
-                            # pprint(slot.possibilities)
+                # print(domains)
+
+                for p2 in ps2:
+                    if not p2.index in domains:
+                        triggered_slot.remove_pattern(p2, self.weights)
+
+                        if not sum(triggered_slot.possibilities):
                             return False
-                            # raise Exception("Contradiction!")
+                        
+                        # We may collapse this cell
+                        if sum(triggered_slot.possibilities) == 1:
+                            self.collapse(triggered_slot.pos)
+                            break
+
+                        self.stack.append((x + dx, y + dy))
+
+
+                # for p2 in ps2:
+                #     if not self.validate_adjacency(p1.index, p2.index, d):
+                #         triggered_slot.remove_pattern(p2, self.weights)
+
+                #         if not sum(triggered_slot.possibilities):
+                #             return False
+                        
+                #         # We may collapse this cell
+                #         if sum(triggered_slot.possibilities) == 1:
+                #             self.collapse(triggered_slot.pos)
+                #             break
+
+                #         # self.stack.append((x + dx, y + dy))
+                
+                self.entropies[x + dx][y + dy] = triggered_slot.entropy
+
+
+                # possibilities_count = sum(slot.possibilities)
+                # for p in self.patterns:
+                #     if not self.adjacency_rules[(index, p.index, d)]:
+                        
+                #         # pprint(self.patterns[index].matrix)
+                #         # pprint(p.matrix)
+                #         # pprint(d)
+                #         # pprint(p.index)
+                #         # pprint(slot.possibilities)
+                #         slot.remove_pattern(p, self.weights)
+                #         # possibilities_count -= 1                            
+                #         # pprint(collapsed_slot.pos)
+                #         # pprint(slot.pos)
+                #         # print(f"Collapsing slot {collapsed_slot.pos} with pattern")
+                #         # pprint(self.patterns[index].matrix)
+                #         # print(f"removed pattern \n{p.matrix}\n for slot {slot.pos}")
+
+
+                #         # Contradiction! We have to start again
+                #         if not sum(slot.possibilities):
+                #             # pprint(collapsed_slot.pos)
+                #             # pprint(slot.pos)
+                            
+                #             # pprint(slot.possibilities)
+                #             return False
+                #             # raise Exception("Contradiction!")
 
 
                                         
-                # We may collapse this cell
-                if sum(slot.possibilities) == 1:
-                    self.collapse(slot.pos)                        
+                # # We may collapse this cell
+                # if sum(slot.possibilities) == 1:
+                #     self.collapse(slot.pos)                        
 
-                self.entropies[x + dx][y + dy] = slot.entropy
+                # self.entropies[x + dx][y + dy] = slot.entropy
             # for i in range(x - dx + 1, x + 1):
             #     for j in range(y - dy + 1, y + 1):
             #         # If it is out of the grid, ignore.
@@ -308,7 +368,9 @@ class WFC:
         slot = self.grid[i][j]
         return slot
 
-            
+    def validate_adjacency(self, i1, i2, d):
+        return i2 in self.adjacency_rules[(i1, d)]
+
     def restart(self):
         # Resulting grid
         # TODO: Include it as a parameter?

@@ -19,26 +19,37 @@ def main():
     #     [0, 1, 1, 1, 0],
     #     [0, 0, 0, 0, 0]
     #     ]
-    # red_maze = [
-    #     [0, 0, 0, 0],
-    #     [0, 1, 1, 1],
-    #     [0, 1, 2, 1],
-    #     [0, 1, 1, 1],
-    #     ]
+    red_maze = [
+        [0, 0, 0, 0],
+        [0, 1, 1, 1],
+        [0, 1, 2, 1],
+        [0, 1, 1, 1],
+        ]
 
-    tex = Texture("Red Maze")
 
-    red_maze = tex.sample
+
+    # tex = Texture("Red Maze")
+
+    # red_maze = tex.sample
     wfc.preprocess(red_maze, 2)
     # pprint(wfc.frequency_hints)
 
 
-    wfc.run((5, 5), 50)
+    # wfc.run((10, 10), 50)
+    wfc.run((50, 50), 50)
     
     for row in wfc.history[-1]:
         print(row)
 
-    tex.save(wfc.history[-1])
+    # with open("tests/test.txt", 'w') as fd:
+    #     for item in wfc.history:
+    #         for row in item:
+    #             fd.write(str(row))
+    #             fd.write("\n")
+    #         fd.write("\n")
+
+
+    # tex.save(wfc.history[-1])
 
 
     # print(grid)
