@@ -7,7 +7,6 @@ from src.graphics import Texture
 from pprint import pprint
 
 def main():
-    wfc = WFC()
 
     # This is the example used in the paper:
     # "WaveFunctionCollapse is Constraint Solving in the Wild"
@@ -19,27 +18,28 @@ def main():
     #     [0, 1, 1, 1, 0],
     #     [0, 0, 0, 0, 0]
     #     ]
-    red_maze = [
-        [0, 0, 0, 0],
-        [0, 1, 1, 1],
-        [0, 1, 2, 1],
-        [0, 1, 1, 1],
-        ]
+    # red_maze = [
+    #     [0, 0, 0, 0],
+    #     [0, 1, 1, 1],
+    #     [0, 1, 2, 1],
+    #     [0, 1, 1, 1],
+    #     ]
 
 
+    wfc = WFC(allow_rotations=True)
 
-    # tex = Texture("Red Maze")
+    tex = Texture("Rooms")
 
-    # red_maze = tex.sample
-    wfc.preprocess(red_maze, 2)
+    sample = tex.sample
+    wfc.preprocess(sample, 3)
     # pprint(wfc.frequency_hints)
 
 
-    # wfc.run((10, 10), 50)
-    wfc.run((50, 50), 50)
+    wfc.run((56, 56), 50)
+    # wfc.run((200, 200), 50)
     
-    for row in wfc.history[-1]:
-        print(row)
+    # for row in wfc.history[-1]:
+    #     print(row)
 
     # with open("tests/test.txt", 'w') as fd:
     #     for item in wfc.history:
@@ -48,8 +48,11 @@ def main():
     #             fd.write("\n")
     #         fd.write("\n")
 
+    for index, item in enumerate(wfc.history):
+        tex.save(item, f"Rooms{index}")
 
-    # tex.save(wfc.history[-1])
+    # tex.save(wfc.history[-1], "test")
+
 
 
     # print(grid)

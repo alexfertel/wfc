@@ -10,7 +10,7 @@ import heapq as hq
 import time
 
 class WFC:
-    def __init__(self):
+    def __init__(self, allow_rotations=False, allow_reflections=False):
         self.patterns = []
         self.adjacency_rules = defaultdict(list)
         
@@ -20,6 +20,9 @@ class WFC:
         # self.i2p = {}
 
         self.restart()
+
+        self.allow_rotations = allow_rotations
+        self.allow_reflections = allow_reflections
 
     # Preprocess input image to extract patterns, compute frequency hints
     # and build adjacency rules.
@@ -60,11 +63,13 @@ class WFC:
                 # Add rotations. We argue reflections
                 # and rotations should be allowed not always
                 for _ in range(3):
-                    sm = np.rot90(sm)
-                    submatrices.append(sm)
+                    if self.allow_rotations:
+                        sm = np.rot90(sm)
+                        submatrices.append(sm)
 
-                    sm = np.flip(sm)
-                    submatrices.append(sm)
+                    if self.allow_reflections:
+                        sm = np.flip(sm)
+                        submatrices.append(sm)
 
         unique, counts = np.unique(submatrices, return_counts=True, axis=0)
         patterns = [Pattern(pat, index) for index, pat in enumerate(unique)]

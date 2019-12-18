@@ -59,6 +59,13 @@ class Slot:
         if self.collapsed: return float('inf')  # Maybe this doesn't make sense, should be checked
         return np.log(self.sumOfWeights) - (self.sumOfWeightsLogs) / self.sumOfWeights + self.noise
 
+    # @property
+    # def visualized_color(self):
+    #     colors = np.array([p.color for p in self.patterns if self.possibilities[p.index]])
+    #     unique = np.unique(colors)
+        
+    #     return 
+
     def remove_pattern(self, pattern, weights):
         if self.possibilities[pattern.index]:
             # Remove pattern from possibility space.

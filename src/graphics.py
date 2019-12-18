@@ -32,18 +32,30 @@ class Texture:
         self.color_count = len(self.colors)
 
         pprint(self.sample)
-        pprint(self.colors)
+        # pprint(self.colors)
 
 
-    def save(self, grid):
+    def save(self, grid, name):
+        # print(grid)
         n, m = len(grid), len(grid[0])
-        result = Image.new("RGB", (n, m), (0, 0, 0))
-        bitmap_data = np.array(list(result.getdata())).reshape((n, m))
-        print(bitmap_data)
-        
+        rgb = [[None for _ in range(n)] for _ in range(m)]
         for i in range(n):
             for j in range(m):
-                bitmap_data[i][j] = self.colors[grid[i][j].color]
+                rgb[i][j] = self.colors[grid[i][j]]
 
-        print(result)
-        print(bitmap_data)
+        data = np.int8(rgb)
+        image = Image.fromarray(data, mode="RGB")
+
+        image.save(f"results/{name}.bmp")
+        # print(image.get_data())
+
+        # result = Image.new("RGB", (n, m), (0, 0, 0))
+        # bitmap_data = np.array(list(result.getdata())).reshape((n, m))
+        # print(bitmap_data)
+        
+        # for i in range(n):
+        #     for j in range(m):
+        #         bitmap_data[i][j] = self.colors[grid[i][j].color]
+
+        # print(result)
+        # print(bitmap_data)
