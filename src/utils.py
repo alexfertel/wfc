@@ -44,3 +44,23 @@ def render(grid):
         for j in range(y):
             result[i][j] = grid[i][j].color
     return result
+
+def compatible(p1, p2, d):
+    x, y = d
+    m1 = matrix_lap(p1.matrix, (x, y))
+    m2 = matrix_lap(p2.matrix, (-x, -y))
+    return (m1 == m2).all()
+
+def matrix_lap(matrix, direction):
+    n, m = matrix.shape
+    
+    if direction == (0, -1):  # North
+        return matrix[: -1, :]
+    if direction == (1, 0):  # East
+        return matrix[:, 1:]
+    if direction == (0, 1):  # South
+        return matrix[1:, :]
+    if direction == (-1, 0):  # West
+        return matrix[:, :-1]
+
+    return False

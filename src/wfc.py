@@ -3,10 +3,9 @@ from pprint import pprint
 
 from .pattern import Pattern
 from .slot import Slot
-from .utils import dirs, render
+from .utils import dirs, render, compatible
 
 import numpy as np
-import heapq as hq
 import time
 
 class WFC:
@@ -71,10 +70,10 @@ class WFC:
                         sm = np.flip(sm)
                         submatrices.append(sm)
 
-        unique, counts = np.unique(submatrices, return_counts=True, axis=0)
+        unique, counts = np.lib.arraysetops.unique(submatrices, return_counts=True, axis=0)
         patterns = [Pattern(pat, index) for index, pat in enumerate(unique)]
 
-        self.weights = np.array(counts)
+        self.weights = counts
 
         return patterns
 
@@ -123,7 +122,7 @@ class WFC:
         # So ugly! T_T
         self.init_grid(size)
 
-        # There are N * M uncollapsed cells (the size of the grid)
+        # There are N * M uncollapsed slots (the size of the grid)
         # at the beginning.
         self.uncollapsed_count = x * y
         propagated = True
@@ -159,8 +158,6 @@ class WFC:
             print("Contradiction")
         return render(self.grid) if propagated else self.run(size, max_contradictions_allowed - 1)
 
-
-
     def init_grid(self, size):
         x, y = size
 
@@ -173,27 +170,18 @@ class WFC:
         # Populate the grid with slots
         for i in range(x):
             for j in range(y):
-                s = Slot((i, j))
-                # s.pos = (i, j)
-                s.possibilities = [True for _ in self.patterns]
-                s.patterns = self.patterns
-                s.sumOfWeights = sow
-                s.sumOfWeightsLogs = sowl
+                s = Slot((i, j), self.patterns, sow, sowl)
 
+                # Update the grid
                 self.grid[i][j] = s
 
                 # Update the entropy
                 self.entropies[i][j] = s.entropy
-
-                # Push the slot to the heap
-                # hq.heappush(self.heap, s)
-
-        # self.history.append(self.grid.copy())
     
     def propagate(self):
+        # TODO: Maybe use setdiff
         while self.stack:
             x, y = self.stack.pop()
-            # (dx, dy) = pattern_size = self.patterns[0].matrix.shape
             triggering_slot = self.grid[x][y]
 
             # Iterate over every slot that
@@ -222,7 +210,6 @@ class WFC:
                 for p1 in ps1:
                     domains.extend(self.adjacency_rules[p1.index, d])
 
-                # print(domains)
 
                 for p2 in ps2:
                     if not p2.index in domains:
@@ -239,136 +226,9 @@ class WFC:
                         self.stack.append((x + dx, y + dy))
 
 
-                # for p2 in ps2:
-                #     if not self.validate_adjacency(p1.index, p2.index, d):
-                #         triggered_slot.remove_pattern(p2, self.weights)
-
-                #         if not sum(triggered_slot.possibilities):
-                #             return False
-                        
-                #         # We may collapse this cell
-                #         if sum(triggered_slot.possibilities) == 1:
-                #             self.collapse(triggered_slot.pos)
-                #             break
-
-                #         # self.stack.append((x + dx, y + dy))
-                
                 self.entropies[x + dx][y + dy] = triggered_slot.entropy
 
-
-                # possibilities_count = sum(slot.possibilities)
-                # for p in self.patterns:
-                #     if not self.adjacency_rules[(index, p.index, d)]:
-                        
-                #         # pprint(self.patterns[index].matrix)
-                #         # pprint(p.matrix)
-                #         # pprint(d)
-                #         # pprint(p.index)
-                #         # pprint(slot.possibilities)
-                #         slot.remove_pattern(p, self.weights)
-                #         # possibilities_count -= 1                            
-                #         # pprint(collapsed_slot.pos)
-                #         # pprint(slot.pos)
-                #         # print(f"Collapsing slot {collapsed_slot.pos} with pattern")
-                #         # pprint(self.patterns[index].matrix)
-                #         # print(f"removed pattern \n{p.matrix}\n for slot {slot.pos}")
-
-
-                #         # Contradiction! We have to start again
-                #         if not sum(slot.possibilities):
-                #             # pprint(collapsed_slot.pos)
-                #             # pprint(slot.pos)
-                            
-                #             # pprint(slot.possibilities)
-                #             return False
-                #             # raise Exception("Contradiction!")
-
-
-                                        
-                # # We may collapse this cell
-                # if sum(slot.possibilities) == 1:
-                #     self.collapse(slot.pos)                        
-
-                # self.entropies[x + dx][y + dy] = slot.entropy
-            # for i in range(x - dx + 1, x + 1):
-            #     for j in range(y - dy + 1, y + 1):
-            #         # If it is out of the grid, ignore.
-            #         # If it has already been collapsed, ignore
-            #         if not self.in_range((i, j)):
-            #             continue
-
-            #         slot = self.grid[i][j]
-
-            #         if slot.collapsed:
-            #             continue
-                    
-            #         # For each pattern in the possibility space
-            #         # of this slot, try fitting it here, which
-            #         # means (matching it with the current collapsed
-            #         # slots on the grid) seeing if it matches with
-            #         # the recently collapsed slot.
-                    
-            #         possibilities_count = sum(slot.possibilities)
-            #         for pattern in slot.patterns:
-            #             # print(pattern.matrix)
-            #             # print(i, j)
-            #             # print(dx, dy)
-            #             # print(pattern.matrix[x - i][y - j])
-            #             # print(slot.color)
-            #             # print(collapsed_slot.color)
-
-            #             if slot.possibilities[pattern.index]:
-            #                 for n in range(dx):
-            #                     for m in range(dy):
-            #                         if not self.in_range((i + n, j + m)):
-            #                             continue
-
-            #                         subslot = self.grid[i + n][j + m]
-
-            #                         if subslot.color == -1:
-            #                             continue
-
-            #                         if pattern.matrix[n][m] != subslot.color:
-            #                             slot.remove_pattern(pattern, self.weights)
-            #                             possibilities_count -= 1                            
-
-            #                             # Contradiction! We have to start again
-            #                             if not possibilities_count:
-            #                                 self.restart()
-            #                                 return False
-            #                                 # raise Exception("Contradiction!")
-
-            #                             self.entropies[i][j] = slot.entropy
-
-
-            #             # if slot.possibilities[pattern.index] and pattern.matrix[x - i][y - j] != collapsed_slot.color:
-            #                 # slot.remove_pattern(pattern, self.weights)
-            #                 # possibilities_count -= 1                            
-
-            #                 # # Contradiction! We have to start again
-            #                 # if not possibilities_count:
-            #                 #     self.restart()
-            #                 #     return False
-            #                 #     # raise Exception("Contradiction!")
-
-            #                 # self.entropies[i][j] = slot.entropy
-            #                 # new_patterns.append(pattern)
-            #             # else:
-            #                 # slot.possibilities[pattern.index] = False
-                    
-            #         # Update the possibility space removing the 
-            #         # patterns that would break the generation
-            #         # with sort of a forward checking algorithm.
-            #         # slot.patterns = new_patterns
-
-
-            #         # We may collapse this cell
-            #         if possibilities_count == 1:
-            #             self.collapse(slot.pos)                        
-
         return True
-
-        # Update slot colors
 
     def observe(self):
         index = np.argmin(self.entropies)
@@ -403,29 +263,4 @@ class WFC:
         x, y = pos
         return 0 <= x < len(self.grid) and 0 <= y < len(self.grid[0])
 
-
-def compatible(p1, p2, d):
-    x, y = d
-    m1 = matrix_lap(p1.matrix, (x, y))
-    m2 = matrix_lap(p2.matrix, (-x, -y))
-    # print(m1, m2)
-    return (m1 == m2).all()
-
-
-
-def matrix_lap(matrix, direction):
-    # print((matrix[: -1, :] == [[0,0,0],[0,1,1]]))
-    # matrix = np.asarray(matrix)
-    n, m = matrix.shape
-    
-    if direction == (0, -1):  # North
-        return matrix[: -1, :]
-    if direction == (1, 0):  # East
-        return matrix[:, 1:]
-    if direction == (0, 1):  # South
-        return matrix[1:, :]
-    if direction == (-1, 0):  # West
-        return matrix[:, :-1]
-
-    return False
 

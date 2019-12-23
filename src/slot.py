@@ -1,15 +1,17 @@
 import numpy as np
 
 class Slot:
-    def __init__(self, pos):
+    def __init__(self, pos, patterns):
         self.pos = pos
 
         # This is used when rendering the slot.
         self.color = -1
 
         # This is the possibility space of the slot.
-        self.possibilities = []
-        self.patterns = []
+        self.patterns = patter
+
+        # This masks the possibility space 
+        self.possibilities = [True for _ in self.patterns]
 
         # We maintain a cummulative frequency array, where we store
         # the relative frequencies, so when sampling the probability
