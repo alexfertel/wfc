@@ -1,14 +1,14 @@
 import numpy as np
 
 class Slot:
-    def __init__(self, pos, patterns):
+    def __init__(self, pos, patterns, sow, sowl):
         self.pos = pos
 
         # This is used when rendering the slot.
         self.color = -1
 
         # This is the possibility space of the slot.
-        self.patterns = patter
+        self.patterns = patterns
 
         # This masks the possibility space 
         self.possibilities = [True for _ in self.patterns]
@@ -21,8 +21,8 @@ class Slot:
 
         # These properties aid when calculating entropy;
         # they are used to make entropy computation constant.
-        self.sumOfWeights = 0
-        self.sumOfWeightsLogs = 0
+        self.sumOfWeights = sow
+        self.sumOfWeightsLogs = sowl
 
         # Applying noise to the entropy, so we don't have to break ties.
         # Initialize a tiny random value.
@@ -87,6 +87,5 @@ class Slot:
             if self.possibilities[pattern.index]:
                 for _ in range(weights[pattern.index]):
                     p.append(pattern.index)
-
 
         return np.random.choice(p)

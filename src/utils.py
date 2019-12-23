@@ -64,3 +64,7 @@ def matrix_lap(matrix, direction):
         return matrix[:, :-1]
 
     return False
+
+def in_range(pos, grid):
+    x, y = pos
+    return 0 <= x < len(grid) and 0 <= y < len(grid[0])

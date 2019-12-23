@@ -1,9 +1,9 @@
 from collections import defaultdict
-from pprint import pprint
+from functools import reduce
 
 from .pattern import Pattern
 from .slot import Slot
-from .utils import dirs, render, compatible
+from .utils import dirs, render, compatible, in_range
 
 import numpy as np
 
@@ -12,11 +12,20 @@ class Core:
         # This is the example image.
         self.example = np.array(example)
 
-        # This is the N for the NxN patterns. 
+        # This is the N for the NxN patterns.
         self.size = size
+
+        # Size of the output matrix.
+        self.output_size = (0, 0)
+
+        self.allow_rotations = allow_rotations
+        self.allow_reflections = allow_reflections
 
         # Initialize needed fields.
         self.reset()
+
+        # How likely a given module is to appear in any slot.
+        self.weights = []
 
         # Preprocess input image to extract patterns, compute frequency hints
         # and build adjacency rules.
@@ -25,12 +34,14 @@ class Core:
 
         self.learn_adjacencies()
 
-
     def reset(self):
         """
         This functions leaves the `Core` class in a
         known state, the same as when initializing the class.
         """
+        # Size of the ouput
+        x, y = self.output_size
+
         # Resulting grid.
         self.grid = [[0 for _ in range(y)] for _ in range(x)]
 
@@ -38,18 +49,12 @@ class Core:
         # Maybe it's AC3, TODO: check this.
         self.stack = []
 
-        # This is the list of patterns from the example image.
-        self.patterns = []
-
         # These are the adjacency rules learned from the example.
         self.adjacency_rules = defaultdict(list)
         
-        # How likely a given module is to appear in any slot.
-        self.weights = []
-
         # For now we'll use a matrix to store entropies.
         # TODO: Check if using a heap is reasonable.
-        self.entropies = np.ones(self.size)
+        self.entropies = np.ones(self.output_size)
 
         return self
 
@@ -93,59 +98,133 @@ class Core:
 
         return patterns
 
+    def observe(self):
+        # Get the slot with the least entropy.
+        index = np.argmin(self.entropies)
+
+        # Map the 1d index to 2d.
+        i, j = np.unravel_index(index, self.entropies.shape)
+
+        # Retrieve slot.
+        slot = self.grid[i][j]
+
+        return slot
+
     def collapse(self, pos):
         x, y = pos
 
         slot = self.grid[x][y]
         index = slot.choose_pattern(self.weights)
 
-        # TODO:
-        # Since we chose a pattern to lock, should we do
-        # this inside `choose_pattern`? I don't think
-        # we call `choose_pattern` anywhere else.
+        # The slot is now collapsed.
         slot.collapsed = True
 
         # Since we locked in a pattern, remove all
         # other possibilities.
-        # slot.possibilities = [False for i, p in enumerate(slot.possibilities) if i != index]
         for p in self.patterns:
             if p.index != index:
                 slot.possibilities[p.index] = False
-        # slot.possibilities = [False for p in self.patterns if p.index != index]
 
-        # Update the color of the slot
+        # Update the color of the slot.
         slot.color = self.patterns[index].color
 
-        # for dx, dy in dirs:
-        #     self.stack.append((self.grid[x + dx][y + dy], -(dx, dy)))
+        # Schedule slot for a consistency update.
         self.stack.append((x, y))
         
+        # 1 less uncollapsed slot.
         self.uncollapsed_count -= 1
 
-        # Update this slot's entropy
+        # Update this slot's entropy.
         self.entropies[x][y] = slot.entropy
 
+    def propagate(self):
+        # TODO: Maybe use setdiff
+        while self.stack:
+            x, y = self.stack.pop()
+            triggering_slot = self.grid[x][y]
 
+            # Get the possible patterns for the triggering_slot.
+            ting_slot_patterns = [p for p in triggering_slot.patterns if triggering_slot.possibilities[p.index]]
+
+            print(ting_slot_patterns)
+            # Check each of the adjacent slots.
+            for d in dirs:
+                dx, dy = d
+
+                # This slot is outside of the output grid borders.
+                if not in_range((x + dx, y + dy), self.grid):
+                    continue
+                
+                triggered_slot = self.grid[x + dx][y + dy]
+
+                # This slot is already collapsed, so there's nothing to propagate.
+                if triggered_slot.collapsed:
+                    continue
+
+                # Get the possible patterns for the triggered_slot.
+                ted_slot_patterns = [p for p in triggered_slot.patterns if triggered_slot.possibilities[p.index]]
+
+                # print(ting_slot_patterns)
+
+                # Map each pattern of the triggering slot to the space of
+                # patterns that may be put adjacent in direction `d`.
+                # domains = map(lambda p: self.adjacency_rules[p.index, d], ting_slot_patterns)
+
+                # Union of the spaces.
+                # domains_union = reduce(np.union1d, domains)
+
+                domains_union = []
+                for allowed_pat in ting_slot_patterns:
+                    # print(self.adjacency_rules[allowed_pat.index, d])
+                    domains_union = np.union1d(domains_union, self.adjacency_rules[allowed_pat.index, d])
+
+
+                # print(domains_union)
+                # For each pattern of the triggered slot, check if
+                # that pattern has the possibility of appearing,
+                # which is a check of existence in the union of domains. 
+                for p2 in ted_slot_patterns:
+                    if not p2.index in domains_union:
+                        triggered_slot.remove_pattern(p2, self.weights)
+
+                        # There are no more possibilities: Contradiction.
+                        if not sum(triggered_slot.possibilities):
+                            return False
+                        
+                        # We may collapse this cell.
+                        if sum(triggered_slot.possibilities) == 1:
+                            self.collapse(triggered_slot.pos)
+                            break
+
+                        # Schedule slot for a consistency update.        
+                        self.stack.append((x + dx, y + dy))
+
+                # Update entropies.
+                self.entropies[x + dx][y + dy] = triggered_slot.entropy
+
+        # Propagated correctly.
+        return True
 
     def initialize_output_matrix(self, size):
         n, m = size
 
         sow = sum(self.weights)
         sowl = sum([self.weights[p.index] * np.log(self.weights[p.index]) for p in self.patterns])
-
-        # Populate the grid with slots
+        
+        # Populate the grid with slots.
         for i in range(n):
             for j in range(m):
                 s = Slot((i, j), self.patterns, sow, sowl)
 
-                # Update the grid
+                # Update the grid.
                 self.grid[i][j] = s
 
-                # Update the entropy
+                # Update the entropy.
                 self.entropies[i][j] = s.entropy
 
-
     def generate(self, size, allowed_contradictions=10):
+        x, y = self.output_size = size
+
         if allowed_contradictions < 0:
             print("Max allowed contradictions reached.")
 
@@ -157,16 +236,16 @@ class Core:
         self.uncollapsed_count = x * y
         propagated = True
         while propagated and self.uncollapsed_count:
-            # Compute the slot with the minimum entropy
+            # Compute the slot with the minimum entropy.
             s = self.observe()
 
-            # Collapse the slot
+            # Collapse the slot.
             self.collapse(s.pos)
             
-            # Propagate consistency
+            # Propagate consistency.
             propagated = self.propagate()
 
-            # Yield current assignment
+            # Yield current assignment.
             yield self.grid
 
         if not propagated:

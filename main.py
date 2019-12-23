@@ -3,6 +3,7 @@
 import sys
 # from tests.test_texture_gen import test_pattern_extraction, test_build_propagator
 from src.wfc import WFC
+from src.core import Core
 from src.graphics import Texture
 from pprint import pprint
 
@@ -79,6 +80,17 @@ def tests():
     test_pattern_extraction()
     test_build_propagator()
 
+def core():
+    tex = Texture("Rooms")
+
+    sample = tex.sample
+
+    wfc = Core(sample, 3)
+
+    for grid in wfc.generate((28, 28)):
+        pass
+        # print(grid)
+
 if __name__ == "__main__":
     if "--debug" in sys.argv:
         tests() 
@@ -87,5 +99,6 @@ if __name__ == "__main__":
         samples(sys.argv[2]) 
         exit()
 
-    main()
+    # main()
+    core()
 
