@@ -1,5 +1,6 @@
 from collections import defaultdict
 from functools import reduce
+from pprint import pprint
 
 from .pattern import Pattern
 from .slot import Slot
@@ -32,6 +33,10 @@ class Core:
         # Extract patterns without wrapping.
         self.patterns = self.clasify_patterns()
 
+
+        # These are the adjacency rules learned from the example.
+        self.adjacency_rules = defaultdict(list)
+
         self.learn_adjacencies()
 
     def reset(self):
@@ -48,9 +53,6 @@ class Core:
         # This is the forward checking stack
         # Maybe it's AC3, TODO: check this.
         self.stack = []
-
-        # These are the adjacency rules learned from the example.
-        self.adjacency_rules = defaultdict(list)
         
         # For now we'll use a matrix to store entropies.
         # TODO: Check if using a heap is reasonable.
@@ -146,7 +148,6 @@ class Core:
             # Get the possible patterns for the triggering_slot.
             ting_slot_patterns = [p for p in triggering_slot.patterns if triggering_slot.possibilities[p.index]]
 
-            print(ting_slot_patterns)
             # Check each of the adjacent slots.
             for d in dirs:
                 dx, dy = d
@@ -164,8 +165,6 @@ class Core:
                 # Get the possible patterns for the triggered_slot.
                 ted_slot_patterns = [p for p in triggered_slot.patterns if triggered_slot.possibilities[p.index]]
 
-                # print(ting_slot_patterns)
-
                 # Map each pattern of the triggering slot to the space of
                 # patterns that may be put adjacent in direction `d`.
                 # domains = map(lambda p: self.adjacency_rules[p.index, d], ting_slot_patterns)
@@ -175,11 +174,8 @@ class Core:
 
                 domains_union = []
                 for allowed_pat in ting_slot_patterns:
-                    # print(self.adjacency_rules[allowed_pat.index, d])
                     domains_union = np.union1d(domains_union, self.adjacency_rules[allowed_pat.index, d])
 
-
-                # print(domains_union)
                 # For each pattern of the triggered slot, check if
                 # that pattern has the possibility of appearing,
                 # which is a check of existence in the union of domains. 

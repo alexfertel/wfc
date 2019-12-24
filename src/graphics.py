@@ -31,31 +31,34 @@ class Texture:
         
         self.color_count = len(self.colors)
 
-        pprint(self.sample)
+        # pprint(self.sample)
         # pprint(self.colors)
 
 
     def save(self, grid, name):
-        # print(grid)
-        n, m = len(grid), len(grid[0])
-        rgb = [[None for _ in range(n)] for _ in range(m)]
-        for i in range(n):
-            for j in range(m):
-                rgb[i][j] = self.colors[grid[i][j]]
+        rgb = self.compute_wave_colors(grid)
 
         data = np.int8(rgb)
         image = Image.fromarray(data, mode="RGB")
 
-        image.save(f"results/{name}.bmp")
-        # print(image.get_data())
+        image.save(f"results/{name}.bmp", compression=0)
 
-        # result = Image.new("RGB", (n, m), (0, 0, 0))
-        # bitmap_data = np.array(list(result.getdata())).reshape((n, m))
-        # print(bitmap_data)
+    def compute_wave_colors(self, grid):
+        n, m = len(grid), len(grid[0])
+
+        rgb = [[None for _ in range(n)] for _ in range(m)]
+
+        for i in range(n):
+            for j in range(m):
+                red, green, blue = (0, 0, 0)
+                contributors = [p for p in grid[i][j].patterns if grid[i][j].possibilities[p.index]]
+
+                for allowed_pattern in contributors:
+                    red += self.colors[allowed_pattern.color][0]
+                    green += self.colors[allowed_pattern.color][1]
+                    blue += self.colors[allowed_pattern.color][2]
+
+                N = len(contributors)
+                rgb[i][j] = (red / N, green / N, blue / N)
         
-        # for i in range(n):
-        #     for j in range(m):
-        #         bitmap_data[i][j] = self.colors[grid[i][j].color]
-
-        # print(result)
-        # print(bitmap_data)
+        return rgb

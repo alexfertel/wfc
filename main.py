@@ -87,9 +87,11 @@ def core():
 
     wfc = Core(sample, 3)
 
-    for grid in wfc.generate((28, 28)):
-        pass
-        # print(grid)
+    for index, grid in enumerate(wfc.generate((28, 28))):
+        print(f'Generated step #{index}.')
+        tex.save(grid, f"Rooms{index}")
+
+        # pprint(grid, width=200)
 
 if __name__ == "__main__":
     if "--debug" in sys.argv:
