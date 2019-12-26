@@ -5,11 +5,21 @@ from pprint import pprint
 from .pattern import Pattern
 from .slot import Slot
 from .utils import dirs, render, compatible, in_range
+from .classifiers.deterministic import DeterministicClassifier
 
 import numpy as np
 
 class Core:
-    def __init__(self, example, size, allow_rotations=False, allow_reflections=False):
+    def __init__(
+            self, 
+            example, 
+            size, 
+            classifier=None,
+            # validator,
+            # renderer,
+            allow_rotations=False, 
+            allow_reflections=False):
+
         # This is the example image.
         self.example = np.array(example)
 
@@ -28,10 +38,13 @@ class Core:
         # How likely a given module is to appear in any slot.
         self.weights = []
 
+        # Setup Classifier instance.
+        self.classifier = classifier() if classifier else DeterministicClassifier()
+
         # Preprocess input image to extract patterns, compute frequency hints
         # and build adjacency rules.
         # Extract patterns without wrapping.
-        self.patterns = self.clasify_patterns()
+        self.clasify_patterns()
 
 
         # These are the adjacency rules learned from the example.
@@ -72,7 +85,7 @@ class Core:
 
         return self
 
-    def clasify_patterns(self):
+    def extract_patterns(self):
         n, m = self.example.shape
         N = self.size
 
@@ -93,12 +106,17 @@ class Core:
                         sm = np.flip(sm)
                         submatrices.append(sm)
 
-        unique, counts = np.lib.arraysetops.unique(submatrices, return_counts=True, axis=0)
-        patterns = [Pattern(pat, index) for index, pat in enumerate(unique)]
+        return submatrices
 
-        self.weights = counts
+    def clasify_patterns(self):
+        patterns = self.extract_patterns()
 
-        return patterns
+        patterns, weights = self.classifier.classify_patterns(patterns)
+
+        self.patterns = patterns
+        self.weights = weights
+
+        return self
 
     def observe(self):
         # Get the slot with the least entropy.

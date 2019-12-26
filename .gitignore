@@ -10,10 +10,12 @@ logs/
 .vscode/
 .idea
 
-*/**/*[log, out, aux, gz, cls, brf, lof, bib]
+paper/**/*[log, out, aux, gz, cls, brf, lof]
+wpaper/**/*[log, out, aux, gz, cls, brf, lof]
 
 bib
 config.py
 discussion.txt
 tests/test.txt
 results
+*.gif

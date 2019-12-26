@@ -81,7 +81,7 @@ def tests():
     test_build_propagator()
 
 def core():
-    tex = Texture("Rooms")
+    tex = Texture("Flowers")
 
     sample = tex.sample
 
@@ -89,7 +89,7 @@ def core():
 
     for index, grid in enumerate(wfc.generate((28, 28))):
         print(f'Generated step #{index}.')
-        tex.save(grid, f"Rooms{index}")
+        tex.save(grid, f"Flowers{index}")
 
         # pprint(grid, width=200)
 
