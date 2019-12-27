@@ -1,7 +1,8 @@
+import numpy as np
+
 from .classifier import Classifier
 from ..pattern import Pattern
 
-import numpy as np
 
 class DeterministicClassifier:
     def __init__(self):

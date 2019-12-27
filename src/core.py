@@ -1,13 +1,15 @@
+import numpy as np
+
 from collections import defaultdict
 from functools import reduce
 from pprint import pprint
 
 from .pattern import Pattern
 from .slot import Slot
-from .utils import dirs, render, compatible, in_range
+from .utils import dirs, compatible, in_range
 from .classifiers.deterministic import DeterministicClassifier
+from .validators.deterministic import DeterministicValidator
 
-import numpy as np
 
 class Core:
     def __init__(
@@ -15,7 +17,7 @@ class Core:
             example, 
             size, 
             classifier=None,
-            # validator,
+            validator=None,
             # renderer,
             allow_rotations=False, 
             allow_reflections=False):
@@ -32,25 +34,27 @@ class Core:
         self.allow_rotations = allow_rotations
         self.allow_reflections = allow_reflections
 
-        # Initialize needed fields.
+        # Initialize necessary fields.
         self.reset()
 
         # How likely a given module is to appear in any slot.
         self.weights = []
 
-        # Setup Classifier instance.
-        self.classifier = classifier() if classifier else DeterministicClassifier()
+        # Setup `Classifier` instance.
+        self.classifier = classifier if classifier else DeterministicClassifier()
 
         # Preprocess input image to extract patterns, compute frequency hints
         # and build adjacency rules.
         # Extract patterns without wrapping.
         self.clasify_patterns()
 
+        # Setup `Validator` instance.
+        self.validator = validator if classifier else DeterministicValidator(self.patterns)
 
-        # These are the adjacency rules learned from the example.
-        self.adjacency_rules = defaultdict(list)
+        # # These are the adjacency rules learned from the example.
+        # self.adjacency_rules = defaultdict(list)
 
-        self.learn_adjacencies()
+        # self.learn_adjacencies()
 
     def reset(self):
         """
@@ -70,18 +74,6 @@ class Core:
         # For now we'll use a matrix to store entropies.
         # TODO: Check if using a heap is reasonable.
         self.entropies = np.ones(self.output_size)
-
-        return self
-
-    def learn_adjacencies(self):
-        # Learn adjacencies
-        for p1 in self.patterns:
-            for p2 in self.patterns:
-                for x, y in dirs:
-                    d = (x, y)
-                    if compatible(p1, p2, d):
-                        self.adjacency_rules[(p1.index, d)].append(p2.index)
-                        self.adjacency_rules[(p2.index, (-x, -y))].append(p1.index)
 
         return self
 
@@ -192,7 +184,8 @@ class Core:
 
                 domains_union = []
                 for allowed_pat in ting_slot_patterns:
-                    domains_union = np.union1d(domains_union, self.adjacency_rules[allowed_pat.index, d])
+                    # domains_union = np.union1d(domains_union, self.adjacency_rules[allowed_pat.index, d])
+                    domains_union = np.union1d(domains_union, self.validator.valid_adjacencies(allowed_pat.index, d))
 
                 # For each pattern of the triggered slot, check if
                 # that pattern has the possibility of appearing,
