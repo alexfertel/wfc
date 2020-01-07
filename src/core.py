@@ -49,7 +49,7 @@ class Core:
         self.clasify_patterns()
 
         # Setup `Validator` instance.
-        self.validator = validator if classifier else DeterministicValidator(self.patterns)
+        self.validator = validator if validator else DeterministicValidator(self.patterns)
 
         # # These are the adjacency rules learned from the example.
         # self.adjacency_rules = defaultdict(list)

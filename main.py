@@ -5,14 +5,16 @@ import os
 from src.core import Core
 from src.graphics import Texture
 from pprint import pprint
+from pathlib import Path
+
 
 def main():
     parser = argparse.ArgumentParser()
 
-    default = 'Flowers'
+    default = 'Rooms'
     parser.add_argument('--name', 
                         default=default,
-                        help='Output name.', 
+                        help='Sample name.', 
                         dest='name')
     parser.add_argument('-i', '--image', 
                         default=os.path.join('images', f'{default}.png'),
@@ -22,27 +24,25 @@ def main():
                         default=3,
                         help="Size of the patterns' side.",
                         dest='N')
-    parser.add_argument('--size', nargs=2,
-                        type=lambda args: (int(args[0]), int(args[1])),
+    parser.add_argument('-s', '--size', nargs=2,
+                        type=int,
                         default=(28, 28),
                         help='Tuple representing the size of the output image.',
                         dest='size')
-    parser.add_argument('-o', '--output-dir',
-                        default=os.path.join('results', default, ''),
-                        help='Tuple representing the size of the output image.',
-                        dest='opath')
     args = parser.parse_args()
-    
+    args.size = (args.size[0], args.size[1])
+
+    # Create the output dir if it doesn't exist
+    Path(os.path.join('results', args.name)).mkdir(parents=True, exist_ok=True)
+
     generate(args.name,
-             args.path, 
              args.N, 
-             args.size,
-             args.opath)
+             args.size)
 
 
     
-def generate(name, path, N, size, opath):
-    tex = Texture(path)
+def generate(name, N, size):
+    tex = Texture(os.path.join('images', f'{name}.png'))
 
     sample = tex.sample
 
@@ -50,7 +50,7 @@ def generate(name, path, N, size, opath):
 
     for index, grid in enumerate(wfc.generate(size)):
         print(f'Generated step #{index}.')
-        tex.save(grid, os.path.join(opath, f"{name}{index}.bmp"))
+        tex.save(grid, os.path.join('results', name, f"{name}{index}.bmp"))
 
         # pprint(grid, width=200)
 

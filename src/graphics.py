@@ -1,6 +1,7 @@
 from PIL import Image
 import os
 import numpy as np
+import imageio as im
 from pprint import pprint
 
 class Texture:
@@ -38,10 +39,8 @@ class Texture:
     def save(self, grid, path):
         rgb = self.compute_wave_colors(grid)
 
-        data = np.int8(rgb)
-        image = Image.fromarray(data, mode="RGB")
-
-        image.save(path, compression=0)
+        data = np.uint8(rgb)
+        im.imwrite(path, data)
 
     def compute_wave_colors(self, grid):
         n, m = len(grid), len(grid[0])
