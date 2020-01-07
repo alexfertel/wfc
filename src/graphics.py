@@ -4,8 +4,8 @@ import numpy as np
 from pprint import pprint
 
 class Texture:
-    def __init__(self, name):
-        self.bitmap = Image.open("images/{0}.png".format(name))
+    def __init__(self, path):
+        self.bitmap = Image.open(path)
         self.SMX = self.bitmap.size[0]
         self.SMY = self.bitmap.size[1]
         
@@ -35,13 +35,13 @@ class Texture:
         # pprint(self.colors)
 
 
-    def save(self, grid, name):
+    def save(self, grid, path):
         rgb = self.compute_wave_colors(grid)
 
         data = np.int8(rgb)
         image = Image.fromarray(data, mode="RGB")
 
-        image.save(f"results/{name}.bmp", compression=0)
+        image.save(path, compression=0)
 
     def compute_wave_colors(self, grid):
         n, m = len(grid), len(grid[0])
