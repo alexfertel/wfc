@@ -46,15 +46,16 @@ class Core:
         # Preprocess input image to extract patterns, compute frequency hints
         # and build adjacency rules.
         # Extract patterns without wrapping.
-        self.clasify_patterns()
+        self.classify_patterns()
+        print("Done setting up classifier.")
 
         # Setup `Validator` instance.
         self.validator = validator if validator else DeterministicValidator(self.patterns)
+        print("Done setting up validator.")
 
-        # # These are the adjacency rules learned from the example.
-        # self.adjacency_rules = defaultdict(list)
+        # Output grid.
+        self.output = None
 
-        # self.learn_adjacencies()
 
     def reset(self):
         """
@@ -100,7 +101,7 @@ class Core:
 
         return submatrices
 
-    def clasify_patterns(self):
+    def classify_patterns(self):
         patterns = self.extract_patterns()
 
         patterns, weights = self.classifier.classify_patterns(patterns)
@@ -140,6 +141,9 @@ class Core:
         # Update the color of the slot.
         slot.color = self.patterns[index].color
 
+        # Update selected pattern
+        slot.identifier = index
+
         # Schedule slot for a consistency update.
         self.stack.append((x, y))
         
@@ -175,16 +179,9 @@ class Core:
                 # Get the possible patterns for the triggered_slot.
                 ted_slot_patterns = [p for p in triggered_slot.patterns if triggered_slot.possibilities[p.index]]
 
-                # Map each pattern of the triggering slot to the space of
-                # patterns that may be put adjacent in direction `d`.
-                # domains = map(lambda p: self.adjacency_rules[p.index, d], ting_slot_patterns)
-
                 # Union of the spaces.
-                # domains_union = reduce(np.union1d, domains)
-
                 domains_union = []
                 for allowed_pat in ting_slot_patterns:
-                    # domains_union = np.union1d(domains_union, self.adjacency_rules[allowed_pat.index, d])
                     domains_union = np.union1d(domains_union, self.validator.valid_adjacencies(allowed_pat.index, d))
 
                 # For each pattern of the triggered slot, check if
@@ -237,6 +234,7 @@ class Core:
 
         self.reset()
         self.initialize_output_matrix(size)
+        print("Done initializing output matrix.")
 
         # There are N * M uncollapsed slots (the size of the grid)
         # at the beginning.
@@ -245,12 +243,15 @@ class Core:
         while propagated and self.uncollapsed_count:
             # Compute the slot with the minimum entropy.
             s = self.observe()
+            # print("Observed")
 
             # Collapse the slot.
             self.collapse(s.pos)
+            # print("Collapsed")
             
             # Propagate consistency.
             propagated = self.propagate()
+            # print("Propagated")
 
             # Yield current assignment.
             yield self.grid

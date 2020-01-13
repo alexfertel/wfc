@@ -39,8 +39,6 @@ def main():
              args.N, 
              args.size)
 
-
-    
 def generate(name, N, size):
     tex = Texture(os.path.join('images', f'{name}.png'))
 

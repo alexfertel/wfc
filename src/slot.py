@@ -36,6 +36,9 @@ class Slot:
         # when popping it from the heap.
         self.collapsed = False
 
+        # This will be used when rendering the slot. It is the identifier of
+        # the pattern collapsed in this slot.
+        self.identifier = -1
 
 
     # Make the set of slots a lattice.
