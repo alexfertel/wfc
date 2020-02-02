@@ -48,7 +48,7 @@ def generate(name, N, size):
 
     for index, grid in enumerate(wfc.generate(size)):
         print(f'Generated step #{index}.')
-        tex.save(grid, os.path.join('results', name, f"{name}{index}.bmp"))
+        tex.save(grid, os.path.join('results', name, f"{name}_{index}.png"))
 
         # pprint(grid, width=200)
 

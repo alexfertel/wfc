@@ -37,9 +37,8 @@ class Texture:
 
 
     def save(self, grid, path):
-        rgb = self.compute_wave_colors(grid)
-
-        data = np.uint8(rgb)
+        data = np.array(self.compute_wave_colors(grid))
+        data = np.uint8(data)
         im.imwrite(path, data)
 
     def compute_wave_colors(self, grid):
@@ -58,6 +57,6 @@ class Texture:
                     blue += self.colors[allowed_pattern.color][2]
 
                 N = len(contributors)
-                rgb[i][j] = (red / N, green / N, blue / N)
+                rgb[i][j] = np.array([red / N, green / N, blue / N])
         
         return rgb

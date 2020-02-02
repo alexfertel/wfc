@@ -4,7 +4,7 @@ from .classifier import Classifier
 from ..pattern import Pattern
 
 
-class DeterministicClassifier:
+class DeterministicClassifier(Classifier):
     def __init__(self):
         super().__init__()
         

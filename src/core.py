@@ -9,6 +9,7 @@ from .slot import Slot
 from .utils import dirs, compatible, in_range
 from .classifiers.deterministic import DeterministicClassifier
 from .validators.deterministic import DeterministicValidator
+from .renderers.deterministic import DeterministicRenderer
 
 
 class Core:
@@ -18,7 +19,7 @@ class Core:
             size, 
             classifier=None,
             validator=None,
-            # renderer,
+            renderer=None,
             allow_rotations=False, 
             allow_reflections=False):
 
@@ -52,6 +53,10 @@ class Core:
         # Setup `Validator` instance.
         self.validator = validator if validator else DeterministicValidator(self.patterns)
         print("Done setting up validator.")
+
+        # Setup `Renderer` instance.
+        self.renderer = renderer if renderer else DeterministicRenderer(self.patterns)
+        print("Done setting up renderer.")
 
         # Output grid.
         self.output = None
