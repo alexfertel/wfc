@@ -38,6 +38,10 @@ def main():
     wfc = Texture(args.N, path)
     wfc.generate(args.name, args.size)
 
+    wfc.render()        
+
+    
+
 if __name__ == "__main__":
     main()
 
