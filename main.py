@@ -2,10 +2,9 @@
 import argparse
 import os
 
-from src.core import Core
-from src.graphics import Texture
 from pprint import pprint
 from pathlib import Path
+from src import Interface, Texture
 
 
 def main():
@@ -35,22 +34,9 @@ def main():
     # Create the output dir if it doesn't exist
     Path(os.path.join('results', args.name)).mkdir(parents=True, exist_ok=True)
 
-    generate(args.name,
-             args.N, 
-             args.size)
-
-def generate(name, N, size):
-    tex = Texture(os.path.join('images', f'{name}.png'))
-
-    sample = tex.sample
-
-    wfc = Core(sample, N)
-
-    for index, grid in enumerate(wfc.generate(size)):
-        print(f'Generated step #{index}.')
-        tex.save(grid, os.path.join('results', name, f"{name}_{index}.png"))
-
-        # pprint(grid, width=200)
+    path = os.path.join('images', f'{args.name}.png')
+    wfc = Texture(args.N, path)
+    wfc.generate(args.name, args.size)
 
 if __name__ == "__main__":
     main()
