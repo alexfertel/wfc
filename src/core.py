@@ -15,7 +15,11 @@ class Core:
     def __init__(
             self,
             patterns,
+            weights,
             size):
+
+        # List of NxN submatrices.
+        self.patterns = patterns
 
         # Size of the output matrix.
         self.output_size = (0, 0)
@@ -24,7 +28,7 @@ class Core:
         self.reset()
 
         # How likely a given module is to appear in any slot.
-        self.weights = []
+        self.weights = weights
 
         # Output grid.
         self.output = None

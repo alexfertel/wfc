@@ -34,7 +34,7 @@ def main():
     # Create the output dir if it doesn't exist
     Path(os.path.join('results', args.name)).mkdir(parents=True, exist_ok=True)
 
-    path = os.path.join('images', f'{name}.png')
+    path = os.path.join('images', f'{args.name}.png')
     wfc = Texture(args.N, path)
     wfc.generate(args.name, args.size)
 

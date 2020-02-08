@@ -1,3 +1,5 @@
+import numpy as np
+
 from .classifiers.deterministic import DeterministicClassifier
 from .validators.deterministic import DeterministicValidator
 from .renderers.deterministic import DeterministicRenderer
@@ -30,29 +32,29 @@ class Interface:
         # Preprocess input image to extract patterns, compute frequency hints
         # and build adjacency rules.
         # Extract patterns without wrapping.
-        self.classify_patterns()
+        patterns, weights = self.classify_patterns()
         print("Done setting up classifier.")
 
         # Setup `Validator` instance.
         self.validator = validator if validator else DeterministicValidator(
-            self.patterns)
+            patterns)
         print("Done setting up validator.")
 
         # Setup `Renderer` instance.
-        self.renderer = renderer if renderer else DeterministicRenderer()
+        self.renderer = renderer if renderer else DeterministicRenderer(patterns)
         print("Done setting up renderer.")
 
-        self.core = Core(self.patterns, self.size)
+        self.core = Core(patterns, weights, self.size)
+        
+        self.core.classifier = self.classifier
+        self.core.validator = self.validator
+        self.core.renderer = self.renderer
+
 
     def classify_patterns(self):
         patterns = self.extract_patterns()
 
-        patterns, weights = self.classifier.classify_patterns(patterns)
-
-        self.patterns = patterns
-        self.weights = weights
-
-        return self
+        return self.classifier.classify_patterns(patterns)
 
     def extract_patterns(self):
         n, m = self.example.shape
