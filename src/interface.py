@@ -56,18 +56,19 @@ class Interface:
 
         return self.classifier.classify_patterns(patterns)
 
+
     def extract_patterns(self):
         n, m = self.example.shape
         N = self.size
 
         submatrices = []
-        for i in range(n - N + 1):
-            for j in range(m - N + 1):
-                sm = self.example[i: i + N, j: j + N]
+        for i in range(n):
+            for j in range(m):
+                sm = self.classifier.extract_pattern(self.example, i, j, N)
                 submatrices.append(sm)
 
                 # Add rotations. We argue reflections
-                # and rotations should not be always allowed.
+                # and rotations should not always be allowed.
                 for _ in range(3):
                     if self.allow_rotations:
                         sm = np.rot90(sm)
