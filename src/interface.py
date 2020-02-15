@@ -5,6 +5,7 @@ from .validators.deterministic import DeterministicValidator
 from .renderers.deterministic import DeterministicRenderer
 from .core import Core
 
+from pprint import pprint
 
 class Interface:
     def __init__(
@@ -34,6 +35,11 @@ class Interface:
         # Extract patterns without wrapping.
         patterns, weights = self.classify_patterns()
         print("Done setting up classifier.")
+
+        # Adds a useful identifier matrix for ML purposes
+        self.init_id_matrix(patterns)
+        pprint(self.id_matrix)
+        print("Done setting up id_matrix.")
 
         # Setup `Validator` instance.
         self.validator = validator if validator else DeterministicValidator(
@@ -79,6 +85,20 @@ class Interface:
                         submatrices.append(sm)
 
         return submatrices
+
+    def init_id_matrix(self, patterns):
+        n, m = self.example.shape
+        self.id_matrix = [[-1 for _ in range(n)] for _ in range(m)]
+
+        pos = 0
+        for i in range(n):
+            for j in range(m):
+                sm = self.classifier.extract_pattern(self.example, i, j, self.size)
+
+                for p in patterns:
+                    if np.equal(p.matrix, sm).all():
+                        self.id_matrix[i][j] = p.index
+                        break
 
     def generate(self, name, size):
 
