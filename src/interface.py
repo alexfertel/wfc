@@ -52,9 +52,7 @@ class Interface:
 
         self.core = Core(patterns, weights, self.size)
         
-        self.core.classifier = self.classifier
         self.core.validator = self.validator
-        self.core.renderer = self.renderer
 
 
     def classify_patterns(self):
