@@ -17,11 +17,3 @@ class DeterministicClassifier(Classifier):
 
     def classify_pattern(self, pattern):
         pass
-
-    def extract_pattern(self, example, i, j, k):
-        n, m = example.shape
-        rows = [i % n for i in range(i, i + k)]
-        cols = [j % m for j in range(j, j + k)]
-        return example[rows][:, cols]
-        # return example[i: i + k, j: j + k]
-

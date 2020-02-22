@@ -4,6 +4,9 @@ from .classifiers.deterministic import DeterministicClassifier
 from .validators.deterministic import DeterministicValidator
 from .renderers.deterministic import DeterministicRenderer
 from .core import Core
+from .utils import extract_submatrices, extract_wrapped_pattern
+
+from pprint import pprint
 
 
 class Interface:
@@ -35,61 +38,73 @@ class Interface:
         patterns, weights = self.classify_patterns()
         print("Done setting up classifier.")
 
+        # Adds a useful identifier matrix for ML purposes
+        self.init_id_matrix(patterns)
+        pprint(self.id_matrix)
+        print("Done setting up id_matrix.")
+
         # Setup `Validator` instance.
         self.validator = validator if validator else DeterministicValidator(
             patterns)
         print("Done setting up validator.")
 
         # Setup `Renderer` instance.
-        self.renderer = renderer if renderer else DeterministicRenderer(patterns)
+        self.renderer = renderer(
+            self.id_matrix, self.size) if renderer else DeterministicRenderer(patterns)
         print("Done setting up renderer.")
 
         self.core = Core(patterns, weights, self.size)
-        
-        self.core.classifier = self.classifier
-        self.core.validator = self.validator
-        self.core.renderer = self.renderer
 
+        self.core.validator = self.validator
 
     def classify_patterns(self):
-        patterns = self.extract_patterns()
+        patterns = extract_submatrices(
+            self.example, self.size, extract_wrapped_pattern)
+
+        for pattern in patterns:
+            for _ in range(3):
+                if self.allow_rotations:
+                    pattern = np.rot90(pattern)
+                    patterns.append(pattern)
+
+                if self.allow_reflections:
+                    pattern = np.flip(pattern)
+                    patterns.append(pattern)
 
         return self.classifier.classify_patterns(patterns)
 
-
-    def extract_patterns(self):
+    def init_id_matrix(self, patterns):
         n, m = self.example.shape
-        N = self.size
+        self.id_matrix = [[-1 for _ in range(n)] for _ in range(m)]
 
-        submatrices = []
+        pos = 0
         for i in range(n):
             for j in range(m):
-                sm = self.classifier.extract_pattern(self.example, i, j, N)
-                submatrices.append(sm)
+                sm = extract_wrapped_pattern(self.example, i, j, self.size)
 
-                # Add rotations. We argue reflections
-                # and rotations should not always be allowed.
-                for _ in range(3):
-                    if self.allow_rotations:
-                        sm = np.rot90(sm)
-                        submatrices.append(sm)
+                for p in patterns:
+                    if np.equal(p.matrix, sm).all():
+                        self.id_matrix[i][j] = p.index
+                        break
 
-                    if self.allow_reflections:
-                        sm = np.flip(sm)
-                        submatrices.append(sm)
+    def generate(self, name, size, quiet):
+        if quiet:
+            for _ in enumerate(wfc.generate(size)):
+                continue
+        else:
+            for index, grid in enumerate(self.core.generate(size)):
+                print(f'Generated step #{index}.')
 
-        return submatrices
+        return self.core.grid
 
-    def generate(self, name, size):
+    def render(self, name):
+        print('Start rendering phase.')
+        n, m = len(self.core.grid), len(self.core.grid[0])
+        # patterns = self.extract_patterns(self.core.grid)
+        identifiers = [[-1 for _ in range(n)] for _ in range(m)]
 
-        tex = Texture(os.path.join('images', f'{name}.png'))
-
-        sample = tex.sample
-
-        wfc = Core(sample, N)
-
-        for index, grid in enumerate(wfc.generate(size)):
-            print(f'Generated step #{index}.')
-            tex.save(grid, os.path.join('results', name, f"{name}{index}.bmp"))
-
-            # pprint(grid, width=200)
+        for i in range(n):
+            for j in range(m):
+                identifiers[i][j] = self.core.grid[i][j].identifier 
+        
+        return self.renderer.render_patterns(np.array(identifiers))
