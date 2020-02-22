@@ -35,7 +35,7 @@ class Texture(Interface):
 
     def read(self, path):
         image = im.imread(path)
-        N, M, _ = image.shape        
+        N, M, _ = image.shape
 
         colors = []
         for i in range(N):
@@ -50,21 +50,29 @@ class Texture(Interface):
         sample = [[0 for _ in range(M)] for _ in range(N)]
         for i in range(N):
             for j in range(M):
-                sample[i][j] = self.c2i[tuple(image[i][j])] 
+                sample[i][j] = self.c2i[tuple(image[i][j])]
 
         pprint(sample)
 
         return sample
 
-    def generate(self, name, size):
-        for index, grid in enumerate(self.core.generate(size)):
-            print(f'Generated step #{index}.')
+    def generate(self, name, size, quiet):
+        if quiet:
+            for _ in enumerate(self.core.generate(size)):
+                continue
+        else:
+            for index, grid in enumerate(self.core.generate(size)):
+                print(f'Generated step #{index}.')
+
             self.save(grid, os.path.join(
-                'results', name, f"{name}_{index}.png"))
+                'results', name, f"{name}.png"))
 
+        return self.core.grid
 
-    def save(self, grid, path):
-        rgb = self.compute_wave_colors(grid)
+    def save(self, grid, path, nparray=False):
+        rgb = grid
+        if nparray:
+            rgb = self.compute_wave_colors(grid)
 
         data = np.uint8(rgb)
         im.imwrite(path, data)
@@ -89,3 +97,13 @@ class Texture(Interface):
                 rgb[i][j] = (red / N, green / N, blue / N)
 
         return rgb
+
+    def render(self, name):
+        # patterns = self.extract_patterns(self.core.grid)
+
+        rendered = super().render(name)
+
+        self.save(rendered, os.path.join(
+            'results', name, f"ml_{name}.png"))
+        return 
+
