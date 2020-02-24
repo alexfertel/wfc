@@ -10,7 +10,7 @@ from src import Interface, Texture, RENDERERS
 def main():
     parser = argparse.ArgumentParser()
 
-    default = 'Rooms'
+    default = 'Flowers'
     parser.add_argument('--name',
                         default=default,
                         help='Sample name.',

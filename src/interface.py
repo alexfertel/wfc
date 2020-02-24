@@ -75,7 +75,7 @@ class Interface:
 
     def init_id_matrix(self, patterns):
         n, m = self.example.shape
-        self.id_matrix = [[-1 for _ in range(n)] for _ in range(m)]
+        self.id_matrix = [[-1 for _ in range(m)] for _ in range(n)]
 
         pos = 0
         for i in range(n):

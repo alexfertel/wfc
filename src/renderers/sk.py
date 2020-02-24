@@ -39,7 +39,3 @@ class Monster(Renderer):
                 rendered[i][j] = self.clf.predict([p.flatten()])[0]
 
         return rendered
-
-    def render_pattern(self, identifier):
-        return self.patterns[identifier]
-

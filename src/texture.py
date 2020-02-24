@@ -69,9 +69,9 @@ class Texture(Interface):
 
         return self.core.grid
 
-    def save(self, grid, path, nparray=False):
+    def save(self, grid, path, slots_array=False):
         rgb = grid
-        if nparray:
+        if slots_array:
             rgb = self.compute_wave_colors(grid)
 
         data = np.uint8(rgb)
@@ -99,11 +99,25 @@ class Texture(Interface):
         return rgb
 
     def render(self, name):
-        # patterns = self.extract_patterns(self.core.grid)
+        self.save(self.core.grid, os.path.join(
+            'results', name, f"{name}.png"), slots_array=True)
 
-        rendered = super().render(name)
+        rendered_ids = super().render(name)
 
+        n, m = len(rendered_ids), len(rendered_ids[0])
+
+        pprint(rendered_ids, width=200)
+
+        rendered = [[-1 for _ in range(m)] for _ in range(n)]
+        for i in range(n):
+            for j in range(m):
+                rendered[i][j] = self.core.patterns[rendered_ids[i][j]]
+
+                red = self.i2c[rendered[i][j].color][0]
+                green = self.i2c[rendered[i][j].color][1]
+                blue = self.i2c[rendered[i][j].color][2]
+                rendered[i][j] = (red, green, blue)
+
+        pprint(rendered, width=200)
         self.save(rendered, os.path.join(
-            'results', name, f"ml_{name}.png"))
-        return 
-
+            'results', name, f"{name}_ml.png"))
