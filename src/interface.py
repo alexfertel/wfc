@@ -95,16 +95,23 @@ class Interface:
             for index, grid in enumerate(self.core.generate(size)):
                 print(f'Generated step #{index}.')
 
+        self.save(self.core.grid, os.path.join(
+            'results', 'matrices', name, f"{name}.txt"))
+
         return self.core.grid
+
+    def save(self, grid, path):
+        with open(path, 'w') as fd:
+            pprint(grid, width=200, stream=fd)
 
     def render(self, name):
         print('Start rendering phase.')
         n, m = len(self.core.grid), len(self.core.grid[0])
         # patterns = self.extract_patterns(self.core.grid)
-        identifiers = [[-1 for _ in range(n)] for _ in range(m)]
+        identifiers = [[-1 for _ in range(m)] for _ in range(n)]
 
         for i in range(n):
             for j in range(m):
-                identifiers[i][j] = self.core.grid[i][j].identifier 
-        
+                identifiers[i][j] = self.core.grid[i][j].identifier
+
         return self.renderer.render_patterns(np.array(identifiers))

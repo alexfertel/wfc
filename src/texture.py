@@ -28,7 +28,9 @@ class Texture(Interface):
                          size,
                          classifier,
                          validator,
-                         renderer)
+                         renderer,
+                         allow_rotations=False,
+                         allow_reflections=False)
 
         # pprint(self.sample)
         # pprint(self.colors)
@@ -64,8 +66,11 @@ class Texture(Interface):
             for index, grid in enumerate(self.core.generate(size)):
                 print(f'Generated step #{index}.')
 
-            self.save(grid, os.path.join(
-                'results', name, f"{name}.png"))
+                self.save(grid, os.path.join(
+                    'results', name, f"{name}_{index}.png"), slots_array=True)
+
+        super().save(self.core.grid, os.path.join(
+            'results', 'matrices', name, f"{name}.txt"))
 
         return self.core.grid
 
@@ -80,7 +85,7 @@ class Texture(Interface):
     def compute_wave_colors(self, grid):
         n, m = len(grid), len(grid[0])
 
-        rgb = [[None for _ in range(n)] for _ in range(m)]
+        rgb = [[None for _ in range(m)] for _ in range(n)]
 
         for i in range(n):
             for j in range(m):
@@ -118,6 +123,6 @@ class Texture(Interface):
                 blue = self.i2c[rendered[i][j].color][2]
                 rendered[i][j] = (red, green, blue)
 
-        pprint(rendered, width=200)
+        # pprint(rendered, width=200)
         self.save(rendered, os.path.join(
             'results', name, f"{name}_ml.png"))

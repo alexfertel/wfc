@@ -1,5 +1,8 @@
 # 4-neighbourhood
 import numpy as np
+
+from pprint import pprint
+
 dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 # dirs = [(x, y) for x in (-1, 0, 1) for y in (-1, 0, 1) if x != 0 or y != 0]
 
@@ -87,9 +90,19 @@ def extract_submatrices(matrix, size, pattern_extractor):
 
     return submatrices
 
-
-def extract_wrapped_pattern(matrix, x, y, size):
+def extract_wrapped_pattern(matrix, X, Y, size):
     n, m = matrix.shape
-    rows = [x % n for x in range(x, x + size)]
-    cols = [y % m for y in range(y, y + size)]
+    rows = [x % n for x in range(X, X + size)]
+    cols = [y % m for y in range(Y, Y + size)]
     return matrix[rows][:, cols]
+
+def find(elements, value):
+    value = value.lower()
+    for obj in elements:
+        if obj.__name__.lower() == value:
+            return obj
+    raise ValueError(f"{value} not found in {[e.__name__ for e in elements]}")
+
+if __name__ == "__main__":
+    arr = np.arange(16).reshape((4, 4))
+    pprint(extract_submatrices(arr, 3, extract_wrapped_pattern))

@@ -5,12 +5,12 @@ import os
 from pprint import pprint
 from pathlib import Path
 from src import Interface, Texture, RENDERERS
-
+from src.utils import find
 
 def main():
     parser = argparse.ArgumentParser()
 
-    default = 'Flowers'
+    default = 'Flowers1'
     parser.add_argument('--name',
                         default=default,
                         help='Sample name.',
@@ -36,28 +36,40 @@ def main():
                         action='store_true',
                         help="Don't compute each step.",
                         dest='quiet')
+    parser.add_argument('--rotate',
+                        action='store_true',
+                        help="Allow rotations.",
+                        dest='rotate')
+    parser.add_argument('--all-renderers',
+                        action='store_true',
+                        help="Test all of scikit-learn models.",
+                        dest='all')
 
     args = parser.parse_args()
     args.size = (args.size[0], args.size[1])
 
+    # Create the output dir if it doesn't exist
+    Path(os.path.join('results', args.name)).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join('results', 'matrices', args.name)).mkdir(parents=True, exist_ok=True)
+    
+    if args.all:
+        every(args)
+        exit()
+    
+    one(args)
+
+def every(args):
+    pass
+
+def one(args):
     if args.renderer:
         args.renderer = find(RENDERERS, args.renderer)        
 
-    # Create the output dir if it doesn't exist
-    Path(os.path.join('results', args.name)).mkdir(parents=True, exist_ok=True)
-
     path = os.path.join('images', f'{args.name}.png')
-    wfc = Texture(args.N, path, renderer=args.renderer)
+    wfc = Texture(args.N, path, renderer=args.renderer, allow_rotations=args.rotate)
     wfc.generate(args.name, args.size, quiet=args.quiet)
 
     wfc.render(args.name)
-
-def find(elements, value):
-    value = value.lower()
-    for obj in elements:
-        if obj.__name__.lower() == value:
-            return obj
-    raise ValueError(f"{value} not found in {[e.__name__ for e in elements]}")
 
 
 if __name__ == "__main__":
