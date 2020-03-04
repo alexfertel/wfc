@@ -61,21 +61,23 @@ class Interface:
         patterns = extract_submatrices(
             self.example, self.size, extract_wrapped_pattern)
 
-        for pattern in patterns:
-            for _ in range(3):
-                if self.allow_rotations:
-                    pattern = np.rot90(pattern)
-                    patterns.append(pattern)
+        if self.allow_rotations or self.allow_reflections:
+            for pattern in patterns:
+                sm = None
+                for _ in range(3):
+                    if self.allow_rotations:
+                        sm = np.rot90(pattern)
+                        patterns.append(sm)
 
-                if self.allow_reflections:
-                    pattern = np.flip(pattern)
-                    patterns.append(pattern)
+                    if self.allow_reflections:
+                        sm = np.flip(sm)
+                        patterns.append(sm)
 
         return self.classifier.classify_patterns(patterns)
 
     def init_id_matrix(self, patterns):
         n, m = self.example.shape
-        self.id_matrix = [[-1 for _ in range(n)] for _ in range(m)]
+        self.id_matrix = [[-1 for _ in range(m)] for _ in range(n)]
 
         pos = 0
         for i in range(n):
@@ -95,16 +97,23 @@ class Interface:
             for index, grid in enumerate(self.core.generate(size)):
                 print(f'Generated step #{index}.')
 
+        self.save(self.core.grid, os.path.join(
+            'results', 'matrices', name, f"{name}.txt"))
+
         return self.core.grid
+
+    def save(self, grid, path):
+        with open(path, 'w') as fd:
+            pprint(grid, width=200, stream=fd)
 
     def render(self, name):
         print('Start rendering phase.')
         n, m = len(self.core.grid), len(self.core.grid[0])
         # patterns = self.extract_patterns(self.core.grid)
-        identifiers = [[-1 for _ in range(n)] for _ in range(m)]
+        identifiers = [[-1 for _ in range(m)] for _ in range(n)]
 
         for i in range(n):
             for j in range(m):
-                identifiers[i][j] = self.core.grid[i][j].identifier 
-        
+                identifiers[i][j] = self.core.grid[i][j].identifier
+
         return self.renderer.render_patterns(np.array(identifiers))
