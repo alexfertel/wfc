@@ -111,6 +111,7 @@ class Texture(Interface):
 
         n, m = len(rendered_ids), len(rendered_ids[0])
 
+        pprint(self.core.grid, width=200)
         pprint(rendered_ids, width=200)
 
         rendered = [[-1 for _ in range(m)] for _ in range(n)]

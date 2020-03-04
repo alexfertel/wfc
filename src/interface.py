@@ -61,15 +61,17 @@ class Interface:
         patterns = extract_submatrices(
             self.example, self.size, extract_wrapped_pattern)
 
-        for pattern in patterns:
-            for _ in range(3):
-                if self.allow_rotations:
-                    pattern = np.rot90(pattern)
-                    patterns.append(pattern)
+        if self.allow_rotations or self.allow_reflections:
+            for pattern in patterns:
+                sm = None
+                for _ in range(3):
+                    if self.allow_rotations:
+                        sm = np.rot90(pattern)
+                        patterns.append(sm)
 
-                if self.allow_reflections:
-                    pattern = np.flip(pattern)
-                    patterns.append(pattern)
+                    if self.allow_reflections:
+                        sm = np.flip(sm)
+                        patterns.append(sm)
 
         return self.classifier.classify_patterns(patterns)
 
