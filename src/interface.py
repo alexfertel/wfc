@@ -77,6 +77,8 @@ class Interface:
 
     def init_id_matrix(self, patterns):
         n, m = self.example.shape
+        print(f'init_id_matrix: {self.example.shape}')
+
         self.id_matrix = [[-1 for _ in range(m)] for _ in range(n)]
 
         pos = 0
@@ -108,7 +110,9 @@ class Interface:
 
     def render(self, name):
         print('Start rendering phase.')
+        print(f'render:example: {self.example.shape}')
         n, m = len(self.core.grid), len(self.core.grid[0])
+        print(f'render:grid: ({n}, {m})')
         # patterns = self.extract_patterns(self.core.grid)
         identifiers = [[-1 for _ in range(m)] for _ in range(n)]
 
