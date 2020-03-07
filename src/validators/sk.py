@@ -1,8 +1,12 @@
-from collections import defaultdict
+import numpy as np
 
+from pprint import pprint
+from collections import defaultdict
 from .validator import Validator
 from ..utils import compatible, dirs, d2s
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+
 
 class MonsterValidator(Validator):
     def __init__(self, patterns):
@@ -17,19 +21,19 @@ class MonsterValidator(Validator):
         self.learn_adjacencies()
 
     def setup(self, patterns):
-        ps = [p.flatten() for p in patterns]
-
         X, y = [], []
-        for x in ps:
-            for y in ps:
+        for p1 in patterns:
+            for p2 in patterns:
                 for d in dirs:
-                    X.append(np.concatenate(x, y, np.array(d2s(d))))
-                    y.append(1 if compatible(x, y, d) else 0)
-
+                    fp1 = p1.flatten()
+                    fp2 = p2.flatten()
+                    X.append(np.concatenate((fp1, fp2, np.array(d2s(d)))))
+                    y.append(1 if compatible(p1, p2, d) else 0)
 
         # y = [vector[0] for vector in X]
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=.2, random_state=42)
 
         # clf = GaussianNB()
         # clf = KNeighborsClassifier(3)
@@ -47,13 +51,13 @@ class MonsterValidator(Validator):
                 for x, y in dirs:
                     d = (x, y)
 
-                    vector = np.concatenate(p1, p2, np.array(d2s(d)))
+                    vector = np.concatenate((p1.matrix.flatten(), p2.matrix.flatten(), np.array(d2s(d))))
                     if self.clf.predict([vector])[0]:
                         self.adjacency_rules[(p1.index, d)].append(p2.index)
-                        self.adjacency_rules[(p2.index, (-x, -y))].append(p1.index)
+                        self.adjacency_rules[(
+                            p2.index, (-x, -y))].append(p1.index)
         pprint(self.adjacency_rules)
         return self
 
     def valid_adjacencies(self, identifier, direction):
         return self.adjacency_rules[identifier, direction]
-

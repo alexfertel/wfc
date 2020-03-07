@@ -44,7 +44,7 @@ class Interface:
         print("Done setting up id_matrix.")
 
         # Setup `Validator` instance.
-        self.validator = validator if validator else DeterministicValidator(
+        self.validator = validator(patterns) if validator else DeterministicValidator(
             patterns)
         print("Done setting up validator.")
 

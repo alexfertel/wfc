@@ -1,3 +1,4 @@
+
 from collections import defaultdict
 
 from .validator import Validator
@@ -22,7 +23,7 @@ class DeterministicValidator(Validator):
                     if compatible(p1.matrix, p2.matrix, d):
                         self.adjacency_rules[(p1.index, d)].append(p2.index)
                         self.adjacency_rules[(p2.index, (-x, -y))].append(p1.index)
-        pprint(self.adjacency_rules)
+        # pprint(self.adjacency_rules)
         return self
 
     def valid_adjacencies(self, identifier, direction):
