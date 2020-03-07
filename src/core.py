@@ -129,7 +129,7 @@ class Core:
 
                 # For each pattern of the triggered slot, check if
                 # that pattern has the possibility of appearing,
-                # which is a check of existence in the union of domains.
+                # which is an existence check in the union of domains.
                 for p2 in ted_slot_patterns:
                     if not p2.index in domains_union:
                         triggered_slot.remove_pattern(p2, self.weights)
