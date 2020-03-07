@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+#!/usr/bin/python3
 import argparse
 import os
 
@@ -48,6 +49,12 @@ def main():
                         action='store_true',
                         help="Test all of scikit-learn models.",
                         dest='all')
+    parser.add_argument('-t',
+                        action='store_true',
+                        help="With timestamp.",
+                        dest='timestamp')
+
+
 
     args = parser.parse_args()
     args.size = (args.size[0], args.size[1])
@@ -71,6 +78,8 @@ def one(args):
 
     if args.validator:
         args.validator = find(VALIDATORS, args.validator)        
+
+    # filename = 
 
     path = os.path.join('images', f'{args.name}.png')
     wfc = Texture(args.N, path, validator=args.validator, renderer=args.renderer, allow_rotations=args.rotate)

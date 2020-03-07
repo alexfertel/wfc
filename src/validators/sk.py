@@ -38,9 +38,10 @@ class MonsterValidator(Validator):
         # clf = GaussianNB()
         # clf = KNeighborsClassifier(3)
         # clf = RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1)
-        clf = DecisionTreeClassifier()
+        clf = DecisionTreeClassifier(max_depth=5)
         clf.fit(X_train, y_train)
-        # score = clf.score(X_test, y_test)
+        score = clf.score(X_test, y_test)
+        pprint(score)
 
         return clf
 
