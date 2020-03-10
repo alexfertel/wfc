@@ -1,10 +1,11 @@
 #!/usr/bin/python3
+#!/usr/bin/python3
 import argparse
 import os
 
 from pprint import pprint
 from pathlib import Path
-from src import Interface, Texture, RENDERERS
+from src import Interface, Texture, RENDERERS, VALIDATORS
 from src.utils import find
 
 def main():
@@ -32,6 +33,10 @@ def main():
                         default=None,
                         help='Renderer to use.',
                         dest='renderer')
+    parser.add_argument('-v', '--validator',
+                        default=None,
+                        help='Validator to use.',
+                        dest='validator')
     parser.add_argument('-q', '--quiet',
                         action='store_true',
                         help="Don't compute each step.",
@@ -44,6 +49,12 @@ def main():
                         action='store_true',
                         help="Test all of scikit-learn models.",
                         dest='all')
+    parser.add_argument('-t',
+                        action='store_true',
+                        help="With timestamp.",
+                        dest='timestamp')
+
+
 
     args = parser.parse_args()
     args.size = (args.size[0], args.size[1])
@@ -65,8 +76,13 @@ def one(args):
     if args.renderer:
         args.renderer = find(RENDERERS, args.renderer)        
 
+    if args.validator:
+        args.validator = find(VALIDATORS, args.validator)        
+
+    # filename = 
+
     path = os.path.join('images', f'{args.name}.png')
-    wfc = Texture(args.N, path, renderer=args.renderer, allow_rotations=args.rotate)
+    wfc = Texture(args.N, path, validator=args.validator, renderer=args.renderer, allow_rotations=args.rotate)
     wfc.generate(args.name, args.size, quiet=args.quiet)
 
     wfc.render(args.name)

@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from .renderer import Renderer
 from ..utils import extract_submatrices, extract_wrapped_pattern
 
-class Monster(Renderer):
+class MonsterRenderer(Renderer):
     def __init__(self, id_matrix, size):
         super().__init__()
         

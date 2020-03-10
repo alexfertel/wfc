@@ -53,8 +53,8 @@ def render(grid):
 
 def compatible(p1, p2, d):
     x, y = d
-    m1 = matrix_lap(p1.matrix, (x, y))
-    m2 = matrix_lap(p2.matrix, (-x, -y))
+    m1 = matrix_lap(p1, (x, y))
+    m2 = matrix_lap(p2, (-x, -y))
     return (m1 == m2).all()
 
 
@@ -103,6 +103,53 @@ def find(elements, value):
             return obj
     raise ValueError(f"{value} not found in {[e.__name__ for e in elements]}")
 
+def d2s(direction):
+    x, y = direction
+
+    if x == 1:
+        return [1, 0, 0, 0]
+    if x == -1:
+        return [0, 0, 1, 0]
+    if y == 1:
+        return [0, 1, 0, 0]
+    if y == -1:
+        return [0, 0, 0, 1]
+    
+    raise Exception(f'`direction` arg {direction} is not a valid direction.')
+
 if __name__ == "__main__":
-    arr = np.arange(16).reshape((4, 4))
-    pprint(extract_submatrices(arr, 3, extract_wrapped_pattern))
+    # arr = np.arange(16).reshape((4, 4))
+    arr = np.array([
+        [1, 1, 1, 1],
+        [2, 2, 2, 2],
+        [3, 3, 3, 3],
+        [2, 2, 2, 2],
+        [1, 1, 1, 1],
+    ])
+    
+    patterns = extract_submatrices(arr, 3, extract_wrapped_pattern)
+    pprint(patterns)
+
+    m1 = np.array([
+        [1, 1, 1],
+        [2, 2, 2],
+        [3, 3, 3],
+    ])
+    # m2 = np.array([
+    #     [1, 1, 1],
+    #     [2, 2, 2],
+    #     [3, 3, 3],
+    # ])
+    m2 = np.array([
+        [2, 2, 2],
+        [3, 3, 3],
+        [1, 1, 1],
+    ])
+    pprint(compatible(m1, m2, (0, 1)))
+
+    pprint("Second test")
+
+    pprint(compatible(m1, m2, (1, 0)))
+
+
+

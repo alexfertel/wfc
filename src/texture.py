@@ -112,18 +112,19 @@ class Texture(Interface):
         n, m = len(rendered_ids), len(rendered_ids[0])
 
         pprint(self.core.grid, width=200)
-        pprint(rendered_ids, width=200)
+        # pprint(rendered_ids, width=200)
 
-        rendered = [[-1 for _ in range(m)] for _ in range(n)]
-        for i in range(n):
-            for j in range(m):
-                rendered[i][j] = self.core.patterns[rendered_ids[i][j]]
+        if self.renderer:
+            rendered = [[-1 for _ in range(m)] for _ in range(n)]
+            for i in range(n):
+                for j in range(m):
+                    rendered[i][j] = self.core.patterns[rendered_ids[i][j]]
 
-                red = self.i2c[rendered[i][j].color][0]
-                green = self.i2c[rendered[i][j].color][1]
-                blue = self.i2c[rendered[i][j].color][2]
-                rendered[i][j] = (red, green, blue)
+                    red = self.i2c[rendered[i][j].color][0]
+                    green = self.i2c[rendered[i][j].color][1]
+                    blue = self.i2c[rendered[i][j].color][2]
+                    rendered[i][j] = (red, green, blue)
 
-        # pprint(rendered, width=200)
-        self.save(rendered, os.path.join(
-            'results', name, f"{name}_ml.png"))
+            # pprint(rendered, width=200)
+            self.save(rendered, os.path.join(
+                'results', name, f"{name}_ml.png"))
