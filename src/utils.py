@@ -103,7 +103,7 @@ def find(elements, value):
             return obj
     raise ValueError(f"{value} not found in {[e.__name__ for e in elements]}")
 
-def d2s(direction):
+def d2v(direction):
     x, y = direction
 
     if x == 1:
@@ -116,6 +116,21 @@ def d2s(direction):
         return [0, 0, 0, 1]
     
     raise Exception(f'`direction` arg {direction} is not a valid direction.')
+
+def d2i(direction):
+    x, y = direction
+
+    if x == -1:
+        return 0
+    if y == 1:
+        return 1
+    if x == 1:
+        return 3
+    if y == -1:
+        return 4
+    
+    raise Exception(f'`direction` arg {direction} is not a valid direction.')
+
 
 if __name__ == "__main__":
     # arr = np.arange(16).reshape((4, 4))

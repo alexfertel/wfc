@@ -3,6 +3,7 @@ from collections import defaultdict
 
 from .validator import Validator
 from ..utils import compatible, dirs
+from ..lookup_table import LookupTable
 from pprint import pprint
 
 class DeterministicValidator(Validator):
