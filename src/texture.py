@@ -54,6 +54,7 @@ class Texture(Interface):
             for j in range(M):
                 sample[i][j] = self.c2i[tuple(image[i][j])]
 
+        print('Sample:')
         pprint(sample)
 
         return sample

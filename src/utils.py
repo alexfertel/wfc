@@ -61,13 +61,13 @@ def compatible(p1, p2, d):
 def matrix_lap(matrix, direction):
     n, m = matrix.shape
 
-    if direction == (0, -1):  # North
+    if direction == (-1, 0):  # North
         return matrix[: -1, :]
-    if direction == (1, 0):  # East
+    if direction == (0, 1):  # East
         return matrix[:, 1:]
-    if direction == (0, 1):  # South
+    if direction == (1, 0):  # South
         return matrix[1:, :]
-    if direction == (-1, 0):  # West
+    if direction == (0, -1):  # West
         return matrix[:, :-1]
 
     return False

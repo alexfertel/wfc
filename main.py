@@ -8,6 +8,7 @@ from pathlib import Path
 from src import Interface, Texture, RENDERERS, VALIDATORS
 from src.utils import find
 
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -54,35 +55,38 @@ def main():
                         help="With timestamp.",
                         dest='timestamp')
 
-
-
     args = parser.parse_args()
     args.size = (args.size[0], args.size[1])
 
     # Create the output dir if it doesn't exist
     Path(os.path.join('results', args.name)).mkdir(parents=True, exist_ok=True)
-    Path(os.path.join('results', 'matrices', args.name)).mkdir(parents=True, exist_ok=True)
-    
+    Path(os.path.join('results', 'matrices', args.name)).mkdir(
+        parents=True, exist_ok=True)
+
     if args.all:
         every(args)
         exit()
-    
+
     one(args)
+
 
 def every(args):
     pass
 
+
 def one(args):
     if args.renderer:
-        args.renderer = find(RENDERERS, args.renderer)        
+        args.renderer = find(RENDERERS, args.renderer)
 
     if args.validator:
-        args.validator = find(VALIDATORS, args.validator)        
+        args.validator = find(VALIDATORS, args.validator)
 
-    # filename = 
+    # filename =
 
     path = os.path.join('images', f'{args.name}.png')
-    wfc = Texture(args.N, path, validator=args.validator, renderer=args.renderer, allow_rotations=args.rotate)
+    wfc = Texture(args.N, path, validator=args.validator,
+                  renderer=args.renderer, allow_rotations=args.rotate)
+    
     wfc.generate(args.name, args.size, quiet=args.quiet)
 
     wfc.render(args.name)
