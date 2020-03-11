@@ -122,10 +122,8 @@ class Core:
                     p for p in triggered_slot.patterns if triggered_slot.possibilities[p.index]]
 
                 # Union of the spaces.
-                domains_union = []
-                for allowed_pat in ting_slot_patterns:
-                    domains_union = np.union1d(
-                        domains_union, self.validator.valid_adjacencies(allowed_pat.index, d))
+                space = ting_slot_patterns
+                domains_union = reduce(lambda a, b: a | self.validator.valid_adjacencies(b.index, d), space, set())
 
                 # For each pattern of the triggered slot, check if
                 # that pattern has the possibility of appearing,
