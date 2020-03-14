@@ -17,22 +17,22 @@ def main():
                              help='Tuple representing the size of the output image.',
                              dest='size')
     main_parser.add_argument('--rotate', action='store_true',
-                               help="Allow rotations.", dest='rotate')
+                             help="Allow rotations.", dest='rotate')
     main_parser.add_argument('--reflect', action='store_true',
-                               help="Allow reflection.", dest='reflect')
+                             help="Allow reflection.", dest='reflect')
     main_parser.add_argument('-r', '--renderer', default=None,
-                               help='Renderer to use.', dest='renderer')
+                             help='Renderer to use.', dest='renderer')
     main_parser.add_argument('-v', '--validator', default=None,
-                               help='Validator to use.', dest='validator')
+                             help='Validator to use.', dest='validator')
     main_parser.add_argument('-q', '--quiet', action='store_true',
-                               help="Don't compute each step.", dest='quiet')
+                             help="Don't compute each step.", dest='quiet')
+    main_parser.add_argument('-n', type=int, default=3,
+                               help="Size of a pattern side.", dest='N')
 
     # create the parser for the "simple" command
     simple_parser = subparsers.add_parser('simple')
     simple_parser.add_argument('name', default='Flowers1',
                                help='Sample name.')
-    simple_parser.add_argument('-n', type=int, default=3,
-                               help="Size of a pattern side.", dest='N')
     simple_parser.add_argument('-g', '--ground', type=int, default=0,
                                help='The height in pixels of the ground.',
                                dest='ground')
@@ -42,11 +42,6 @@ def main():
     dichotomic_parser = subparsers.add_parser('dichotomic')
     dichotomic_parser.add_argument('i0', default='Colored City')
     dichotomic_parser.add_argument('i1', default='Colored City Negative')
-    dichotomic_parser.add_argument('-n0', type=int, default=3,
-                                   help="Size of a pattern side.", dest='N0')
-    dichotomic_parser.add_argument('-n1', type=int, default=3,
-                                   help="Size of a pattern side.", dest='N1')
-
     dichotomic_parser.set_defaults(func=dichotomic)
 
     args = main_parser.parse_args()
