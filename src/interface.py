@@ -42,10 +42,6 @@ class Interface:
         self.init_id_matrix(patterns)
         pprint(self.id_matrix)
         
-        for index, item in enumerate(patterns):
-            print(index, item.matrix)
-            print()
-
         print("Done setting up id_matrix.")
 
         # Setup `Validator` instance.

@@ -125,9 +125,9 @@ def d2i(direction):
     if y == 1:
         return 1
     if x == 1:
-        return 3
+        return 2
     if y == -1:
-        return 4
+        return 3
     
     raise Exception(f'`direction` arg {direction} is not a valid direction.')
 
