@@ -12,16 +12,15 @@ from sklearn.model_selection import train_test_split
 
 
 class MonsterValidator(Validator):
-    def __init__(self, patterns):
+    def __init__(self):
         super().__init__()
 
-        self.patterns = patterns
         self.adjacency_rules = defaultdict(list)
 
         # Fit the model
         self.clf = self.setup(map(lambda p: p.matrix, patterns))
 
-        self.learn_adjacencies()
+        self.learn(patterns)
 
     def setup(self, patterns):
         X, y = [], []
@@ -47,10 +46,10 @@ class MonsterValidator(Validator):
 
         return clf
 
-    def learn_adjacencies(self):
+    def learn(self, patterns):
         # Learn adjacencies
-        for p1 in self.patterns:
-            for p2 in self.patterns:
+        for p1 in patterns:
+            for p2 in patterns:
                 for d in dirs:
                     (x, y) = d
 
@@ -64,5 +63,5 @@ class MonsterValidator(Validator):
         # pprint(self.adjacency_rules, width=1000)
         return self
 
-    def valid_adjacencies(self, identifier, direction):
+    def valid(self, identifier, direction):
         return self.adjacency_rules[identifier, direction]

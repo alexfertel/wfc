@@ -35,7 +35,7 @@ class Interface:
 
         # Preprocess input image to extract patterns, compute frequency hints
         # and build adjacency rules.
-        # Extract patterns without wrapping.
+        # Extract patterns.
         patterns, weights = self.classify_patterns()
         print("Done setting up classifier.")
 
@@ -46,8 +46,8 @@ class Interface:
         print("Done setting up id_matrix.")
 
         # Setup `Validator` instance.
-        self.validator = validator(patterns) if validator else DeterministicValidator(
-            patterns)
+        self.validator = validator() if validator else DeterministicValidator()
+        self.validator.learn(patterns)
         print("Done setting up validator.")
 
         # Setup `Renderer` instance.
@@ -55,9 +55,7 @@ class Interface:
             self.id_matrix, self.size) if renderer else DeterministicRenderer(patterns)
         print("Done setting up renderer.")
 
-        self.core = Core(patterns, weights, self.size)
-
-        self.core.validator = self.validator
+        self.core = Core(patterns, weights, self.validator, self.size)
 
     def classify_patterns(self):
         patterns = extract_submatrices(

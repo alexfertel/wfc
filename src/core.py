@@ -14,6 +14,7 @@ class Core:
             self,
             patterns,
             weights,
+            validator,
             size):
 
         # List of NxN submatrices.
@@ -27,6 +28,9 @@ class Core:
 
         # How likely a given module is to appear in any slot.
         self.weights = weights
+
+        # Look-up table to use
+        self.validator = validator
 
         # Output grid.
         self.output = None
@@ -111,7 +115,7 @@ class Core:
 
                 # Union of the spaces.
                 space = ting_slot_patterns
-                validator = lambda pattern: self.validator.valid_adjacencies(pattern.index, d)
+                validator = lambda pattern: self.validator.valid(pattern.index, d)
                 domains_union = reduce(lambda a, b: a | validator(b), space, set())
 
                 # For each pattern of the triggered slot, check if
