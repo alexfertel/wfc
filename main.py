@@ -10,56 +10,38 @@ from src.utils import find
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    # create the top-level parser
+    parser = argparse.ArgumentParser(prog="wfc")
+    subparsers = parser.add_subparsers()
 
+    # create the parser for the "simple" command
+    simple_parser = subparsers.add_parser('simple')
     default = 'Flowers1'
-    parser.add_argument('--name',
-                        default=default,
-                        help='Sample name.',
-                        dest='name')
-    parser.add_argument('-i', '--image',
-                        default=os.path.join('images', f'{default}.png'),
-                        help='Path to the example image.',
-                        dest='path')
-    parser.add_argument('-n', type=int,
-                        default=3,
-                        help="Size of the patterns' side.",
-                        dest='N')
-    parser.add_argument('-s', '--size', nargs=2,
-                        type=int,
-                        default=(28, 28),
+    simple_parser.add_argument('name', default=default,
+                        help='Sample name.')
+    simple_parser.add_argument('-n', type=int, default=3,
+                        help="Size of a pattern side.", dest='N')
+    simple_parser.add_argument('-s', '--size', nargs=2, type=int, default=(28, 28),
                         help='Tuple representing the size of the output image.',
                         dest='size')
-    parser.add_argument('-r', '--renderer',
-                        default=None,
-                        help='Renderer to use.',
-                        dest='renderer')
-    parser.add_argument('-v', '--validator',
-                        default=None,
-                        help='Validator to use.',
-                        dest='validator')
-    parser.add_argument('-q', '--quiet',
-                        action='store_true',
-                        help="Don't compute each step.",
-                        dest='quiet')
-    parser.add_argument('--rotate',
-                        action='store_true',
-                        help="Allow rotations.",
-                        dest='rotate')
-    parser.add_argument('--all-renderers',
-                        action='store_true',
-                        help="Test all of scikit-learn models.",
-                        dest='all')
-    parser.add_argument('-t',
-                        action='store_true',
-                        help="With timestamp.",
-                        dest='timestamp')
-    parser.add_argument('-g', '--ground',
-                        type=int,
-                        default=0,
+    simple_parser.add_argument('-r', '--renderer', default=None,
+                        help='Renderer to use.', dest='renderer')
+    simple_parser.add_argument('-v', '--validator', default=None,
+                        help='Validator to use.', dest='validator')
+    simple_parser.add_argument('-q', '--quiet', action='store_true',
+                        help="Don't compute each step.", dest='quiet')
+    simple_parser.add_argument('--rotate', action='store_true',
+                        help="Allow rotations.", dest='rotate')
+    simple_parser.add_argument('-g', '--ground', type=int, default=0,
                         help='The height in pixels of the ground.',
                         dest='ground')
+    simple_parser.set_defaults(func=simple)
 
+
+    # create the parser for the "dichotomic" command
+    dichotomic_parser = subparsers.add_parser('dichotomic')
+    dichotomic_parser.add_argument('z')
+    dichotomic_parser.set_defaults(func=dichotomic)
 
     args = parser.parse_args()
     args.size = (args.size[0], args.size[1])
@@ -69,18 +51,9 @@ def main():
     Path(os.path.join('results', 'matrices', args.name)).mkdir(
         parents=True, exist_ok=True)
 
-    if args.all:
-        every(args)
-        exit()
+    args.func(args)
 
-    one(args)
-
-
-def every(args):
-    pass
-
-
-def one(args):
+def simple(args):
     if args.renderer:
         args.renderer = find(RENDERERS, args.renderer)
 
@@ -92,10 +65,13 @@ def one(args):
     path = os.path.join('images', f'{args.name}.png')
     wfc = Texture(args.N, path, ground=args.ground, validator=args.validator,
                   renderer=args.renderer, allow_rotations=args.rotate)
-    
+
     wfc.generate(args.name, args.size, quiet=args.quiet)
 
     wfc.render(args.name)
+
+def dichotomic(args):
+    pass
 
 
 if __name__ == "__main__":
