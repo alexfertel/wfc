@@ -26,8 +26,8 @@ def main():
 
     # create the parser for the "dichotomic" command
     dichotomic_parser = subparsers.add_parser('dichotomic')
-    dichotomic_parser.add_argument('i0', default='Colored City')
-    dichotomic_parser.add_argument('i1', default='Colored City Negative')
+    dichotomic_parser.add_argument('positive', default=['Colored City'], nargs='+')
+    dichotomic_parser.add_argument('negative', default=['Colored City Negative'], nargs='*')
     add_flags(dichotomic_parser)
     dichotomic_parser.set_defaults(func=dichotomic)
 
@@ -70,9 +70,11 @@ def add_flags(parser):
     parser.add_argument('-n', type=int, default=3,
                         help="Size of a pattern side.", dest='N')
 
+    
+
 
 def simple(args):
-    wfc = Texture(args.N, args.path, ground=args.ground, validator=args.validator,
+    wfc = Texture(args.path, args.N, ground=args.ground, validator=args.validator,
                   renderer=args.renderer, allow_rotations=args.rotate)
 
     wfc.generate(args.name, args.size, quiet=args.quiet)

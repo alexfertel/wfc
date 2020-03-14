@@ -9,8 +9,8 @@ from pprint import pprint
 
 class Texture(Interface):
     def __init__(self,
-                 size,
                  path,
+                 size,
                  ground=0,
                  classifier=None,
                  validator=None,
