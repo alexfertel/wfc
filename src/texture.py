@@ -11,6 +11,7 @@ class Texture(Interface):
     def __init__(self,
                  size,
                  path,
+                 ground=0,
                  classifier=None,
                  validator=None,
                  renderer=None,
@@ -26,6 +27,7 @@ class Texture(Interface):
 
         super().__init__(self.sample,
                          size,
+                         ground,
                          classifier,
                          validator,
                          renderer,

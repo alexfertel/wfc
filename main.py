@@ -54,6 +54,12 @@ def main():
                         action='store_true',
                         help="With timestamp.",
                         dest='timestamp')
+    parser.add_argument('-g', '--ground',
+                        type=int,
+                        default=0,
+                        help='The height in pixels of the ground.',
+                        dest='ground')
+
 
     args = parser.parse_args()
     args.size = (args.size[0], args.size[1])
@@ -84,7 +90,7 @@ def one(args):
     # filename =
 
     path = os.path.join('images', f'{args.name}.png')
-    wfc = Texture(args.N, path, validator=args.validator,
+    wfc = Texture(args.N, path, ground=args.ground, validator=args.validator,
                   renderer=args.renderer, allow_rotations=args.rotate)
     
     wfc.generate(args.name, args.size, quiet=args.quiet)

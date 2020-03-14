@@ -14,6 +14,7 @@ class Interface:
             self,
             example,
             size,
+            ground=0,
             classifier=None,
             validator=None,
             renderer=None,
@@ -21,7 +22,7 @@ class Interface:
             allow_reflections=False):
 
         # This is the example image.
-        self.example = np.array(example)
+        self.example = np.array(example[:ground if ground else None])
 
         # This is the N for the NxN patterns.
         self.size = size
