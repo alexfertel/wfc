@@ -22,7 +22,7 @@ class Texture(Interface):
         # as found in the source image.
         self.sample = self.read(path)
 
-        # `colors` is the list of colors that are found in the source image.
+        # `colors` is the list of colors that can be found in the source image.
         self.colors = {}
 
         super().__init__(self.sample,
