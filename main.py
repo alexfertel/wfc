@@ -8,6 +8,8 @@ from pathlib import Path
 from src import Interface, Texture, RENDERERS, VALIDATORS
 from src.utils import find
 
+from src.wrapper import dichotomic
+
 
 def main():
     # create the top-level parser
@@ -26,8 +28,10 @@ def main():
 
     # create the parser for the "dichotomic" command
     dichotomic_parser = subparsers.add_parser('dichotomic')
-    dichotomic_parser.add_argument('positive', default=['Colored City'], nargs='+')
-    dichotomic_parser.add_argument('negative', default=['Colored City Negative'], nargs='*')
+    dichotomic_parser.add_argument(
+        'positive', default=['Colored City'], nargs='+')
+    dichotomic_parser.add_argument(
+        'negative', default=['Colored City Negative'], nargs='*')
     add_flags(dichotomic_parser)
     dichotomic_parser.set_defaults(func=dichotomic)
 
@@ -61,16 +65,16 @@ def add_flags(parser):
                         help="Allow rotations.", dest='rotate')
     parser.add_argument('--reflect', action='store_true',
                         help="Allow reflection.", dest='reflect')
-    parser.add_argument('-r', '--renderer', default=None,
-                        help='Renderer to use.', dest='renderer')
+    parser.add_argument('-c', '--classifier', default=None,
+                        help='Classifier to use.', dest='classifier')
     parser.add_argument('-v', '--validator', default=None,
                         help='Validator to use.', dest='validator')
+    parser.add_argument('-r', '--renderer', default=None,
+                        help='Renderer to use.', dest='renderer')
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="Don't compute each step.", dest='quiet')
     parser.add_argument('-n', type=int, default=3,
                         help="Size of a pattern side.", dest='N')
-
-    
 
 
 def simple(args):
@@ -80,10 +84,6 @@ def simple(args):
     wfc.generate(args.name, args.size, quiet=args.quiet)
 
     wfc.render(args.name)
-
-
-def dichotomic(args):
-    pass
 
 
 if __name__ == "__main__":
