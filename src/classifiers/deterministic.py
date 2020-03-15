@@ -10,7 +10,7 @@ class DeterministicClassifier(Classifier):
     def __init__(self):
         super().__init__()
 
-        self.patterns = set()
+        self.patterns = []
 
     def classify_patterns(self, patterns):
         unique, counts = np.lib.arraysetops.unique(
@@ -21,14 +21,12 @@ class DeterministicClassifier(Classifier):
             self.update_set(pattern)
 
         # Making it backwards compatible
-        patterns = list(self.patterns)
-        counts = [p.count for p in patterns]
+        counts = [p.count for p in self.patterns]
         return self.patterns, counts
 
     def classify_pattern(self, pattern):
         pat = Pattern(pattern)
-
-        self.patterns.add(pat)
+        self.update_set(pat)
         return pat
 
     def update_set(self, pattern):
@@ -36,5 +34,7 @@ class DeterministicClassifier(Classifier):
             for pat in self.patterns:
                 if pat == pattern:
                     pat.count += pattern.count
+                    pattern.index = pat.index
         else:
-            self.patterns.add(pattern)
+            pattern.index = len(self.patterns)        
+            self.patterns.append(pattern)

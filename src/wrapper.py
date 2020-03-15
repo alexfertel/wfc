@@ -2,6 +2,7 @@ import os
 import numpy as np
 import imageio as im
 
+from src.core import Core
 from src.utils import extract_submatrices as es
 from src.utils import extract_wrapped_pattern as ewp
 from functools import reduce, partial
@@ -21,6 +22,7 @@ def dichotomic(args):
     extractor = partial(es, ewp, args.N)
     transformer = partial(transform, args.rotate, args.reflect)
     
+    # Classifier setup
     clf = args.classifier()
 
     ppatterns = reduce(
@@ -29,13 +31,11 @@ def dichotomic(args):
     ppatterns = reduce(
         lambda x, y: x + transformer(y), ppatterns, [])
 
-    punique, pindices, counts = np.lib.arraysetops.unique(
+    punique, pindices, weights = np.lib.arraysetops.unique(
         ppatterns, return_inverse=True, return_counts=True, axis=0)
 
-    pprint(pindices)
-
     ppatterns = [clf.classify_pattern(pattern) for pattern in punique]
-    for index, pattern in enumerate(ppatterns): pattern.count = counts[index]
+    for index, pattern in enumerate(ppatterns): pattern.count = weights[index]
 
     npatterns = reduce(
         lambda x, y: x + extractor(y), nsamples, [])
@@ -46,10 +46,19 @@ def dichotomic(args):
     nunique = np.lib.arraysetops.unique(
         npatterns, axis=0) if npatterns else []
 
-    pprint(punique)
-    pprint(np.concatenate((punique, nunique)))    
 
+    npatterns = [clf.classify_pattern(pattern) for pattern in nunique]
 
+    # Validator setup
+    validator = args.validator()
+    validator.learn(ppatterns).prune(npatterns)
+
+    # Renderer setup
+    renderer = args.renderer(ppatterns)    
+
+    core = Core(ppatterns, weights, validator, args.N)
+
+    exit()
 
 def transform(allow_rotations, allow_reflections, pattern):
     patterns = [pattern]
@@ -122,3 +131,26 @@ def compute_sample(rgb, c2i):
             sample[i][j] = c2i[tuple(rgb[i][j])]
 
     return np.array(sample)
+
+def compute_wave_colors(grid, i2c):
+    n, m = len(grid), len(grid[0])
+
+    rgb = [[None for _ in range(m)] for _ in range(n)]
+
+    for i in range(n):
+        for j in range(m):
+            red, green, blue = (0, 0, 0)
+            contributors = [p for p in grid[i]
+                            [j].patterns if grid[i][j].possibilities[p.index]]
+
+            for allowed_pattern in contributors:
+                red += i2c[allowed_pattern.color][0]
+                green += i2c[allowed_pattern.color][1]
+                blue += i2c[allowed_pattern.color][2]
+
+            N = len(contributors)
+            rgb[i][j] = (red / N, green / N, blue / N)
+
+    return rgb
+
+
