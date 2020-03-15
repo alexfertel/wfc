@@ -11,8 +11,6 @@ from pprint import pprint
 
 
 def dichotomic(args):
-    pprint(args)
-
     pimages, nimages, c2i, i2c = read_images(args.positive, args.negative)
     psamples = [compute_sample(rgb, c2i) for rgb in pimages]
     nsamples = [compute_sample(rgb, c2i) for rgb in nimages]
@@ -21,13 +19,13 @@ def dichotomic(args):
 
     extractor = partial(es, ewp, args.N)
     transformer = partial(transform, args.rotate, args.reflect)
-    
+
     # Classifier setup
     clf = args.classifier()
 
     ppatterns = reduce(
         lambda x, y: x + extractor(y), psamples, [])
-    
+
     ppatterns = reduce(
         lambda x, y: x + transformer(y), ppatterns, [])
 
@@ -35,17 +33,17 @@ def dichotomic(args):
         ppatterns, return_inverse=True, return_counts=True, axis=0)
 
     ppatterns = [clf.classify_pattern(pattern) for pattern in punique]
-    for index, pattern in enumerate(ppatterns): pattern.count = weights[index]
+    for index, pattern in enumerate(ppatterns):
+        pattern.count = weights[index]
 
     npatterns = reduce(
         lambda x, y: x + extractor(y), nsamples, [])
-    
+
     npatterns = reduce(
         lambda x, y: x + transformer(y), npatterns, [])
 
     nunique = np.lib.arraysetops.unique(
         npatterns, axis=0) if npatterns else []
-
 
     npatterns = [clf.classify_pattern(pattern) for pattern in nunique]
 
@@ -54,11 +52,47 @@ def dichotomic(args):
     validator.learn(ppatterns).prune(npatterns)
 
     # Renderer setup
-    renderer = args.renderer(ppatterns)    
+    renderer = args.renderer(ppatterns)
 
     core = Core(ppatterns, weights, validator, args.N)
 
-    exit()
+    grid = generate(core, args.name, args.size, args.quiet, i2c)
+
+    n, m = args.size
+    id_grid = [[-1 for _ in range(m)] for _ in range(n)]
+    for i in range(n):
+        for j in range(m):
+            id_grid[i][j] = grid[i][j].identifier
+
+    rendered_grid = renderer.render_patterns(np.array(id_grid))
+
+    pprint(rendered_grid, indent=2, width=200)
+
+
+def generate(core, name, size, quiet, i2c):
+    if quiet:
+        for _ in enumerate(core.generate(size)):
+            continue
+    else:
+        for index, grid in enumerate(core.generate(size)):
+            print(f'Generated step #{index}.')
+
+            save(grid,
+                 f'results/{name}/{name}_{index}.png',
+                 i2c,
+                 slots_array=True)
+
+    return core.grid
+
+
+def save(grid, path, i2c, slots_array=False):
+    rgb = grid
+    if slots_array:
+        rgb = compute_wave_colors(grid, i2c)
+
+    data = np.uint8(rgb)
+    im.imwrite(path, data)
+
 
 def transform(allow_rotations, allow_reflections, pattern):
     patterns = [pattern]
@@ -132,6 +166,7 @@ def compute_sample(rgb, c2i):
 
     return np.array(sample)
 
+
 def compute_wave_colors(grid, i2c):
     n, m = len(grid), len(grid[0])
 
@@ -152,5 +187,3 @@ def compute_wave_colors(grid, i2c):
             rgb[i][j] = (red / N, green / N, blue / N)
 
     return rgb
-
-

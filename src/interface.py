@@ -61,7 +61,7 @@ class Interface:
         patterns = extract_submatrices(extract_wrapped_pattern, self.size,
                                        self.example)
 
-        rr_patterns = [*pattern]
+        rr_patterns = [*patterns]
         if self.allow_rotations or self.allow_reflections:
             for pattern in patterns:
                 sm = None
