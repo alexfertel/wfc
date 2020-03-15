@@ -78,7 +78,7 @@ def in_range(pos, grid):
     return 0 <= x < len(grid) and 0 <= y < len(grid[0])
 
 
-def extract_submatrices(matrix, size, pattern_extractor):
+def extract_submatrices(pattern_extractor, size, matrix):
     n, m = matrix.shape
     N = size
 

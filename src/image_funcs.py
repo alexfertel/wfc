@@ -6,51 +6,6 @@ from .interface import Interface
 from pprint import pprint
 
 
-def read(path):
-    """
-    Given a path, read the image and return the color
-    matrix that maps to that image and the maps between
-    rgb and color indices.
-    """
-    image = im.imread(path)
-    N, M, _ = image.shape
-
-    colors = []
-    for i in range(N):
-        for j in range(M):
-            colors.append(image[i][j])
-
-    colors = np.lib.arraysetops.unique(colors, axis=0)
-    # print(colors)
-    c2i = {tuple(color): index for index, color in enumerate(colors)}
-
-    sample = [[0 for _ in range(M)] for _ in range(N)]
-    for i in range(N):
-        for j in range(M):
-            sample[i][j] = c2i[tuple(image[i][j])]
-
-    print('Sample:')
-    pprint(sample)
-
-    return sample, c2i
-
-
-def mergec2i(c2i1, c2i2):
-    """
-    Merge two color-to-index dicts taking the first one as
-    the truth.
-    """
-    i = 1
-    n = len(c2i1.keys())
-    for color in c2i2.keys():
-        if not color in c2i1.keys():
-            c2i2[color] = n + i
-            i += 1
-
-    result = {**c2i2, **c2i1}
-    return result
-
-
 def generate(self, name, size, quiet):
     if quiet:
         for _ in enumerate(self.core.generate(size)):
