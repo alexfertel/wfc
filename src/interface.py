@@ -31,7 +31,7 @@ class Interface:
         self.allow_reflections = allow_reflections
 
         # Setup `Classifier` instance.
-        self.classifier = classifier if classifier else DeterministicClassifier()
+        self.classifier = classifier() if classifier else DeterministicClassifier()
 
         # Preprocess input image to extract patterns, compute frequency hints
         # and build adjacency rules.

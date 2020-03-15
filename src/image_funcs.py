@@ -23,7 +23,6 @@ def read(path):
     colors = np.lib.arraysetops.unique(colors, axis=0)
     # print(colors)
     c2i = {tuple(color): index for index, color in enumerate(colors)}
-    i2c = {index: tuple(color) for index, color in enumerate(colors)}
 
     sample = [[0 for _ in range(M)] for _ in range(N)]
     for i in range(N):
@@ -33,7 +32,7 @@ def read(path):
     print('Sample:')
     pprint(sample)
 
-    return sample, c2i, i2c
+    return sample, c2i
 
 
 def mergec2i(c2i1, c2i2):
@@ -49,9 +48,7 @@ def mergec2i(c2i1, c2i2):
             i += 1
 
     result = {**c2i2, **c2i1}
-    i2c = {v: k for k, v in result.items()}
-
-    return result, i2c
+    return result
 
 
 def generate(self, name, size, quiet):

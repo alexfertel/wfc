@@ -18,8 +18,6 @@ def main():
 
     # create the parser for the "simple" command
     simple_parser = subparsers.add_parser('simple')
-    simple_parser.add_argument('name', default='Flowers1',
-                               help='Sample name.')
     simple_parser.add_argument('-g', '--ground', type=int, default=0,
                                help='The height in pixels of the ground.',
                                dest='ground')
@@ -28,11 +26,11 @@ def main():
 
     # create the parser for the "dichotomic" command
     dichotomic_parser = subparsers.add_parser('dichotomic')
+    add_flags(dichotomic_parser)
     dichotomic_parser.add_argument(
         'positive', default=['Colored City'], nargs='+')
     dichotomic_parser.add_argument(
-        'negative', default=['Colored City Negative'], nargs='*')
-    add_flags(dichotomic_parser)
+        '--negative', default=[], nargs='*')
     dichotomic_parser.set_defaults(func=dichotomic)
 
     args = main_parser.parse_args()
@@ -42,6 +40,9 @@ def main():
     Path(os.path.join('results', args.name)).mkdir(parents=True, exist_ok=True)
     Path(os.path.join('results', 'matrices', args.name)).mkdir(
         parents=True, exist_ok=True)
+    
+    args.positive = map(lambda pic_name: os.path.join('images', f'{pic_name}.png'), args.positive)
+    args.negative = map(lambda pic_name: os.path.join('images', f'{pic_name}.png'), args.negative)
 
     if args.renderer:
         args.renderer = find(RENDERERS, args.renderer)
@@ -58,6 +59,7 @@ def main():
 
 
 def add_flags(parser):
+    parser.add_argument('name', default='Flowers1', help='Sample name.')
     parser.add_argument('-s', '--size', nargs=2, type=int, default=(28, 28),
                         help='Tuple representing the size of the output image.',
                         dest='size')
