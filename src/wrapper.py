@@ -20,32 +20,52 @@ def dichotomic(args):
 
     extractor = partial(es, ewp, args.N)
     transformer = partial(transform, args.rotate, args.reflect)
-    patterns = reduce(
-        lambda x, y: x + [transformer(extractor(y))], psamples, [])
-
+    
     clf = args.classifier()
 
-    unique, counts = np.lib.arraysetops.unique(
-        patterns, return_counts=True, axis=0)
-
+    ppatterns = reduce(
+        lambda x, y: x + extractor(y), psamples, [])
     
+    ppatterns = reduce(
+        lambda x, y: x + transformer(y), ppatterns, [])
+
+    punique, pindices, counts = np.lib.arraysetops.unique(
+        ppatterns, return_inverse=True, return_counts=True, axis=0)
+
+    pprint(pindices)
+
+    ppatterns = [clf.classify_pattern(pattern) for pattern in punique]
+    for index, pattern in enumerate(ppatterns): pattern.count = counts[index]
+
+    npatterns = reduce(
+        lambda x, y: x + extractor(y), nsamples, [])
+    
+    npatterns = reduce(
+        lambda x, y: x + transformer(y), npatterns, [])
+
+    nunique = np.lib.arraysetops.unique(
+        npatterns, axis=0) if npatterns else []
+
+    pprint(punique)
+    pprint(np.concatenate((punique, nunique)))    
 
 
-def transform(allow_rotations, allow_reflections, patterns):
-    rr_patterns = [*patterns]
+
+def transform(allow_rotations, allow_reflections, pattern):
+    patterns = [pattern]
     if allow_rotations or allow_reflections:
-        for pattern in patterns:
-            sm = None
-            for _ in range(3):
-                if allow_rotations:
-                    sm = np.rot90(pattern)
-                    rr_patterns.append(sm)
+        sm = None
+        for _ in range(3):
+            if allow_rotations:
+                sm = np.rot90(pattern)
+                patterns.append(sm)
 
-                if allow_reflections:
-                    sm = np.flip(sm)
-                    rr_patterns.append(sm)
+            if allow_reflections:
+                sm = np.flip(sm)
+                patterns.append(sm)
 
-    return rr_patterns
+    return patterns
+
 
 def read_images(positive, negative):
     pimages = [im.imread(path) for path in positive]

@@ -4,7 +4,7 @@ import os
 
 from pprint import pprint
 from pathlib import Path
-from src import Interface, Texture, RENDERERS, VALIDATORS
+from src import Interface, Texture, CLASSIFIERS, VALIDATORS, RENDERERS
 from src.utils import find
 
 from src.wrapper import dichotomic
@@ -43,11 +43,14 @@ def main():
     args.positive = map(lambda pic_name: os.path.join('images', f'{pic_name}.png'), args.positive)
     args.negative = map(lambda pic_name: os.path.join('images', f'{pic_name}.png'), args.negative)
 
-    if args.renderer:
-        args.renderer = find(RENDERERS, args.renderer)
+    if args.classifier:
+        args.classifier = find(CLASSIFIERS, args.classifier)
 
     if args.validator:
         args.validator = find(VALIDATORS, args.validator)
+
+    if args.renderer:
+        args.renderer = find(RENDERERS, args.renderer)
 
     args.path = os.path.join('images', f'{args.name}.png')
 
@@ -66,11 +69,11 @@ def add_flags(parser):
                         help="Allow rotations.", dest='rotate')
     parser.add_argument('--reflect', action='store_true',
                         help="Allow reflection.", dest='reflect')
-    parser.add_argument('-c', '--classifier', default=None,
+    parser.add_argument('-c', '--classifier', default='deterministicclassifier',
                         help='Classifier to use.', dest='classifier')
-    parser.add_argument('-v', '--validator', default=None,
+    parser.add_argument('-v', '--validator', default='deterministicvalidator',
                         help='Validator to use.', dest='validator')
-    parser.add_argument('-r', '--renderer', default=None,
+    parser.add_argument('-r', '--renderer', default='deterministicrenderer',
                         help='Renderer to use.', dest='renderer')
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="Don't compute each step.", dest='quiet')
