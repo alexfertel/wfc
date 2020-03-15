@@ -90,6 +90,18 @@ def extract_submatrices(pattern_extractor, size, matrix):
 
     return submatrices
 
+def extract_submatrices(pattern_extractor, size, ground, matrix):
+    n, m = matrix.shape
+    N = size
+
+    submatrices = []
+    for i in range(ground, n - ground):
+        for j in range(m):
+            sm = pattern_extractor(matrix, i, j, N)
+            submatrices.append(sm)
+
+    return submatrices
+
 def extract_wrapped_pattern(matrix, X, Y, size):
     n, m = matrix.shape
     rows = [x % n for x in range(X, X + size)]

@@ -17,9 +17,6 @@ def main():
 
     # create the parser for the "simple" command
     simple_parser = subparsers.add_parser('simple')
-    simple_parser.add_argument('-g', '--ground', type=int, default=0,
-                               help='The height in pixels of the ground.',
-                               dest='ground')
     add_flags(simple_parser)
     simple_parser.set_defaults(func=simple)
 
@@ -39,9 +36,11 @@ def main():
     Path(os.path.join('results', args.name)).mkdir(parents=True, exist_ok=True)
     Path(os.path.join('results', 'matrices', args.name)).mkdir(
         parents=True, exist_ok=True)
-    
-    args.positive = map(lambda pic_name: os.path.join('images', f'{pic_name}.png'), args.positive)
-    args.negative = map(lambda pic_name: os.path.join('images', f'{pic_name}.png'), args.negative)
+
+    args.positive = map(lambda pic_name: os.path.join(
+        'images', f'{pic_name}.png'), args.positive)
+    args.negative = map(lambda pic_name: os.path.join(
+        'images', f'{pic_name}.png'), args.negative)
 
     if args.classifier:
         args.classifier = find(CLASSIFIERS, args.classifier)
@@ -79,6 +78,9 @@ def add_flags(parser):
                         help="Don't compute each step.", dest='quiet')
     parser.add_argument('-n', type=int, default=3,
                         help="Size of a pattern side.", dest='N')
+    parser.add_argument('-g', '--ground', type=int, default=0,
+                        help='The height in pixels of the ground.',
+                        dest='ground')
 
 
 def simple(args):

@@ -17,7 +17,7 @@ def dichotomic(args):
 
     pprint(psamples)
 
-    extractor = partial(es, ewp, args.N)
+    extractor = partial(es, ewp, args.N, args.ground)
     transformer = partial(transform, args.rotate, args.reflect)
 
     # Classifier setup
