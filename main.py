@@ -6,8 +6,7 @@ from pprint import pprint
 from pathlib import Path
 from src import Interface, Texture, CLASSIFIERS, VALIDATORS, RENDERERS
 from src.utils import find
-
-from src.wrapper import dichotomic
+from src.dichotomic import dichotomic
 
 
 def main():

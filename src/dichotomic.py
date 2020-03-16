@@ -51,6 +51,8 @@ def dichotomic(args):
     validator = args.validator()
     validator.learn(ppatterns).prune(npatterns)
 
+    # pprint(validator.lt)
+
     # Renderer setup
     renderer = args.renderer(ppatterns)
 
@@ -120,9 +122,6 @@ def read_images(positive, negative):
     c2i = reduce(mergec2i, pcolors + ncolors, {})
     i2c = {v: k for k, v in c2i.items()}
 
-    pprint("color2index:")
-    pprint(c2i)
-
     return pimages, nimages, c2i, i2c
 
 
@@ -143,6 +142,8 @@ def mergec2i(c2i1, c2i2):
 
 
 def get_color_map(image):
+    pprint("image")
+    pprint(image)
     N, M, _ = image.shape
     colors = []
     for i in range(N):
