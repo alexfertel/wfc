@@ -171,9 +171,6 @@ class Core:
         self.initialize_output_matrix(size)
         print("Done initializing output matrix.")
 
-        # Setup ground
-
-
         # There are N * M uncollapsed slots (the size of the grid)
         # at the beginning.
         self.uncollapsed_count = x * y

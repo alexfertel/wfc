@@ -95,7 +95,7 @@ def extract_submatrices(pattern_extractor, size, ground, matrix):
     N = size
 
     submatrices = []
-    for i in range(ground, n - ground):
+    for i in range(n - ground - 1):
         for j in range(m):
             sm = pattern_extractor(matrix, i, j, N)
             submatrices.append(sm)
