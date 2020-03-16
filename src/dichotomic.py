@@ -142,8 +142,6 @@ def mergec2i(c2i1, c2i2):
 
 
 def get_color_map(image):
-    pprint("image")
-    pprint(image)
     N, M, _ = image.shape
     colors = []
     for i in range(N):
