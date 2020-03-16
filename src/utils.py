@@ -78,12 +78,24 @@ def in_range(pos, grid):
     return 0 <= x < len(grid) and 0 <= y < len(grid[0])
 
 
-def extract_submatrices(matrix, size, pattern_extractor):
+def extract_submatrices(pattern_extractor, size, matrix):
     n, m = matrix.shape
     N = size
 
     submatrices = []
     for i in range(n):
+        for j in range(m):
+            sm = pattern_extractor(matrix, i, j, N)
+            submatrices.append(sm)
+
+    return submatrices
+
+def extract_submatrices(pattern_extractor, size, ground, matrix):
+    n, m = matrix.shape
+    N = size
+
+    submatrices = []
+    for i in range(n - ground - 1):
         for j in range(m):
             sm = pattern_extractor(matrix, i, j, N)
             submatrices.append(sm)

@@ -13,7 +13,7 @@ class MonsterRenderer(Renderer):
         
         self.size = size
 
-        patterns = extract_submatrices(np.array(id_matrix), size, extract_wrapped_pattern)
+        patterns = extract_submatrices(extract_wrapped_pattern, size, np.array(id_matrix))
 
         # Fit the model
         self.clf = self.setup(patterns)

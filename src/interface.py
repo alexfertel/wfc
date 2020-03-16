@@ -31,7 +31,7 @@ class Interface:
         self.allow_reflections = allow_reflections
 
         # Setup `Classifier` instance.
-        self.classifier = classifier if classifier else DeterministicClassifier()
+        self.classifier = classifier() if classifier else DeterministicClassifier()
 
         # Preprocess input image to extract patterns, compute frequency hints
         # and build adjacency rules.
@@ -42,7 +42,7 @@ class Interface:
         # Adds a useful identifier matrix for ML purposes
         self.init_id_matrix(patterns)
         pprint(self.id_matrix)
-        
+
         print("Done setting up id_matrix.")
 
         # Setup `Validator` instance.
@@ -58,21 +58,23 @@ class Interface:
         self.core = Core(patterns, weights, self.validator, self.size)
 
     def classify_patterns(self):
-        patterns = extract_submatrices(
-            self.example, self.size, extract_wrapped_pattern)
+        patterns = extract_submatrices(extract_wrapped_pattern, self.size,
+                                       self.example)
 
+        rr_patterns = [*patterns]
         if self.allow_rotations or self.allow_reflections:
             for pattern in patterns:
                 sm = None
                 for _ in range(3):
                     if self.allow_rotations:
                         sm = np.rot90(pattern)
-                        patterns.append(sm)
+                        rr_patterns.append(sm)
 
                     if self.allow_reflections:
                         sm = np.flip(sm)
-                        patterns.append(sm)
+                        rr_patterns.append(sm)
 
+        patterns = rr_patterns
         return self.classifier.classify_patterns(patterns)
 
     def init_id_matrix(self, patterns):

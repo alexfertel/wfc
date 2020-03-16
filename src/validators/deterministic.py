@@ -22,7 +22,7 @@ class DeterministicValidator(Validator):
                     if compatible(p1.matrix, p2.matrix, d):
                         self.lt[d][p1.index].add(p2.index)
                         self.lt[(-x, -y)][p2.index].add(p1.index)
-        pprint(str(self.lt))
+        # pprint(str(self.lt))
         return self
 
     def prune(self, patterns):
@@ -36,12 +36,11 @@ class DeterministicValidator(Validator):
                         local_table[d][p1.index].add(p2.index)
                         local_table[(-x, -y)][p2.index].add(p1.index)
 
-        # # Prune adjacencies
-        # for x, y in dirs:
-        #     d = (x, y)
-        #     for pattern in patterns:
-        #         self.lt[d][p.index] -= local_table
-
+        # Prune adjacencies
+        for x, y in dirs:
+            d = (x, y)
+            for p in patterns:
+                self.lt[d][p.index] -= local_table[d][p.index]
 
         return self
 
