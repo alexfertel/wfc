@@ -1,6 +1,6 @@
 from collections import defaultdict
 from .utils import d2i
-from pprint import pformat
+from pprint import pformat, pprint
 
 class LookupTable:
     def __init__(self):
@@ -21,3 +21,16 @@ class LookupTable:
 
     def __repr__(self):
         return self.__str__()
+
+    def get_matrices(self, pcount):
+        matrices = []
+        for ddict in self.tables:
+            table = [[0 for _ in range(pcount)] for _ in range(pcount)]
+            for p1 in range(pcount):
+                for p2 in range(pcount):
+                    if p2 in ddict[p1]:
+                        table[p1][p2] = 1
+
+            matrices.append(table)
+        
+        return matrices
