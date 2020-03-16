@@ -61,13 +61,13 @@ def compatible(p1, p2, d):
 def matrix_lap(matrix, direction):
     n, m = matrix.shape
 
-    if direction == (0, -1):  # North
+    if direction == (-1, 0):  # North
         return matrix[: -1, :]
-    if direction == (1, 0):  # East
+    if direction == (0, 1):  # East
         return matrix[:, 1:]
-    if direction == (0, 1):  # South
+    if direction == (1, 0):  # South
         return matrix[1:, :]
-    if direction == (-1, 0):  # West
+    if direction == (0, -1):  # West
         return matrix[:, :-1]
 
     return False
@@ -103,7 +103,7 @@ def find(elements, value):
             return obj
     raise ValueError(f"{value} not found in {[e.__name__ for e in elements]}")
 
-def d2s(direction):
+def d2v(direction):
     x, y = direction
 
     if x == 1:
@@ -116,6 +116,21 @@ def d2s(direction):
         return [0, 0, 0, 1]
     
     raise Exception(f'`direction` arg {direction} is not a valid direction.')
+
+def d2i(direction):
+    x, y = direction
+
+    if x == -1:
+        return 0
+    if y == 1:
+        return 1
+    if x == 1:
+        return 2
+    if y == -1:
+        return 3
+    
+    raise Exception(f'`direction` arg {direction} is not a valid direction.')
+
 
 if __name__ == "__main__":
     # arr = np.arange(16).reshape((4, 4))

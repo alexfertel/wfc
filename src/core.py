@@ -14,6 +14,7 @@ class Core:
             self,
             patterns,
             weights,
+            validator,
             size):
 
         # List of NxN submatrices.
@@ -27,6 +28,9 @@ class Core:
 
         # How likely a given module is to appear in any slot.
         self.weights = weights
+
+        # Look-up table to use
+        self.validator = validator
 
         # Output grid.
         self.output = None
@@ -70,20 +74,8 @@ class Core:
         slot = self.grid[x][y]
         index = slot.choose_pattern(self.weights)
 
-        # The slot is now collapsed.
-        slot.collapsed = True
-
-        # Since we locked in a pattern, remove all
-        # other possibilities.
-        for p in self.patterns:
-            if p.index != index:
-                slot.possibilities[p.index] = False
-
-        # Update the color of the slot.
-        slot.color = self.patterns[index].color
-
-        # Update selected pattern
-        slot.identifier = index
+        # Update the internal state of the slot
+        slot.update(index)
 
         # Schedule slot for a consistency update.
         self.stack.append((x, y))
@@ -122,17 +114,16 @@ class Core:
                     p for p in triggered_slot.patterns if triggered_slot.possibilities[p.index]]
 
                 # Union of the spaces.
-                domains_union = []
-                for allowed_pat in ting_slot_patterns:
-                    domains_union = np.union1d(
-                        domains_union, self.validator.valid_adjacencies(allowed_pat.index, d))
+                space = ting_slot_patterns
+                validator = lambda pattern: self.validator.valid(pattern.index, d)
+                domains_union = reduce(lambda a, b: a | validator(b), space, set())
 
                 # For each pattern of the triggered slot, check if
                 # that pattern has the possibility of appearing,
                 # which is an existence check in the union of domains.
-                for p2 in ted_slot_patterns:
-                    if not p2.index in domains_union:
-                        triggered_slot.remove_pattern(p2, self.weights)
+                for triggered in ted_slot_patterns:
+                    if not triggered.index in domains_union:
+                        triggered_slot.remove_pattern(triggered, self.weights)
 
                         # There are no more possibilities: Contradiction.
                         if not sum(triggered_slot.possibilities):
@@ -170,7 +161,7 @@ class Core:
                 # Update the entropy.
                 self.entropies[i][j] = s.entropy
 
-    def generate(self, size, allowed_contradictions=10):
+    def generate(self, size, ground=0, allowed_contradictions=10):
         x, y = self.output_size = size
 
         if allowed_contradictions < 0:
@@ -179,6 +170,9 @@ class Core:
         self.reset()
         self.initialize_output_matrix(size)
         print("Done initializing output matrix.")
+
+        # Setup ground
+
 
         # There are N * M uncollapsed slots (the size of the grid)
         # at the beginning.

@@ -14,6 +14,7 @@ class Interface:
             self,
             example,
             size,
+            ground=0,
             classifier=None,
             validator=None,
             renderer=None,
@@ -21,7 +22,7 @@ class Interface:
             allow_reflections=False):
 
         # This is the example image.
-        self.example = np.array(example)
+        self.example = np.array(example[:ground if ground else None])
 
         # This is the N for the NxN patterns.
         self.size = size
@@ -34,7 +35,7 @@ class Interface:
 
         # Preprocess input image to extract patterns, compute frequency hints
         # and build adjacency rules.
-        # Extract patterns without wrapping.
+        # Extract patterns.
         patterns, weights = self.classify_patterns()
         print("Done setting up classifier.")
 
@@ -42,15 +43,11 @@ class Interface:
         self.init_id_matrix(patterns)
         pprint(self.id_matrix)
         
-        for index, item in enumerate(patterns):
-            print(index, item.matrix)
-            print()
-
         print("Done setting up id_matrix.")
 
         # Setup `Validator` instance.
-        self.validator = validator(patterns) if validator else DeterministicValidator(
-            patterns)
+        self.validator = validator() if validator else DeterministicValidator()
+        self.validator.learn(patterns)
         print("Done setting up validator.")
 
         # Setup `Renderer` instance.
@@ -58,9 +55,7 @@ class Interface:
             self.id_matrix, self.size) if renderer else DeterministicRenderer(patterns)
         print("Done setting up renderer.")
 
-        self.core = Core(patterns, weights, self.size)
-
-        self.core.validator = self.validator
+        self.core = Core(patterns, weights, self.validator, self.size)
 
     def classify_patterns(self):
         patterns = extract_submatrices(

@@ -9,8 +9,9 @@ from pprint import pprint
 
 class Texture(Interface):
     def __init__(self,
-                 size,
                  path,
+                 size,
+                 ground=0,
                  classifier=None,
                  validator=None,
                  renderer=None,
@@ -26,6 +27,7 @@ class Texture(Interface):
 
         super().__init__(self.sample,
                          size,
+                         ground,
                          classifier,
                          validator,
                          renderer,
@@ -54,6 +56,7 @@ class Texture(Interface):
             for j in range(M):
                 sample[i][j] = self.c2i[tuple(image[i][j])]
 
+        print('Sample:')
         pprint(sample)
 
         return sample
@@ -114,7 +117,8 @@ class Texture(Interface):
         pprint(self.core.grid, width=200)
         # pprint(rendered_ids, width=200)
 
-        if self.renderer:
+        if type(self.renderer).__name__.lower() != "deterministicrenderer":
+            pprint(self.renderer)
             rendered = [[-1 for _ in range(m)] for _ in range(n)]
             for i in range(n):
                 for j in range(m):
