@@ -23,14 +23,11 @@ class LookupTable:
         return self.__str__()
 
     def get_matrices(self, pcount):
-        matrices = []
-        for ddict in self.tables:
-            table = [[0 for _ in range(pcount)] for _ in range(pcount)]
-            for p1 in range(pcount):
+        table = [[0 for _ in range(4 * pcount)] for _ in range(pcount)]
+        for p1 in range(pcount):
+            for d in range(4):
                 for p2 in range(pcount):
-                    if p2 in ddict[p1]:
-                        table[p1][p2] = 1
-
-            matrices.append(table)
+                    if p2 in self.tables[d][p1]:
+                        table[p1][p2 + d * pcount] = 1
         
-        return matrices
+        return table
