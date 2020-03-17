@@ -19,13 +19,16 @@ class AffinityValidator(DeterministicValidator):
         self.matrix = self.lt.get_matrix(n)
         self.clustering.fit(self.matrix)
 
-        # # Make clusters
-        # clusters = defaultdict(set)
-        # for i in range(len(self.clustering.labels_)):
-        #     for j in range(len(self.clustering.labels_)):
-        #         if self.clustering.labels_[i] == self.clustering.labels_[j] and i != j:
-        #             clusters.add(self.clustering.labels_[j])
+        # Make clusters
+        clusters = defaultdict(set)
+        for i in range(len(self.clustering.labels_)):
+            if self.clustering.labels_[i] == self.clustering.cluster_centers_indices_[0]:
+                clusters[i].add(self.clustering.cluster_centers_indices_[0])
+            else:
+                clusters[i].add(self.clustering.cluster_centers_indices_[1])
             
+        pprint(clusters)
+
         for p in range(len(patterns)):
             label = self.clustering.labels_[p]
 
@@ -41,7 +44,7 @@ class AffinityValidator(DeterministicValidator):
                 result = set()
                 for index, bit in enumerate(dir_window):
                     if bit:
-                        result.add(index)
+                        result |= clusters[index]
 
                 self.lt[direction][p] = result
 
