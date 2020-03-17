@@ -35,3 +35,9 @@ class Validator:
         disallowed by the validator object.
         """
         raise NotImplementedError
+
+    def postprocess(self, patterns):
+        """
+        Hook to make any post-processing after the build phase.
+        """
+        pass

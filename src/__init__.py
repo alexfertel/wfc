@@ -4,6 +4,7 @@ from .texture import Texture
 from .classifiers.deterministic import DeterministicClassifier
 from .validators.deterministic import DeterministicValidator
 from .validators.sk import MonsterValidator
+from .validators.affinity import AffinityValidator
 from .renderers.deterministic import DeterministicRenderer
 from .renderers.sk import MonsterRenderer
 
@@ -14,7 +15,8 @@ CLASSIFIERS = [
 
 VALIDATORS = [
     DeterministicValidator,
-    MonsterValidator
+    MonsterValidator,
+    AffinityValidator
 ]
 
 RENDERERS = [

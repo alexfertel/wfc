@@ -22,7 +22,7 @@ class LookupTable:
     def __repr__(self):
         return self.__str__()
 
-    def get_matrices(self, pcount):
+    def get_matrix(self, pcount):
         table = [[0 for _ in range(4 * pcount)] for _ in range(pcount)]
         for p1 in range(pcount):
             for d in range(4):
