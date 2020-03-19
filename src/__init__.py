@@ -6,6 +6,7 @@ from .validators.deterministic import DeterministicValidator
 from .validators.sk import MonsterValidator
 from .validators.affinity import AffinityValidator
 from .validators.union_affinity import UnionAffinityValidator
+from .validators.kmeans import KMeansValidator
 from .renderers.deterministic import DeterministicRenderer
 from .renderers.sk import MonsterRenderer
 
@@ -18,7 +19,8 @@ VALIDATORS = [
     DeterministicValidator,
     MonsterValidator,
     AffinityValidator,
-    UnionAffinityValidator
+    UnionAffinityValidator,
+    KMeansValidator
 ]
 
 RENDERERS = [
