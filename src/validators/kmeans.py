@@ -11,41 +11,44 @@ class KMeansValidator(DeterministicValidator):
     def __init__(self):
         super().__init__()
 
-        self.clustering = KMeans(n_clusters=1)
+        self.clustering = None
 
 
     def postprocess(self, patterns):
+        n = len(patterns)
+        self.clustering = KMeans(n_clusters=6)
         # pprint(patterns)
         pprint(self.lt, indent=2, width=100)
 
-        n = len(patterns)
         self.matrix = self.lt.get_matrix(n)
         self.clustering.fit(self.matrix)
 
         # pprint(self.clustering.cluster_centers_indices_)
+        pprint("Clustering Labels:")
         pprint(self.clustering.labels_)
 
         # Make clusters
         clusters = defaultdict(set)
         for i in range(len(self.clustering.labels_)):
             for j in range(len(self.clustering.labels_)):
-                if self.clustering.labels_[i] == self.clustering.labels_[j] and i != j:
+                if self.clustering.labels_[i] == self.clustering.labels_[j]:
                     clusters[i].add(j)
 
-        for p in range(n):
-            label = self.clustering.labels_[p]
-            vector = self.matrix[label]
+        pprint("Clusters:")
+        pprint(clusters)
 
-            for direction in dirs:
-                d = d2i(direction)
-
-                dir_window = vector[d * n: (d + 1) * n]
-
+        for direction in dirs:
+            d = d2i(direction)
+            
+            for p in range(n):
+                # New set
                 result = set()
-                for index, bit in enumerate(dir_window):
-                    if bit:
-                        result |= clusters[index]
+                for pattern in self.lt[direction][p]:
+                    result |= clusters[pattern]
 
                 self.lt[direction][p] = result
+
+        pprint("Look-up Table:")
+        pprint(self.lt)
 
         return self

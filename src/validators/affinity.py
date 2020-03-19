@@ -15,36 +15,30 @@ class AffinityValidator(DeterministicValidator):
         self.clustering = AffinityPropagation()
 
     def postprocess(self, patterns):
+        pprint(patterns)
         n = len(patterns)
         self.matrix = self.lt.get_matrix(n)
+        # pprint(self.matrix, width=300)
         self.clustering.fit(self.matrix)
+
+        pprint(self.clustering.cluster_centers_indices_)
+        pprint(self.clustering.labels_)
 
         # Make clusters
         clusters = defaultdict(set)
         for i in range(len(self.clustering.labels_)):
-            if self.clustering.labels_[i] == self.clustering.cluster_centers_indices_[0]:
-                clusters[i].add(self.clustering.cluster_centers_indices_[0])
-            else:
-                clusters[i].add(self.clustering.cluster_centers_indices_[1])
+            for j in range(len(self.clustering.labels_)):
+                if self.clustering.labels_[i] == self.clustering.labels_[j]:
+                    clusters[i].add(j)
+
+        for direction in dirs:
+            d = d2i(direction)
             
-        pprint(clusters)
-
-        for p in range(len(patterns)):
-            label = self.clustering.labels_[p]
-
-            vector = self.matrix[label]
-
-            # pprint(vector, width=500)
-
-            for direction in dirs:
-                d = d2i(direction)
-
-                dir_window = vector[d * n: (d + 1) * n]
-
+            for p in range(n):
+                # New set
                 result = set()
-                for index, bit in enumerate(dir_window):
-                    if bit:
-                        result |= clusters[index]
+                for pattern in self.lt[direction][p]:
+                    result |= clusters[pattern]
 
                 self.lt[direction][p] = result
 
