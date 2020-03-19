@@ -49,9 +49,10 @@ def dichotomic(args):
 
     # Validator setup
     validator = args.validator()
-    validator.learn(ppatterns).prune(npatterns)
+    validator.learn(ppatterns).prune(npatterns).postprocess(ppatterns)    
 
-    # pprint(validator.lt)
+    # pprint(validator.lt, indent=2, width=100)
+    # pprint(validator.lt.get_matrix(len(ppatterns)), indent=2, width=200)
 
     # Renderer setup
     renderer = args.renderer(ppatterns)
