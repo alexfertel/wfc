@@ -48,7 +48,7 @@ def dichotomic(args):
     npatterns = [clf.classify_pattern(pattern) for pattern in nunique]
 
     # Validator setup
-    validator = args.validator()
+    validator = args.validator(args.alpha)
     validator.learn(ppatterns).prune(npatterns).postprocess(ppatterns)    
 
     # pprint(validator.lt, indent=2, width=100)
