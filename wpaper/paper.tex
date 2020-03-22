@@ -1,0 +1,239 @@
+
+\documentclass[a4paper, 10pt]{article}
+\input{template.tex}
+
+% \setcounter{secnumdepth}{}
+\renewcommand{\thesection}{\Roman{section}}
+
+\title{WaveFunctionCollapse, un enfoque diferente}
+\author{Alexander Antonio González Fertel C-512 \hfill
+		\href{mailto:a.fertel@estudiantes.matcom.uh.cu}{a.fertel@estudiantes.matcom.uh.cu}\\
+		Joel David Hernández Cruz C-511 \hfill
+		\href{mailto:j.cruz@estudiantes.matcom.uh.cu}{j.cruz@estudiantes.matcom.uh.cu}\\
+		Hieu Do Ngoc C-511 \hfill}
+\date{}
+
+\begin{document}
+	\maketitle
+	% \newpage
+
+	\section{Introducción}
+	Generación Procedural de Contenido via Aprendizaje de Máquina (PCGML por sus siglas en inglés)
+	es el término acuñado en la actualidad para la estrategia de controlar
+	generadores de contenido mediante ejemplos \cite{bib:1}. Existen acercamientos
+	donde se utiliza PCGML que entrenan modelos estadísticos basados en ejemplos
+	del contenido deseado, provistos de antemano por artistas, sin embargo,
+	muchas veces el aprendizaje de máquina funciona mejor mientras más
+	datos entrenantes hayan, pero el esfuerzo de producir datos entrenantes
+	de calidad es frecuentemente lo suficientemente caro como para
+	que los artistas estén mejor haciendo el contenido ellos mismos.
+	
+	La unión de un generador de contenido probado comercialmente,
+	WaveFunctionCollapse (WFC) \cite{bib:2}, con el aprendizaje por discriminación
+	muestra resultados muy atractivos \cite{bib:3} para las herramientas
+	de generación de iniciativa mixta \cite{bib:4}. En el aprendizaje por 
+	discriminación, el modelo aprende a juzgar si un artefacto candidato
+	puede ser contenido válido o deseable, pero dicho modelo no aprende
+	a generar candidatos. WFC es un sistema de generación de contenido
+	guiado por ejemplos, donde el contenido generado cumple propiedades
+	locales de la entrada. Esto se logra resolviendo un Problema de Satisfacción
+	de Restricciones, en el cual las restricciones están implícitas. 
+	
+	En dicho sistema se aprecian tres funciones
+	cuya naturaleza es atractiva a explorar: un clasificador de patrones 
+	que dado un ejemplo, lo transforma en un conjunto de identificadores,
+	una función de validez de adyacencia, la cual dados dos patrones determina
+	si su superposición cumple con todas las restricciones y un 
+	renderizador de patrones que dado un patrón decide qué forma tiene
+	el contenido que genera ese patrón.
+	
+	En la herramienta presentada por Karth y Smith \cite{bib:3} se muestra
+	cómo el diálogo entre un diseñador y el algoritmo permite mejorar iterativamente
+	el contenido generado, haciendo este más cercano al producto final
+	deseado hasta que el diseñador se siente cómodo y confía en el algoritmo.
+	Se propone utilizar un diálogo similar para la generación de música,
+	en la cual ejemplos positivos y negativos moldean la salida del programa.
+
+	\subsection{Formalización del Problema}
+	Extrapolar la herramienta de iniciativa mixta a otro modelo distinto
+	a la generación de texturas, donde se muestre que WFC es agnóstico y
+	cómo puede ser utilizado en contextos afines a la reducción de costos.
+	% Sea $I$ el conjunto de todas las imágenes RGB de tamaño arbitrario posibles,
+	% $S$ el conjunto de todos los sonidos posibles en el rango audible humano,
+	% $S^n$ todas las secuencias de $n$ sonidos y
+	% $F:I \rightarrow S^n$ una función que va de las imágenes a las secuencias de
+	% sonidos de tamaño $n$, se quiere
+	% hallar una función que dadas $k$ (donde $k$ es pequeño, a lo sumo 30) 
+	% \textit{imágenes con contexto} (ejemplos positivos o negativos)
+	% se obtengan secuencias de sonido que mantengan propiedades \textit{locales} ($i$)
+	% y \textit{coherentes} ($ii$) con respecto la secuencia de sonido que se obtiene de
+	% evaluar las imágenes con contexto directamente en $F$.
+	% Estas secuencias de sonido resultantes deben ser fácilmente
+	% modificables en base a la adición de nuevas imágenes contextuales.
+	
+	\begin{itemize}
+		\item[$i$.] Se refiere a que cada patrón \textit{positivo} de $NxN$ en la imagen,
+			mapeado por $F$ a una secuencia de sonidos, debe aparecer en la secuencia final
+			al menos 1 vez.
+		\item[$ii$.] La distribución de los $NxN$ patrones en la imagen de entrada debe 
+			ser similar a la distribución de $NxN$ patrones en un número suficientemente largo
+			de secuencias de sonido generadas. Es decir, la probabilidad de encontrar
+			una secuencia de sonidos en particular debe ser cercana a la densidad de dichos
+			patrones en el contenido generado.  
+	\end{itemize}
+	
+	\section{Propuesta de Solución}
+	Se presenta como propuesta de solución utilizar un enfoque de aprendizaje por discriminación,
+	en donde una modificación del algoritmo WFC logra los resultados deseados: una herramienta
+	para artistas en la que se mantiene un diálogo entre usuario y programa hasta alcanzar
+	un producto (generador de contenido) satisfactorio. Este producto recibe dos conjuntos de
+	imágenes contextuales (positivo y negativo) a medida que transcurre el diálogo y en cada iteración
+	genera sonidos a manera de \textit{portfolio}.
+	(nótese que con artista se hace referencia a creadores de contenido, en este
+	caso en particular, un diseñador junto a un músico).
+
+	\subsection{WaveFunctionCollapse}
+	WaveFunctionCollapse\footnote{https://github.com/mxgmn/WaveFunctionCollapse}
+	es básicamente un solucionador de 
+	\textit{Problemas de Satisfacción de Restricciones}\cite{bib:2} (CSP por sus siglas en inglés).
+	El algoritmo recibe como entrada un ejemplo de contenido a generar, extrae patrones (subestructuras)
+	de dicho ejemplo y aprende las relaciones entre dichos patrones, creando un conjunto
+	de restricciones que mantienen las propiedades ($i$) y ($ii$), luego se genera
+	un nuevo ejemplo de contenido resolviendo el CSP resultante y finalmente, se utiliza la
+	asignación representada en la solución de dicho CSP como salida del algoritmo.
+
+	\subsubsection{Clasificador de Patrones}
+	La primera función importante que se encuentra al ejecutar el algoritmo es
+	el \textit{clasificador de patrones}. Dicha función toma como entrada una matriz,
+	de la cual extrae todas las submatrices de tamaño $N$, que es un parámtro del
+	algoritmo, y devuelve indices para cada una de las submatrices, respetando unicidad. 
+	La frecuencia con que ocurre cada patrón en el ejemplo es almacenada
+	para utilizarla como función de distribución, al escoger el patrón que va a ser escogido
+	en el dominio de una variable del CSP a resolver, además de utilizarse para el cómputo
+	de la entropía de Shannon para cada una de las variables.
+	Sea $\mathbb{M}$ el espacio de las matrices de enteros y sea $C$ el clasificador de 
+	patrones, se tiene que $C:\mathbb{M} \rightarrow \mathbb{N}$. 
+
+	\subsubsection{Validación de Adyacencia}
+	Esta función recibe dos patrones y retorna si dichos patrones pueden aparecer
+	adyacentes. Aquí es donde se hacen cumplir las restricciones a la hora de
+	generar contenido, de esta forma se "propaga" la consistencia de los arcos
+	en el CSP, dado que WFC implementa implícitamente AC3\cite{bib:2}.
+	Sea $V$ esta función, se tiene que $V:\mathbb{N}\times\mathbb{N} \rightarrow \{0, 1\}$.
+
+	\subsubsection{Renderizador de Patrones}
+	Esta última función toma un patrón y da su representación en el contenido generado,
+	es decir, cumple con la representación que tiene dicho patrón en el ejemplo.
+	Sea $R$ el renderizador, se tiene $R:\mathbb{N} \rightarrow \mathbb{M}$.
+
+	\begin{figure}[h]
+		\begin{center}
+			\includegraphics[width=1\textwidth]{images/fig1.png}			
+		\end{center}
+		\caption{\textit{Funciones en WFC}. En esta figura \textbf{f()} es el clasificador
+		de patrones y \textbf{g()} es el renderizador de patrones. Se puede apreciar en la figura
+		WFC aplicado a generación de texturas como caso particular en el que la entrada y la
+		salida son texturas.}
+		\label{fig:1}	
+	\end{figure}	
+
+	Como se puede apreciar en la Figura~\ref{fig:1}, estas tres funciones forman una especie
+	de \textit{pipeline} con el cual podemos explorar distintos acercamientos, como se verá en
+	la sección \ref{marco experimental}.
+
+	\subsubsection{Generalización Más General}
+	El algoritmo original asume que los patrones que se solapan en la imagen de ejemplo
+	representan todas las adyacencias válidas, es decir, las restricciones que se aprenden
+	sirven para mostrar el conjunto de adyacencias que pueden existir en el contenido
+	generado, incluso si dos patrones no eran adyacentes en el ejemplo, estos pueden
+	aparecer adyacentes en la salida. Karth y Smith acuñan este acercamiento como
+	\textit{Generalización Más General}\cite{bib:3}. 
+	
+	Llámemos \textit{ejemplo contextual} a un ejemplo (imagen en el algoritmo original) 
+	en el que se define que las restricciones obtenidas de los patrones de dicho ejemplo
+	son positivas o negativas. Una restricción positiva es aquella que permite que
+	dos patrones sean adyacentes, es decir, relaja el conjunto de restricciones, una
+	restricción negativa es aquella que determina que dos patrones no pueden 
+	encontrarse adyacentes en el contenido generado. Al añadir la posibilidad de añadir
+	nuevos ejemplos contextuales manteniendo las relaciones ya aprendidas por el modelo descrito por WFC,
+	se corrije el comportamiento anterior del generador, es decir, se actualizan las
+	restricciones del modelo, lo cual
+	logra un nivel de precisión alto en la búsqueda del espacio de contenido a generar deseado.
+	Si un ejemplo es positivo, todas las relaciones de adyacencia entre los patrones
+	delejemplo son positivos, análogamente para los ejemplos negativos.
+
+	\subsubsection{\textit{Rationale}}
+	El racional detrás de escoger este algoritmo está dado por las siguientes razones:
+	\begin{itemize}
+		\item Es agnóstico al contenido, expresar restricciones y obtener patrones son conceptos
+			muy abstractos que se capturan bastante bien, dado que la entrada y la salida del algoritmo
+			son matrices, alguien que use WFC sólo necesita hallar una representación en
+			matrices del contenido a generar y como mapear entre las representaciones.
+		\item Con un solo ejemplo se puede generar contenido de tamao arbitrario, lo que
+			lo hace mucho mejor que la mayor parte de los modelos actuales que necesitan
+			de grandes cantidades de datos.
+		\item Modificarlo para poder usar aprendizaje por discriminación es bastante sencillo.
+		\item Mantiene precisamente restricciones locales y débilmente las globales.
+	\end{itemize}
+
+	Se ilustra mediante la generación de sonido a través de una imagen, cuán 
+	versátil es WFC.
+
+	\section{Marco Experimental}\label{marco experimental}
+	Se implementó un prototipo computacional en \textbf{python3} del algoritmo WFC,
+	donde se extiende el algoritmo para recibir varios ejemplos. Dicho prototipo
+	recibe una imagen, la lleva a una representación matricial, donde cada posición
+	es un color y genera una imagen de tamaño arbitrario, definido con anterioridad
+	para conformar con la representación que se necesita en la segunda parte del prototipo.
+	Esta segunda parte convierte la imagen generada a una secuencia de sonidos de piano.
+	Luego de la primera imagen de ejemplo, se permite la adición de imágenes contextuales
+	para la modificación de la secuencia generada.
+
+	\section{Resultados}
+	Se pueden tomar dos acercamientos distintos a la hora de evaluar los resultados
+	de un algoritmo de generación de contenido de este tipo.
+
+	\subsection{Top-down. Rango de Expresividad}
+	El rango de expresividad se refiere al espacio de contenido potencialmente
+	deseable que el algoritmo es capaz de crear, incluyendo cuán sesgado está
+	de crear un tipo de contenido en particular de ese espacio\cite{bib:5}.
+	Esta evaluacion es realizada escogiendo métricas a través de las cuáles el contenido
+	puede ser evaluado, para luego utilizar esas métricas como ejes para definir
+	el espacio de contenido posible. Un grande número de piezas de contenido son
+	entonces generadas y evaluadas con respecto a esas métricas y graficadas
+	en un mapa de calor. Este mapa puede revelar sesgos en el generador y comparaciones
+	de los mapas de calor de distintos parámetros del generador muéstran cuánto se
+	puede controlar el generador.  
+
+	Este acercamiento no es muy útil para la iniciativa mixta que hemos mostrado,
+	puesto que la métrica que evalúa estos generadores es el nivel de satisfacción
+	que muestre el artista interactuando con la herramienta.
+	
+	\subsection{Bottom-up. }
+	Complementario al acercamiento top-down para la evaluación de los generadores
+	de contenido, estudios cuantitativos sobre los usuarios del generador pueden 
+	ser de gran beneficio para el aseguramiento de la calidad del contenido. El
+	acercamiento más obvio sería preguntarle directamente a los artistas.
+
+	Este acercamiento es mucho más factible en nuestro caso\cite{bib:4,bib:6},
+	por lo que sería lo que usaríamos si tuvieramos una fuente de artistas dispuestos
+	a realizar pruebas.
+	
+
+	\section{Conclusiones}
+	Este trabajo propone una manera nueva de utilizar la versatilidad de WFC, extendiendo el
+	trabajo de Karth y Smith, para mostrar una herramienta de iniciativa mixta para la generación
+	de música.
+
+	\subsection{Recomendaciones}
+	Se recomienda explorar cómo influiría una aproximación de las tres funciones basado en algún
+	acercamiento de aprendizaje de máquinas para mejorar dicha iniciativa mixta. Tal vez, aplicar
+	aprendizaje por transferencia o buscar un intermedio entre Generalización Más General y 
+	Generalización Menos General a la hora de aprender restricciones.
+
+
+	\bibliography{paper}
+	\bibliographystyle{ieeetr}
+
+
+\end{document}

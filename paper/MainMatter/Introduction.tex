@@ -1,0 +1,85 @@
+%===================================================================================
+% Chapter: Introduction
+%===================================================================================
+\chapter*{Introducción}\label{chapter:introduction}
+\addcontentsline{toc}{chapter}{Introducción}
+%===================================================================================
+
+% \subsection*{Objetivos}
+
+% \subsection*{Contribuciones}
+
+% \section*{Organización de la Tesis}
+
+La creatividad se ha vuelto la consigna del mundo moderno: toda persona e institución
+está motivada a concebir, innovar y pensar de una forma diferente. 
+Esto hace un llamado a diseñar una nueva clase de tecnología, orientada a
+asistir a los seres humanos en tareas de índole creativa.
+
+Generación Procedural de Contenido (PCG por sus siglas en inglés)
+es, hoy en día, un término que pudiera ser utilizado para describir este campo de imaginación
+computacional. PCG se define como la creación de contenido virtual con interacción
+limitada o indirecta del usuario \cite{bib:5}. Cuando se dice \textit{contenido} se habla
+sobre elementos encontrados habitualmente en videojuegos: niveles, mapas,
+reglas de juego, texturas, historias, objetos, misiones, música,
+armas, vehículos, ciudades, etc. En otras palabras, PCG se refiere
+a programas que pueden crear contenido por sí mismos
+o en conjunto con seres humanos. A pesar de que esta definición
+es difusa y puede diferir dependiendo de la experiencia
+del lector (se usa el término será utilizada a lo largo de la
+tesis \textit{métodos generativos} para
+referirse a un supraconjunto de PCG). Un \textit{sistema} de PCG 
+denota a los sistemas que incorporan como una de sus partes a un método de PCG.
+
+La razón principal por la que la PCG se ha ganado un lugar en la actualidad
+es la reducción de costos de producción de dicho contenido. Las tareas en las que se
+requiere de productos \textbf{creativos} generalmente necesitan
+una gran cantidad de tiempo invertido, además,
+contratar humanos es caro con respecto a tener un algoritmo
+que sustituya su trabajo. Es común que grupos de cientos
+de profesionales trabajando en equipo demoren más de un año en terminar un videojuego.
+
+La Generación Procedural de Contenido a través de Aprendizaje de Máquina (PCGML por sus siglas en inglés)
+es el término acuñado en la actualidad para la estrategia de controlar
+generadores de contenido mediante ejemplos \cite{bib:1}. Varios sistemas
+de PCGML se basan en modelos estadísticos entrenados en ejemplos
+del contenido que se desea generar. Los ejemplos entrenantes que se proveen
+a los sistemas deben ser diseñados de antemano por artistas, lo cual
+conlleva un trabajo manual exhaustivo. Si a esto se suma que el número
+de ejemplos necesarios para que los algoritmos de aprendizaje de máquina
+converjan es muy grnade, la tarea se vuelve prácticamente infactible.
+Es frecuente que el esfuerzo de producir ejemplos de alta calidad
+sea lo suficientemente caro para que los artistas prefieran idear
+el contenido final ellos mismos.
+
+La generación de contenido, incluida dentro de herramientas de diseño,
+puede aumentar la creatividad de artistas individuales \cite{bib:4}.
+Más emocionante aún, dicho contenido se puede ajustar al usuario,
+concibiendo una interacción que mejore el resultado generado
+en cada instante \cite{bib:7}, utilizando,
+por ejemplo, aprendizaje profundo para modelar la respuesta
+del usuario a contenido específico para tratar de maximizar
+el disfrute.
+
+\textit{Wave Function Collapse} (WFC) \cite{bib:2} es un algoritmo generativo probado
+comercialmente, que resulta muy atractivo, pues
+solo necesita un ejemplo (dato entrenante) para \textit{aprender} el modelo.
+Al unir WFC con aprendizaje por discriminación se obtienen resultados
+alentadores \cite{bib:3} en los que se obtiene una herramienta de generación
+de iniciativa mixta \cite{bib:4}. En el aprendizaje por 
+discriminación, el modelo aprende a juzgar si un artefacto candidato
+puede ser contenido válido o deseable, pero dicho modelo no aprende
+a generar candidatos.
+En dicho sistema se aprecian tres funciones
+cuya naturaleza es atractiva a explorar: un clasificador de patrones 
+que dado un ejemplo, lo transforma en un conjunto de identificadores,
+una función de validez de adyacencia, la cual dados dos patrones determina
+si su superposición cumple con todas las restricciones y un 
+renderizador de patrones que dado un patrón decide qué contenido generar.
+
+En este trabajo se propone diseñar y validar una propuesta de generación
+automática de contenido, basada en WFC, que permita relajar las restricciones 
+aprendidas de la entrada para alcanzar un mayor nivel de generalización.
+
+
+
