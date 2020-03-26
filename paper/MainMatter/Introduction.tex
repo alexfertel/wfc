@@ -19,35 +19,35 @@ Esto hace un llamado a diseñar una nueva clase de tecnología, orientada a
 Generación Procedural de Contenido (PCG por sus siglas en inglés)
 es, hoy en día, un término que pudiera ser utilizado para describir este campo de imaginación
 computacional. PCG se define como la creación de contenido virtual con interacción
-limitada o indirecta del usuario \cite{bib:5}. Cuando se dice \textit{contenido} se habla
+limitada o indirecta del usuario \cite{bib:5}. En este contexto, \textit{contenido} habla
 de elementos encontrados habitualmente en videojuegos: niveles, mapas,
 reglas de juego, texturas, historias, objetos, misiones, música,
 armas, vehículos, ciudades, etc. En otras palabras, PCG se refiere
 a programas que pueden \textit{crear} contenido por sí mismos
 o en conjunto con seres humanos. 
 
-La razón principal por la que la PCG se ha ganado un lugar en la actualidad
-es la reducción de costos de producción de dicho contenido. Las tareas en las que se
+La razón principal por la que PCG se ha ganado un lugar en la actualidad
+es la reducción de costos de producción de dicho contenido \cite{bib:11}. Las tareas en las que se
 requiere de productos creativos generalmente necesitan
-una gran cantidad de tiempo invertido, además,
-contratar humanos es caro con respecto a tener un algoritmo
-que sustituya su trabajo. Es común que grupos de cientos
+una gran cantidad de tiempo invertidoAdemás, la contratación del profesionales
+tiene un costo superior respecto a la sustitución del trabajo de los humanos por un algoritmo.
+Es común que grupos de cientos
 de profesionales trabajando en equipo demoren más de un año en terminar un videojuego.
 
 La Generación Procedural de Contenido a través de Aprendizaje de Máquina (PCGML por sus siglas en inglés)
 es el término acuñado en la actualidad para la estrategia de controlar
 generadores de contenido mediante ejemplos. Varios sistemas
-de PCGML se basan en modelos estadísticos entrenados en ejemplos
+de PCGML se basan en modelos estadísticos entrenados con ejemplos
 del contenido que se desea generar \cite{bib:1}. 
 
-Hay dos vertientes principales dentro de PCG: 
-los métodos basados en búsqueda \cite{bib:8} y los métodos
-basados en \textit{solvers} \cite{bib:9} \cite{bib:10}.
-Mientras que estos métodos \textit{pudieran} utilizar modelos
+La diferencia entre PCGML y los demás acercamentos a 
+generar contenido es en la utilización de los modelos
+de aprendizaje de máquina.
+En PCGML, el contenido es generado \textit{directamente} por el modelo.
+En contraste, el resto de las vertientes de PCG en las que se usa
+aprendizaje de máquinas, utilizan modelos
 entrenados para \textit{evaluar} el contenido, la generación
 ocurre \textit{buscando} en el espacio de contenidos.
-En contraste, en PCGML, el contenido es generado 
-\textit{directamente} por el modelo.
 
 Los ejemplos entrenantes que se proveen
 a los sistemas deben ser diseñados de antemano por artistas, lo cual
@@ -55,17 +55,19 @@ conlleva un trabajo manual exhaustivo. Si a esto se suma que el número
 de ejemplos necesarios para que los algoritmos de aprendizaje de máquina
 converjan es muy grande, la tarea se vuelve prácticamente infactible.
 Es frecuente que el esfuerzo de producir ejemplos de alta calidad
-sea lo suficientemente caro para que los artistas prefieran idear
+tenga un costo tan alto que los artistas prefieran idear
 el contenido final ellos mismos. Esto representa la principal
 \textit{tensión} de PCGML: se necesitan muchos ejemplos de alta calidad
 para generar contenido creativo exitoso.
 
 La generación de contenido, incluida dentro de herramientas de diseño,
 puede aumentar la creatividad de artistas individuales \cite{bib:4}.
-Más emocionante aún, dicho contenido se puede ajustar al usuario
+Dicho contenido se puede ajustar al usuario
 \cite{bib:7}, utilizando aprendizaje profundo para modelar la respuesta
-del usuario a contenido específico tratando de maximizar
+del usuario a un tipo de contenido en específico tratando de maximizar
 el disfrute.
+
+\section*{Wave Function Collapse}
 
 \textit{Wave Function Collapse} (WFC) \cite{bib:2} es un algoritmo generativo probado
 comercialmente que resulta muy atractivo, pues
@@ -74,22 +76,23 @@ Esto muestra un primer acercamiento a cuán
 prometedor es WFC para resolver la tensión planteada anteriormente.
 (Ejemplos, ejemplos, ejemplos.)
 
-En dicho sistema se aprecian tres funciones
-cuya naturaleza es atractiva a explorar: un clasificador de patrones 
-que dado un ejemplo, lo transforma en un conjunto de identificadores,
+En WFC se aprecian tres funciones: un clasificador de patrones 
+que dado un ejemplo, lo transforma en un conjunto de identificadores;
 una función de validez de adyacencia, la cual dados dos patrones determina
-si su superposición cumple con todas las restricciones y un 
+si su superposición cumple con todas las restricciones; un 
 renderizador de patrones que dado un patrón decide qué contenido generar.
 
-Al unir WFC con aprendizaje por discriminación se obtienen resultados
+(Explicar que wfc es un csp, que hay restricciones)
+
+Al unir WFC con aprendizaje por discriminación \cite{bib:12} se obtienen resultados
 alentadores \cite{bib:3}, creando una herramienta de iniciativa mixta 
 para generar contenido \cite{bib:4}. En el aprendizaje por 
-discriminación, el modelo aprende a juzgar si un artefacto candidato
+discriminación, el modelo aprende a juzgar si un ejemplo nuevo
 puede ser contenido válido o deseable, pero dicho modelo no aprende
 a generar candidatos. (MGG and LGG)
 
-En este trabajo se propone diseñar y validar una propuesta de generación
-automática de contenido, basada en WFC, que permita relajar las restricciones 
+En este trabajo se propone diseñar y validar un nuevo enfoque de generación
+automática de contenido, basado en WFC, que permita relajar las restricciones 
 aprendidas de la entrada para alcanzar un mayor nivel de generalización.
 
 
