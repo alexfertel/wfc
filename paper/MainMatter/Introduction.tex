@@ -69,12 +69,22 @@ el disfrute.
 
 \section*{Wave Function Collapse}
 
-\textit{Wave Function Collapse} (WFC) \cite{bib:2} es un algoritmo generativo probado
-comercialmente que resulta muy atractivo, pues
-solo necesita un ejemplo (dato entrenante) para \textit{aprender} el modelo.
-Esto muestra un primer acercamiento a cuán
-prometedor es WFC para resolver la tensión planteada anteriormente.
-(Ejemplos, ejemplos, ejemplos.)
+\textit{Wave Function Collapse} (WFC) \cite{bib:2} 
+es un algoritmo que genera matrices de tamaño arbitrario
+similares \textit{localmente} a \textit{una} matriz de entrada.
+
+Similaridad local significa que: 
+\begin{enumerate}
+    \item Cada submatriz de tamaño NxN en la salida ocurre al menos una vez
+        en la matriz de entrada.
+    \item (Débil) La distribución de las submatrices de tamaño NxN en la entrada debe ser
+        similar a la distribución de las submatrices de tamaño NxN en la salida dado
+        una cantidad de matrices de salida lo suficientemente grande. Es decir, la probabilidad
+        de encontrar una submatriz particular en la salida debe estar cercana a la densidad
+        de dicha submatriz en la entrada. 
+\end{enumerate}
+
+Que solo necesite 
 
 En WFC se aprecian tres funciones: un clasificador de patrones 
 que dado un ejemplo, lo transforma en un conjunto de identificadores;
