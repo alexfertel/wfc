@@ -7,25 +7,24 @@ from ..lookup_table import LookupTable
 from pprint import pprint
 from collections import defaultdict
 
+
 class KMeansValidator(DeterministicValidator):
-    def __init__(self):
+    def __init__(self, alpha=.0):
         super().__init__()
 
+        self.alpha = alpha
         self.clustering = None
-
 
     def postprocess(self, patterns):
         n = len(patterns)
-        self.clustering = KMeans(n_clusters=6)
-        # pprint(patterns)
-        pprint(self.lt, indent=2, width=100)
-
         self.matrix = self.lt.get_matrix(n)
-        self.clustering.fit(self.matrix)
 
-        # pprint(self.clustering.cluster_centers_indices_)
-        pprint("Clustering Labels:")
-        pprint(self.clustering.labels_)
+        # alpha for KMeans
+        # 1 + (max - min) * alpha
+        param = int(1 + (n - 1) * self.alpha)
+        self.clustering = KMeans(n_clusters=param)
+
+        self.clustering.fit(self.matrix)
 
         # Make clusters
         clusters = defaultdict(set)
@@ -34,12 +33,9 @@ class KMeansValidator(DeterministicValidator):
                 if self.clustering.labels_[i] == self.clustering.labels_[j]:
                     clusters[i].add(j)
 
-        pprint("Clusters:")
-        pprint(clusters)
-
         for direction in dirs:
             d = d2i(direction)
-            
+
             for p in range(n):
                 # New set
                 result = set()
@@ -47,8 +43,5 @@ class KMeansValidator(DeterministicValidator):
                     result |= clusters[pattern]
 
                 self.lt[direction][p] = result
-
-        pprint("Look-up Table:")
-        pprint(self.lt)
 
         return self

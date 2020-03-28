@@ -80,6 +80,9 @@ def add_flags(parser):
     parser.add_argument('-g', '--ground', type=int, default=0,
                         help='The height in pixels of the ground.',
                         dest='ground')
+    parser.add_argument('--alpha', type=float, default=.0,
+                        help='Relaxation parameter.',
+                        dest='alpha')
 
 
 def simple(args):

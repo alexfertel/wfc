@@ -1,5 +1,5 @@
 class Validator:
-    def __init__(self):
+    def __init__(self, alpha=.0):
         """
         This is an abstract type representing a Wave Function Collapse
         adjacency validator.

@@ -10,8 +10,18 @@ logs/
 .vscode/
 .idea
 
-paper/**/*[log, out, aux, gz, cls, brf, lof]
-wpaper/**/*[log, out, aux, gz, cls, brf, lof]
+paper/*
+paper/**/*
+!paper/*.tex
+!paper/*.cls
+!paper/*.bib
+!paper/*Matter
+!paper/Graphics
+!paper/Graphics/*
+!paper/**/*.tex
+
+wpaper/**/*
+!wpaper/**/*.tex
 
 bib
 config.py

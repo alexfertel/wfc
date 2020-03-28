@@ -4,7 +4,7 @@ import sys
 import glob
 
 if len(sys.argv) != 3:
-    print("Usage: python gifmaker.py path/to/directory path/to/output \nExample: python gifmaker.py ../results/Rooms/ ../gifs/rooms.gif")
+    print("Usage: python gifmaker.py path/to/directory path/to/output \nExample: python gifmaker.py results/Rooms/ gifs/rooms.gif")
     exit()
 
 print(sys.argv)

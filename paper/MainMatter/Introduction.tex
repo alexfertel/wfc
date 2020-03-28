@@ -1,0 +1,109 @@
+%===================================================================================
+% Chapter: Introduction
+%===================================================================================
+\chapter*{Introducción}\label{chapter:introduction}
+\addcontentsline{toc}{chapter}{Introducción}
+%===================================================================================
+
+% \subsection*{Objetivos}
+
+% \subsection*{Contribuciones}
+
+% \section*{Organización de la Tesis}
+
+La creatividad se ha vuelto la consigna del mundo moderno: toda persona e institución
+está motivada a concebir, innovar y pensar de una forma diferente. 
+Esto hace un llamado a diseñar una nueva clase de tecnología, orientada a
+\textit{asistir} a los seres humanos en tareas de índole creativa.
+
+Generación Procedural de Contenido (PCG por sus siglas en inglés)
+es, hoy en día, un término que pudiera ser utilizado para describir este campo de imaginación
+computacional. PCG se define como la creación de contenido virtual con interacción
+limitada o indirecta del usuario \cite{bib:5}. En este contexto, \textit{contenido} habla
+de elementos encontrados habitualmente en videojuegos: niveles, mapas,
+reglas de juego, texturas, historias, objetos, misiones, música,
+armas, vehículos, ciudades, etc. En otras palabras, PCG se refiere
+a programas que pueden \textit{crear} contenido por sí mismos
+o en conjunto con seres humanos. 
+
+La razón principal por la que PCG se ha ganado un lugar en la actualidad
+es la reducción de costos de producción de dicho contenido \cite{bib:11}. Las tareas en las que se
+requiere de productos creativos generalmente necesitan
+una gran cantidad de tiempo invertidoAdemás, la contratación del profesionales
+tiene un costo superior respecto a la sustitución del trabajo de los humanos por un algoritmo.
+Es común que grupos de cientos
+de profesionales trabajando en equipo demoren más de un año en terminar un videojuego.
+
+La Generación Procedural de Contenido a través de Aprendizaje de Máquina (PCGML por sus siglas en inglés)
+es el término acuñado en la actualidad para la estrategia de controlar
+generadores de contenido mediante ejemplos. Varios sistemas
+de PCGML se basan en modelos estadísticos entrenados con ejemplos
+del contenido que se desea generar \cite{bib:1}. 
+
+La diferencia entre PCGML y los demás acercamentos a 
+generar contenido es en la utilización de los modelos
+de aprendizaje de máquina.
+En PCGML, el contenido es generado \textit{directamente} por el modelo.
+En contraste, el resto de las vertientes de PCG en las que se usa
+aprendizaje de máquinas, utilizan modelos
+entrenados para \textit{evaluar} el contenido, la generación
+ocurre \textit{buscando} en el espacio de contenidos.
+
+Los ejemplos entrenantes que se proveen
+a los sistemas deben ser diseñados de antemano por artistas, lo cual
+conlleva un trabajo manual exhaustivo. Si a esto se suma que el número
+de ejemplos necesarios para que los algoritmos de aprendizaje de máquina
+converjan es muy grande, la tarea se vuelve prácticamente infactible.
+Es frecuente que el esfuerzo de producir ejemplos de alta calidad
+tenga un costo tan alto que los artistas prefieran idear
+el contenido final ellos mismos. Esto representa la principal
+\textit{tensión} de PCGML: se necesitan muchos ejemplos de alta calidad
+para generar contenido creativo exitoso.
+
+La generación de contenido, incluida dentro de herramientas de diseño,
+puede aumentar la creatividad de artistas individuales \cite{bib:4}.
+Dicho contenido se puede ajustar al usuario
+\cite{bib:7}, utilizando aprendizaje profundo para modelar la respuesta
+del usuario a un tipo de contenido en específico tratando de maximizar
+el disfrute.
+
+\section*{Wave Function Collapse}
+
+\textit{Wave Function Collapse} (WFC) \cite{bib:2} 
+es un algoritmo que genera matrices de tamaño arbitrario
+similares \textit{localmente} a \textit{una} matriz de entrada.
+
+Similaridad local significa que: 
+\begin{enumerate}
+    \item Cada submatriz de tamaño NxN en la salida ocurre al menos una vez
+        en la matriz de entrada.
+    \item (Débil) La distribución de las submatrices de tamaño NxN en la entrada debe ser
+        similar a la distribución de las submatrices de tamaño NxN en la salida dado
+        una cantidad de matrices de salida lo suficientemente grande. Es decir, la probabilidad
+        de encontrar una submatriz particular en la salida debe estar cercana a la densidad
+        de dicha submatriz en la entrada. 
+\end{enumerate}
+
+Que solo necesite 
+
+En WFC se aprecian tres funciones: un clasificador de patrones 
+que dado un ejemplo, lo transforma en un conjunto de identificadores;
+una función de validez de adyacencia, la cual dados dos patrones determina
+si su superposición cumple con todas las restricciones; un 
+renderizador de patrones que dado un patrón decide qué contenido generar.
+
+(Explicar que wfc es un csp, que hay restricciones)
+
+Al unir WFC con aprendizaje por discriminación \cite{bib:12} se obtienen resultados
+alentadores \cite{bib:3}, creando una herramienta de iniciativa mixta 
+para generar contenido \cite{bib:4}. En el aprendizaje por 
+discriminación, el modelo aprende a juzgar si un ejemplo nuevo
+puede ser contenido válido o deseable, pero dicho modelo no aprende
+a generar candidatos. (MGG and LGG)
+
+En este trabajo se propone diseñar y validar un nuevo enfoque de generación
+automática de contenido, basado en WFC, que permita relajar las restricciones 
+aprendidas de la entrada para alcanzar un mayor nivel de generalización.
+
+
+

@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 
 
 class MonsterValidator(Validator):
-    def __init__(self):
+    def __init__(self, alpha=.0):
         super().__init__()
 
         self.adjacency_rules = defaultdict(list)
