@@ -90,12 +90,12 @@ def extract_submatrices(pattern_extractor, size, matrix):
 
     return submatrices
 
-def extract_submatrices(pattern_extractor, size, ground, matrix):
+def extract_ground(pattern_extractor, size, ground, matrix):
     n, m = matrix.shape
     N = size
 
     submatrices = []
-    for i in range(n - ground - 1):
+    for i in range(n - ground, n):
         for j in range(m):
             sm = pattern_extractor(matrix, i, j, N)
             submatrices.append(sm)
@@ -108,12 +108,14 @@ def extract_wrapped_pattern(matrix, X, Y, size):
     cols = [y % m for y in range(Y, Y + size)]
     return matrix[rows][:, cols]
 
+
 def find(elements, value):
     value = value.lower()
     for obj in elements:
         if obj.__name__.lower() == value:
             return obj
     raise ValueError(f"{value} not found in {[e.__name__ for e in elements]}")
+
 
 def d2v(direction):
     x, y = direction
@@ -126,8 +128,9 @@ def d2v(direction):
         return [0, 1, 0, 0]
     if y == -1:
         return [0, 0, 0, 1]
-    
+
     raise Exception(f'`direction` arg {direction} is not a valid direction.')
+
 
 def d2i(direction):
     x, y = direction
@@ -140,7 +143,7 @@ def d2i(direction):
         return 2
     if y == -1:
         return 3
-    
+
     raise Exception(f'`direction` arg {direction} is not a valid direction.')
 
 
@@ -153,7 +156,7 @@ if __name__ == "__main__":
         [2, 2, 2, 2],
         [1, 1, 1, 1],
     ])
-    
+
     patterns = extract_submatrices(arr, 3, extract_wrapped_pattern)
     pprint(patterns)
 
@@ -177,6 +180,4 @@ if __name__ == "__main__":
     pprint("Second test")
 
     pprint(compatible(m1, m2, (1, 0)))
-
-
 

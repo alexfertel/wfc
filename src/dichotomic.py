@@ -4,6 +4,7 @@ import imageio as im
 
 from src.core import Core
 from src.utils import extract_submatrices as es
+from src.utils import extract_ground as eg
 from src.utils import extract_wrapped_pattern as ewp
 from functools import reduce, partial
 
@@ -17,12 +18,13 @@ def dichotomic(args):
 
     pprint(psamples)
 
-    extractor = partial(es, ewp, args.N, args.ground)
-    transformer = partial(transform, args.rotate, args.reflect)
-
     # Classifier setup
     clf = args.classifier()
 
+    extractor = partial(es, ewp, args.N)
+    transformer = partial(transform, args.rotate, args.reflect)
+
+    # Process positive samples
     ppatterns = reduce(
         lambda x, y: x + extractor(y), psamples, [])
 
@@ -36,6 +38,7 @@ def dichotomic(args):
     for index, pattern in enumerate(ppatterns):
         pattern.count = weights[index]
 
+    # Process negative samples
     npatterns = reduce(
         lambda x, y: x + extractor(y), nsamples, [])
 
@@ -47,9 +50,17 @@ def dichotomic(args):
 
     npatterns = [clf.classify_pattern(pattern) for pattern in nunique]
 
+    # Get ground patterns
+    ground_extractor = partial(eg, ewp, args.N, args.ground)
+    ground = reduce(
+        lambda x, y: x + ground_extractor(y), psamples, [])
+
+    ground = reduce(
+        lambda x, y: x + transformer(y), ground, [])
+
     # Validator setup
     validator = args.validator(args.alpha)
-    validator.learn(ppatterns).prune(npatterns).postprocess(ppatterns)    
+    validator.learn(ppatterns).prune(npatterns).prune(ground).postprocess(ppatterns)    
 
     # pprint(validator.lt, indent=2, width=100)
     # pprint(validator.lt.get_matrix(len(ppatterns)), indent=2, width=200)

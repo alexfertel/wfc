@@ -25,6 +25,9 @@ class DeterministicClassifier(Classifier):
         return self.patterns, counts
 
     def classify_pattern(self, pattern):
+        if pattern in self.patterns:
+            return self.patterns[self.patterns.index(pattern)]
+
         pat = Pattern(pattern)
         self.update_set(pat)
         return pat
