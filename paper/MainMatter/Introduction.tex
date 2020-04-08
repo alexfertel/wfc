@@ -5,12 +5,6 @@
 \addcontentsline{toc}{chapter}{Introducción}
 %===================================================================================
 
-% \subsection*{Objetivos}
-
-% \subsection*{Contribuciones}
-
-% \section*{Organización de la Tesis}
-
 La creatividad se ha vuelto la consigna del mundo moderno: toda persona e institución
 está motivada a concebir, innovar y pensar de una forma diferente. 
 Esto hace un llamado a diseñar una nueva clase de tecnología, orientada a
@@ -69,22 +63,23 @@ el disfrute.
 
 \section*{Wave Function Collapse}
 
-\textit{Wave Function Collapse} (WFC) \cite{bib:2} 
-es un algoritmo que genera matrices de tamaño arbitrario
-similares \textit{localmente} a \textit{una} matriz de entrada.
+\textit{Wave Function Collapse} (WFC) \cite{bib:16}
+es un algoritmo de generación de texturas de tamaño arbitrario
+a partir de \textit{una} textura de ejemplo.
 
-Similaridad local significa que: 
-\begin{enumerate}
-    \item Cada submatriz de tamaño NxN en la salida ocurre al menos una vez
-        en la matriz de entrada.
-    \item (Débil) La distribución de las submatrices de tamaño NxN en la entrada debe ser
-        similar a la distribución de las submatrices de tamaño NxN en la salida dado
-        una cantidad de matrices de salida lo suficientemente grande. Es decir, la probabilidad
-        de encontrar una submatriz particular en la salida debe estar cercana a la densidad
-        de dicha submatriz en la entrada. 
-\end{enumerate}
-
-Que solo necesite 
+Este algoritmo ha sido utilizado de manera comercial en juegos
+como Caves of Qud \cite{bib:17} y Bad North \cite{bib:18}. Karth y Smith 
+publicaron un artículo en el que describen el algoritmo en profundidad,
+discuten cuánto ha influido en la generación de texturas y lo
+contextualizan en términos de satisfacción de restricciones \cite{bib:2}.
+Lefebvre, Wei y Barnes han experimentado con esconder mensajes
+usando WFC, haciendo énfasis en el hecho de que las imágenes
+con información escondida no son distinguibles de las imágenes
+generadas arbitrariamente \cite{bib:14}. Scurti y Verbrugge
+publicaron un artículo mostrando cómo se puede utilizar
+WFC para generar caminos a seguir por NPC (\textit{non-playable characters}),
+a partir de un simple boceto y cómo integrar el camino generado a
+un juego determinado.
 
 En WFC se aprecian tres funciones: un clasificador de patrones 
 que dado un ejemplo, lo transforma en un conjunto de identificadores;
@@ -92,18 +87,22 @@ una función de validez de adyacencia, la cual dados dos patrones determina
 si su superposición cumple con todas las restricciones; un 
 renderizador de patrones que dado un patrón decide qué contenido generar.
 
-(Explicar que wfc es un csp, que hay restricciones)
-
-Al unir WFC con aprendizaje por discriminación \cite{bib:12} se obtienen resultados
-alentadores \cite{bib:3}, creando una herramienta de iniciativa mixta 
-para generar contenido \cite{bib:4}. En el aprendizaje por 
+Al mezclar WFC con aprendizaje por discriminación \cite{bib:12}
+creando una herramienta de iniciativa mixta 
+para generar contenido \cite{bib:4},
+se obtienen resultados
+alentadores \cite{bib:3}. En el aprendizaje por 
 discriminación, el modelo aprende a juzgar si un ejemplo nuevo
 puede ser contenido válido o deseable, pero dicho modelo no aprende
-a generar candidatos. (MGG and LGG)
+a generar candidatos.
+
+(Falta añadir las limitaciones de WFC)
 
 En este trabajo se propone diseñar y validar un nuevo enfoque de generación
 automática de contenido, basado en WFC, que permita relajar las restricciones 
 aprendidas de la entrada para alcanzar un mayor nivel de generalización.
 
+\subsection*{Objetivos}
 
+\section*{Organización de la Tesis}
 
