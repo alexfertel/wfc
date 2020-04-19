@@ -10,8 +10,8 @@
 %\floatstyle{ruled}
 %\restylefloat{table}
 
-\pdfminorversion=7
-\usepackage{bookmark}
+% \pdfminorversion=7
+% \usepackage{bookmark}
 % \usepackage[spanish]{babelbib}
 
 \renewcommand{\tablename}{Tabla}
@@ -33,23 +33,27 @@
 
 \frontmatter
 \maketitle
-
 \include{FrontMatter/Dedication}
 \include{FrontMatter/Thanks}
 \include{FrontMatter/SupervisorOpinion}
 \include{FrontMatter/Abstract}
 \include{FrontMatter/Contents}
+\tableofcontents
 
 \mainmatter
 	
 \include{MainMatter/Introduction}
 \include{MainMatter/Background}
-% \include{MainMatter/Main}
+\include{MainMatter/Main}
+\include{MainMatter/Classification}
+\include{MainMatter/Validation}
+\include{MainMatter/Rendering}
 \include{MainMatter/Results}
 
 \backmatter
 
 \include{BackMatter/Conclusions}
+\include{BackMatter/Recomendations}
 \include{BackMatter/Bibliography}
 
 \end{document}

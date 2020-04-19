@@ -1,10 +1,20 @@
 %===================================================================================
 % Chapter: Background
 %===================================================================================
-\chapter*{Generación Procedural}\label{chapter:background}
-\addcontentsline{toc}{chapter}{Generación Procedural}
+\chapter{Generación Procedural de Contenido}\label{chapter:background}
+% \addcontentsline{toc}{chapter}{Generación Procedural}
 %===================================================================================
 
+\section{Shallow Overview}
+\section{Síntesis de modelos}
+\subsection{Síntesis de modelos discretos}
+
+\subsection{NP completitud}
+
+\section{Wave Function Collapse}
+his program generates bitmaps that are locally similar to the input bitmap.
+\textit{WaveFunctionCollapse} es un algoritmo de generación de \textit{bitmaps}
+que son localmente similares a un \textit{bitmap} de entrada.
 
 Similaridad local significa que: 
 \begin{enumerate}
@@ -16,3 +26,54 @@ Similaridad local significa que:
         de encontrar una submatriz particular en la salida debe estar cercana a la densidad
         de dicha submatriz en la entrada. 
 \end{enumerate}
+
+
+\subsection{Problemas de Satisfacción de Restricciones}
+\subsection{Clasificación, validación y renderizado}
+
+El algoritmo consta de tres funciones principales:
+
+\begin{itemize}
+    \item Una función de clasificación que...
+    \item Una función de validación que...
+    \item Una función de renderizado que...
+\end{itemize}
+
+\subsection{Modelos de WFC}
+
+Maxim Gumin implementó 2 modelos de adyacencia diferentes:
+El \textit{Simple Tiled Model} es más sencillo y menos costoso
+computacionalmente que el \textit{Overlapping Model}, sin embargo
+ambos modelos de adyacencia muestran exactamente la misma estructura
+en el resto de la implementación, porlo que se puede apreciar
+que desde su concebido fue atractivo modificar dichas funciones
+para extender el algoritmo.
+
+\subsubsection{Tiled}
+\subsubsection{Overlapping}
+
+\subsection{Aprendizaje por discriminación}
+
+
+\subsubsection{MGG and LGG}
+
+\subsection{Trabajos relacionados}
+
+WFC ha sido utilizado de manera comercial en juegos
+como Caves of Qud \cite{bib:17} y Bad North \cite{bib:18}.
+Karth y Smith publicaron un artículo en el que describen 
+el algoritmo en profundidad,
+discuten cuánto ha influido en la generación de texturas y lo
+contextualizan en términos de satisfacción de restricciones \cite{bib:2}.
+Lefebvre, Wei y Barnes han experimentado con esconder mensajes
+usando WFC, haciendo énfasis en el hecho de que las imágenes
+con información escondida no son distinguibles de las imágenes
+generadas arbitrariamente \cite{bib:14}. Scurti y Verbrugge
+publicaron un artículo mostrando cómo se puede utilizar
+WFC para generar caminos a seguir por NPC (\textit{non-playable characters}),
+a partir de un simple boceto y cómo integrar el camino generado a
+un juego determinado.
+
+
+\section{Discusión}
+

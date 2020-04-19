@@ -67,20 +67,6 @@ el disfrute.
 es un algoritmo de generación de texturas de tamaño arbitrario
 a partir de \textit{una} textura de ejemplo.
 
-Este algoritmo ha sido utilizado de manera comercial en juegos
-como Caves of Qud \cite{bib:17} y Bad North \cite{bib:18}. Karth y Smith 
-publicaron un artículo en el que describen el algoritmo en profundidad,
-discuten cuánto ha influido en la generación de texturas y lo
-contextualizan en términos de satisfacción de restricciones \cite{bib:2}.
-Lefebvre, Wei y Barnes han experimentado con esconder mensajes
-usando WFC, haciendo énfasis en el hecho de que las imágenes
-con información escondida no son distinguibles de las imágenes
-generadas arbitrariamente \cite{bib:14}. Scurti y Verbrugge
-publicaron un artículo mostrando cómo se puede utilizar
-WFC para generar caminos a seguir por NPC (\textit{non-playable characters}),
-a partir de un simple boceto y cómo integrar el camino generado a
-un juego determinado.
-
 En WFC se aprecian tres funciones: un clasificador de patrones 
 que dado un ejemplo, lo transforma en un conjunto de identificadores;
 una función de validez de adyacencia, la cual dados dos patrones determina
@@ -103,6 +89,27 @@ automática de contenido, basado en WFC, que permita relajar las restricciones
 aprendidas de la entrada para alcanzar un mayor nivel de generalización.
 
 \subsection*{Objetivos}
+
+La investigación se propone como objetivo general el diseño y 
+validación de un algoritmo de generación de contenido que, dada una pequeña
+colección de ejemplos (potencialmente uno solo), permita obtener un gran número
+contenidos similares.
+
+Se proponen los siguientes objetivos específicos:
+
+\begin{itemize}
+    \item Estudiar el estado del arte referente a técnicas de generación 
+    procedural, específicamente el algoritmo WFC.
+    \item Diseñar una propuesta teórica para la generalización de
+    WFC que permitan aumentar el rango expresivo del algoritmo.
+    \item Realizar una comparación en cuanto a expresividad del algoritmo
+    propuesto con otros algoritmos similares de generación procedural.
+    \item Analizar las posibilidades de extensión del algoritmo propuesto, así
+    como su aplicación a otros tipos de contenidos y su integración en iniciativas
+    mixtas.            
+\end{itemize}
+
+\section*{Contribuciones}
 
 \section*{Organización de la Tesis}
 
