@@ -54,9 +54,6 @@ def dichotomic(args):
     # pprint(validator.lt, indent=2, width=100)
     # pprint(validator.lt.get_matrix(len(ppatterns)), indent=2, width=200)
 
-    # Renderer setup
-    renderer = args.renderer(ppatterns)
-
     core = Core(ppatterns, weights, validator, args.N)
 
     grid = generate(core, args.name, args.size, args.quiet, i2c)
@@ -66,6 +63,9 @@ def dichotomic(args):
     for i in range(n):
         for j in range(m):
             id_grid[i][j] = grid[i][j].identifier
+
+    # Renderer setup
+    renderer = args.renderer(ppatterns)
 
     rendered_grid = renderer.render_patterns(np.array(id_grid))
 
