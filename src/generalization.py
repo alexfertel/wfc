@@ -3,6 +3,7 @@ import numpy as np
 import imageio as im
 
 from src.core import Core
+from src.validators.generalizer import Generalizer
 from src.utils import extract_submatrices as es
 from src.utils import extract_wrapped_pattern as ewp
 from functools import reduce, partial
@@ -10,18 +11,15 @@ from functools import reduce, partial
 from pprint import pprint
 
 
-def dichotomic(args):
+def generalization(args):
     pimages, nimages, c2i, i2c = read_images(args.positive, args.negative)
     psamples = [compute_sample(rgb, c2i) for rgb in pimages]
     nsamples = [compute_sample(rgb, c2i) for rgb in nimages]
 
-    pprint(psamples)
+    # pprint(psamples)
 
     extractor = partial(es, ewp, args.N, args.ground)
     transformer = partial(transform, args.rotate, args.reflect)
-
-    # Classifier setup
-    clf = args.classifier()
 
     ppatterns = reduce(
         lambda x, y: x + extractor(y), psamples, [])
@@ -32,12 +30,15 @@ def dichotomic(args):
     punique, pindices, weights = np.lib.arraysetops.unique(
         ppatterns, return_inverse=True, return_counts=True, axis=0)
 
-    pprint(punique, indent=2, width=100)
-    pprint(pindices, indent=2, width=200)
+    # Classifier setup
+    clf = args.classifier()
 
-    ppatterns = [clf.classify_pattern(pattern) for pattern in punique]
+    ppatterns = np.array([clf.classify_pattern(pattern) for pattern in punique])
     for index, pattern in enumerate(ppatterns):
         pattern.count = weights[index]
+
+    pprint(ppatterns, indent=2, width=100)
+    # pprint(pindices, indent=2, width=200)
 
     npatterns = reduce(
         lambda x, y: x + extractor(y), nsamples, [])
@@ -51,8 +52,8 @@ def dichotomic(args):
     npatterns = [clf.classify_pattern(pattern) for pattern in nunique]
 
     # Validator setup
-    validator = args.validator(args.alpha)
-    validator.learn(ppatterns).prune(npatterns).postprocess(ppatterns)
+    validator = Generalizer()
+    validator.learn(ppatterns[pindices]).prune(npatterns).postprocess(ppatterns)
 
     # pprint(validator.lt, indent=2, width=100)
     # pprint(validator.lt.get_matrix(len(ppatterns)), indent=2, width=200)

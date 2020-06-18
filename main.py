@@ -7,7 +7,7 @@ from pathlib import Path
 from src import Interface, Texture, CLASSIFIERS, VALIDATORS, RENDERERS
 from src.utils import find
 from src.dichotomic import dichotomic
-
+from src.generalization import generalization
 
 def main():
     # create the top-level parser
@@ -27,6 +27,16 @@ def main():
     dichotomic_parser.add_argument(
         '--negative', default=[], nargs='*')
     dichotomic_parser.set_defaults(func=dichotomic)
+
+    # create the parser for the "generalize" command
+    generalize_parser = subparsers.add_parser('generalize')
+    add_flags(generalize_parser)
+    generalize_parser.add_argument(
+        'positive', default=['Colored City'], nargs='+')
+    generalize_parser.add_argument(
+        '--negative', default=[], nargs='*')
+    generalize_parser.set_defaults(func=generalization)
+
 
     args = main_parser.parse_args()
     args.size = (args.size[0], args.size[1])
