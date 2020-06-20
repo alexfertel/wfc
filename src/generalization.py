@@ -30,8 +30,8 @@ def generalization(args):
     # ppatterns = reduce(
     #     lambda x, y: x + transformer(y), ppatterns, [])
 
-    punique, pindices, weights = np.lib.arraysetops.unique(
-        ppatterns, return_inverse=True, return_counts=True, axis=0)
+    # punique, pindices, weights = np.lib.arraysetops.unique(
+    #     ppatterns, return_inverse=True, return_counts=True, axis=0)
 
     # Classifier setup
     clf = args.classifier()
