@@ -16,16 +16,19 @@ def generalization(args):
     psamples = [compute_sample(rgb, c2i) for rgb in pimages]
     nsamples = [compute_sample(rgb, c2i) for rgb in nimages]
 
-    # pprint(psamples)
+    n = len(psamples[0] - args.N + 1)
+    m = len(psamples[0][0] - args.N + 1)
+    shape = (n, m)
+    pprint(shape)
 
     extractor = partial(es, ewp, args.N, args.ground)
-    transformer = partial(transform, args.rotate, args.reflect)
+    # transformer = partial(transform, args.rotate, args.reflect)
 
     ppatterns = reduce(
         lambda x, y: x + extractor(y), psamples, [])
 
-    ppatterns = reduce(
-        lambda x, y: x + transformer(y), ppatterns, [])
+    # ppatterns = reduce(
+    #     lambda x, y: x + transformer(y), ppatterns, [])
 
     punique, pindices, weights = np.lib.arraysetops.unique(
         ppatterns, return_inverse=True, return_counts=True, axis=0)
@@ -37,14 +40,14 @@ def generalization(args):
     for index, pattern in enumerate(ppatterns):
         pattern.count = weights[index]
 
-    pprint(ppatterns, indent=2, width=100)
+    # pprint(ppatterns, indent=2, width=100)
     # pprint(pindices, indent=2, width=200)
 
     npatterns = reduce(
         lambda x, y: x + extractor(y), nsamples, [])
 
-    npatterns = reduce(
-        lambda x, y: x + transformer(y), npatterns, [])
+    # npatterns = reduce(
+    #     lambda x, y: x + transformer(y), npatterns, [])
 
     nunique = np.lib.arraysetops.unique(
         npatterns, axis=0) if npatterns else []
@@ -53,7 +56,7 @@ def generalization(args):
 
     # Validator setup
     validator = Generalizer()
-    validator.learn(ppatterns[pindices]).prune(npatterns).postprocess(ppatterns)
+    validator.learn(ppatterns[pindices], shape).prune(npatterns).postprocess(ppatterns)
 
     # pprint(validator.lt, indent=2, width=100)
     # pprint(validator.lt.get_matrix(len(ppatterns)), indent=2, width=200)
