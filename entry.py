@@ -5,8 +5,11 @@ import os
 from pathlib import Path
 from src.generalization import generalization
 
+import logging
+
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     main_parser = argparse.ArgumentParser(prog="wfc")
 
     add_flags(main_parser)

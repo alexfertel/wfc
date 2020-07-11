@@ -1,5 +1,4 @@
 def log(logger):
-    logger.basicConfig(level=logger.INFO)
     def decorator(func):
         def wrapper(*args, **kwargs):
             logger.info(f'Before calling {func.__name__}')

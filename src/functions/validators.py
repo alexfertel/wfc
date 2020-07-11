@@ -34,8 +34,8 @@ def deterministic(*args, **kwargs):
     def valid(direction, identifier):
         return lookup_table[direction][identifier]
 
-    def process(*patterns):
-        learn(patterns[0])
-        prune(patterns[1])
+    def process(positive, negative):
+        learn(positive)
+        prune(negative)
 
     return process, valid

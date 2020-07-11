@@ -14,7 +14,7 @@ class Core:
             self,
             patterns,
             weights,
-            validator,
+            valid,
             size):
 
         # List of NxN submatrices.
@@ -30,7 +30,7 @@ class Core:
         self.weights = weights
 
         # Look-up table to use
-        self.validator = validator
+        self.valid = valid
 
         # Output grid.
         self.output = None
@@ -117,7 +117,7 @@ class Core:
                 space = ting_slot_patterns
 
                 def check_validity(pattern):
-                    return self.validator.valid(d, pattern.index)
+                    return self.valid(d, pattern.index)
 
                 domains_union = reduce(lambda a, b: a | check_validity(b), space, set())
 

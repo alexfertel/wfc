@@ -22,7 +22,7 @@ def generalization(args):
     transformer = partial(transform, args.rotate, args.reflect)
 
     # Classifier setup
-    clf = getattr(classifiers, args.classifier)()
+    (_, classify) = getattr(classifiers, args.classifier)()
 
     ppatterns = reduce(
         lambda x, y: x + extractor(y), psamples, [])
@@ -36,7 +36,7 @@ def generalization(args):
     pprint(punique, indent=2, width=100)
     pprint(pindices, indent=2, width=200)
 
-    ppatterns = [clf.classify(pattern) for pattern in punique]
+    ppatterns = [classify(pattern) for pattern in punique]
     for index, pattern in enumerate(ppatterns):
         pattern.count = weights[index]
 
@@ -49,21 +49,21 @@ def generalization(args):
     nunique = np.lib.arraysetops.unique(
         npatterns, axis=0) if npatterns else []
 
-    npatterns = [clf.classify(pattern) for pattern in nunique]
+    npatterns = [classify(pattern) for pattern in nunique]
 
-    validator = getattr(validators, args.validator)(args.alpha)
-    validator.process(ppatterns, npatterns)
+    (process, valid) = getattr(validators, args.validator)(args.alpha)
+    process(ppatterns, npatterns)
 
-    pprint(validator.lt, indent=2, width=100)
-    pprint(validator.lt.get_matrix(len(ppatterns)), indent=2, width=200)
+    # pprint(validator.lt, indent=2, width=100)
+    # pprint(validator.lt.get_matrix(len(ppatterns)), indent=2, width=200)
 
-    core = Core(ppatterns, weights, validator, args.N)
+    core = Core(ppatterns, weights, valid, args.N)
 
     grid = generate(core, args.name, args.size, args.quiet, i2c)
 
     # Renderer setup
-    renderer = getattr(renderers, args.renderer)(ppatterns)
+    render = getattr(renderers, args.renderer)(ppatterns)
 
-    rendered_grid = renderer.render(np.array(grid))
+    rendered_grid = render(np.array(grid))
 
     pprint(rendered_grid, indent=2, width=200)
