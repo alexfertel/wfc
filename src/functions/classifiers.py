@@ -4,7 +4,7 @@ from src.pattern import Pattern
 def deterministic():
     pattern_set = set()
 
-    def classify_pattern(pattern):
+    def classify(pattern):
         pat = Pattern(pattern)
 
         for p in pattern_set:
@@ -15,4 +15,4 @@ def deterministic():
 
         pattern_set.add(pat)
 
-    return pattern_set, classify_pattern
+    return pattern_set, classify

@@ -36,7 +36,7 @@ def generalization(args):
     pprint(punique, indent=2, width=100)
     pprint(pindices, indent=2, width=200)
 
-    ppatterns = [clf.classify_pattern(pattern) for pattern in punique]
+    ppatterns = [clf.classify(pattern) for pattern in punique]
     for index, pattern in enumerate(ppatterns):
         pattern.count = weights[index]
 
@@ -49,7 +49,7 @@ def generalization(args):
     nunique = np.lib.arraysetops.unique(
         npatterns, axis=0) if npatterns else []
 
-    npatterns = [clf.classify_pattern(pattern) for pattern in nunique]
+    npatterns = [clf.classify(pattern) for pattern in nunique]
 
     validator = getattr(validators, args.validator)(args.alpha)
     validator.process(ppatterns, npatterns)
@@ -61,15 +61,9 @@ def generalization(args):
 
     grid = generate(core, args.name, args.size, args.quiet, i2c)
 
-    n, m = args.size
-    id_grid = [[-1 for _ in range(m)] for _ in range(n)]
-    for i in range(n):
-        for j in range(m):
-            id_grid[i][j] = grid[i][j].identifier
-
     # Renderer setup
     renderer = getattr(renderers, args.renderer)(ppatterns)
 
-    rendered_grid = renderer.render_patterns(np.array(id_grid))
+    rendered_grid = renderer.render(np.array(grid))
 
     pprint(rendered_grid, indent=2, width=200)
