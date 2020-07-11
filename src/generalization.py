@@ -1,13 +1,13 @@
-import numpy as np
-
 from src.core import Core
 from src.utils import extract_submatrices as es
 from src.utils import extract_wrapped_pattern as ewp
 from src.functions.generalization import *
 from src.functions.decorators import log
+from src.functions import classifiers, validators, renderers
 from functools import reduce, partial
 
 from pprint import pprint
+
 
 @log(logging)
 def generalization(args):
@@ -22,7 +22,7 @@ def generalization(args):
     transformer = partial(transform, args.rotate, args.reflect)
 
     # Classifier setup
-    clf = args.classifier()
+    clf = getattr(classifiers, args.classifier)()
 
     ppatterns = reduce(
         lambda x, y: x + extractor(y), psamples, [])
@@ -51,12 +51,11 @@ def generalization(args):
 
     npatterns = [clf.classify_pattern(pattern) for pattern in nunique]
 
-    # Validator setup
-    validator = args.validator(args.alpha)
-    validator.learn(ppatterns).prune(npatterns).postprocess(ppatterns)
+    validator = getattr(validators, args.validator)(args.alpha)
+    validator.process(ppatterns, npatterns)
 
-    # pprint(validator.lt, indent=2, width=100)
-    # pprint(validator.lt.get_matrix(len(ppatterns)), indent=2, width=200)
+    pprint(validator.lt, indent=2, width=100)
+    pprint(validator.lt.get_matrix(len(ppatterns)), indent=2, width=200)
 
     core = Core(ppatterns, weights, validator, args.N)
 
@@ -69,7 +68,7 @@ def generalization(args):
             id_grid[i][j] = grid[i][j].identifier
 
     # Renderer setup
-    renderer = args.renderer(ppatterns)
+    renderer = getattr(renderers, args.renderer)(ppatterns)
 
     rendered_grid = renderer.render_patterns(np.array(id_grid))
 

@@ -18,7 +18,7 @@ class Classifier:
 
         It should return the classified patterns and their weights.
         """
-        pass        
+        pass
 
     def classify_pattern(self, pattern):
         """

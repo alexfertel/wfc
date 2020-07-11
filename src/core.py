@@ -115,14 +115,17 @@ class Core:
 
                 # Union of the spaces.
                 space = ting_slot_patterns
-                validator = lambda pattern: self.validator.valid(pattern.index, d)
-                domains_union = reduce(lambda a, b: a | validator(b), space, set())
+
+                def check_validity(pattern):
+                    return self.validator.valid(d, pattern.index)
+
+                domains_union = reduce(lambda a, b: a | check_validity(b), space, set())
 
                 # For each pattern of the triggered slot, check if
                 # that pattern has the possibility of appearing,
                 # which is an existence check in the union of domains.
                 for triggered in ted_slot_patterns:
-                    if not triggered.index in domains_union:
+                    if triggered.index not in domains_union:
                         triggered_slot.remove_pattern(triggered, self.weights)
 
                         # There are no more possibilities: Contradiction.

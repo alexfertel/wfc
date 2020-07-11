@@ -1,12 +1,8 @@
 #!/usr/bin/python3
 import argparse
-import logging
 import os
 
-from pprint import pprint
 from pathlib import Path
-from src import Interface, Texture, CLASSIFIERS, VALIDATORS, RENDERERS
-from src.utils import find
 from src.generalization import generalization
 
 
@@ -50,11 +46,11 @@ def add_flags(parser):
                         help="Allow rotations.", dest='rotate')
     parser.add_argument('--reflect', action='store_true',
                         help="Allow reflection.", dest='reflect')
-    parser.add_argument('-c', '--classifier', default='deterministicclassifier',
+    parser.add_argument('-c', '--classifier', default='deterministic',
                         help='Classifier to use.', dest='classifier')
-    parser.add_argument('-v', '--validator', default='deterministicvalidator',
+    parser.add_argument('-v', '--validator', default='deterministic',
                         help='Validator to use.', dest='validator')
-    parser.add_argument('-r', '--renderer', default='deterministicrenderer',
+    parser.add_argument('-r', '--renderer', default='deterministic',
                         help='Renderer to use.', dest='renderer')
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="Don't compute each step.", dest='quiet')
@@ -63,7 +59,6 @@ def add_flags(parser):
     parser.add_argument('--alpha', type=float, default=.0,
                         help='Relaxation parameter.',
                         dest='alpha')
-
 
 
 if __name__ == "__main__":
