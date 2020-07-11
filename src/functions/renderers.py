@@ -1,8 +1,17 @@
-def color_from_pattern(pattern):
+from src.pattern import Pattern
+
+
+def upper_left_corner(pattern: Pattern):
     return pattern.matrix[0][0]
 
 
-def deterministic(patterns, color_extractor=color_from_pattern):
+def center(pattern: Pattern):
+    n, m = pattern.matrix.shape
+    i, j = n // 2, m // 2
+    return pattern.matrix[i][j]
+
+
+def deterministic(patterns, color_extractor=upper_left_corner):
     def render(grid):
         n, m = grid.shape
 

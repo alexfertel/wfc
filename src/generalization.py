@@ -9,6 +9,14 @@ from functools import reduce, partial
 from pprint import pprint
 
 
+def extract_patterns(samples, extractor):
+    return reduce(lambda x, y: x + extractor(y), samples, [])
+
+
+def transform_patterns(patterns, transformer):
+    return reduce(lambda x, y: x + transformer(y), patterns, [])
+
+
 @log(logging)
 def generalization(args):
     logging.info(f'Entering generalization')
@@ -21,47 +29,36 @@ def generalization(args):
     extractor = partial(es, ewp, args.N)
     transformer = partial(transform, args.rotate, args.reflect)
 
-    # Classifier setup
-    (_, classify) = getattr(classifiers, args.classifier)()
+    ppatterns = extract_patterns(psamples, extractor)
+    npatterns = extract_patterns(nsamples, extractor)
 
-    ppatterns = reduce(
-        lambda x, y: x + extractor(y), psamples, [])
-
-    ppatterns = reduce(
-        lambda x, y: x + transformer(y), ppatterns, [])
+    ppatterns = transform_patterns(ppatterns, transformer)
+    npatterns = transform_patterns(npatterns, transformer)
 
     punique, pindices, weights = np.lib.arraysetops.unique(
         ppatterns, return_inverse=True, return_counts=True, axis=0)
 
-    pprint(punique, indent=2, width=100)
-    pprint(pindices, indent=2, width=200)
-
-    ppatterns = [classify(pattern) for pattern in punique]
-    for index, pattern in enumerate(ppatterns):
-        pattern.count = weights[index]
-
-    npatterns = reduce(
-        lambda x, y: x + extractor(y), nsamples, [])
-
-    npatterns = reduce(
-        lambda x, y: x + transformer(y), npatterns, [])
-
     nunique = np.lib.arraysetops.unique(
         npatterns, axis=0) if npatterns else []
 
+    pprint(punique, indent=2, width=100)
+    pprint(pindices, indent=2, width=200)
+
+    (_, classify) = getattr(classifiers, args.classifier)()
+
+    ppatterns = [classify(pattern) for pattern in punique]
     npatterns = [classify(pattern) for pattern in nunique]
+
+    for index, pattern in enumerate(ppatterns):
+        pattern.count = weights[index]
 
     (process, valid) = getattr(validators, args.validator)(args.alpha)
     process(ppatterns, npatterns)
-
-    # pprint(validator.lt, indent=2, width=100)
-    # pprint(validator.lt.get_matrix(len(ppatterns)), indent=2, width=200)
 
     core = Core(ppatterns, weights, valid, args.N)
 
     grid = generate(core, args.name, args.size, args.quiet, i2c)
 
-    # Renderer setup
     render = getattr(renderers, args.renderer)(ppatterns)
 
     rendered_grid = render(np.array(grid))

@@ -93,3 +93,10 @@ scipy==1.4.1 \
     --hash=sha256:cc971a82ea1170e677443108703a2ec9ff0f70752258d0e9f5433d00dda01f59 \
     --hash=sha256:2cce3f9847a1a51019e8c5b47620da93950e58ebc611f13e0d11f4980ca5fecb \
     --hash=sha256:dee1bbf3a6c8f73b6b218cb28eed8dd13347ea2f87d572ce19b289d6fd3fbc59
+
+numpy~=1.18.1
+pprint~=0.1
+imageio~=2.6.1
+scikit-learn~=0.22.1
+Pillow~=7.0.0
+scipy~=1.4.1
