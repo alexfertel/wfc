@@ -1,9 +1,12 @@
 import numpy as np
 import imageio as im
+import logging
 
 from functools import reduce
+from src.functions.decorators import log
 
 
+@log(logging)
 def generate(core, name, size, quiet, i2c):
     if quiet:
         for _ in enumerate(core.generate(size)):
@@ -19,7 +22,7 @@ def generate(core, name, size, quiet, i2c):
 
     return core.grid
 
-
+@log(logging)
 def save(grid, path, i2c, slots_array=False):
     rgb = grid
     if slots_array:
@@ -28,7 +31,7 @@ def save(grid, path, i2c, slots_array=False):
     data = np.uint8(rgb)
     im.imwrite(path, data)
 
-
+@log(logging)
 def transform(allow_rotations, allow_reflections, pattern):
     patterns = [pattern]
     if allow_rotations or allow_reflections:
@@ -45,6 +48,7 @@ def transform(allow_rotations, allow_reflections, pattern):
     return patterns
 
 
+@log(logging)
 def read_images(positive, negative):
     pimages = [im.imread(path) for path in positive]
     pcolors = [get_color_map(image) for image in pimages]
@@ -58,6 +62,7 @@ def read_images(positive, negative):
     return pimages, nimages, c2i, i2c
 
 
+@log(logging)
 def mergec2i(c2i1, c2i2):
     """
     Merge two color-to-index dicts taking the first one as
@@ -74,6 +79,7 @@ def mergec2i(c2i1, c2i2):
     return result
 
 
+@log(logging)
 def get_color_map(image):
     N, M, _ = image.shape
     colors = []
@@ -88,6 +94,7 @@ def get_color_map(image):
     return c2i
 
 
+@log(logging)
 def compute_sample(rgb, c2i):
     N, M, _ = rgb.shape
 
@@ -99,6 +106,7 @@ def compute_sample(rgb, c2i):
     return np.array(sample)
 
 
+@log(logging)
 def compute_wave_colors(grid, i2c):
     n, m = len(grid), len(grid[0])
 

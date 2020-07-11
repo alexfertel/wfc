@@ -1,15 +1,17 @@
 import numpy as np
 
-from src.functions.generalization import *
 from src.core import Core
 from src.utils import extract_submatrices as es
 from src.utils import extract_wrapped_pattern as ewp
+from src.functions.generalization import *
+from src.functions.decorators import log
 from functools import reduce, partial
 
 from pprint import pprint
 
-
+@log(logging)
 def generalization(args):
+    logging.info(f'Entering generalization')
     pimages, nimages, c2i, i2c = read_images(args.positive, args.negative)
     psamples = [compute_sample(rgb, c2i) for rgb in pimages]
     nsamples = [compute_sample(rgb, c2i) for rgb in nimages]
