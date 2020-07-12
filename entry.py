@@ -51,7 +51,7 @@ def add_flags(parser):
                         help="Allow reflection.", dest='reflect')
     parser.add_argument('-c', '--classifier', default='deterministic',
                         help='Classifier to use.', dest='classifier')
-    parser.add_argument('-v', '--validator', default='deterministic',
+    parser.add_argument('-v', '--validator', default='validator',
                         help='Validator to use.', dest='validator')
     parser.add_argument('-r', '--renderer', default='deterministic',
                         help='Renderer to use.', dest='renderer')
@@ -59,7 +59,7 @@ def add_flags(parser):
                         help="Don't compute each step.", dest='quiet')
     parser.add_argument('-n', type=int, default=3,
                         help="Size of a pattern side.", dest='N')
-    parser.add_argument('--alpha', type=float, default=.0,
+    parser.add_argument('--alpha', type=float, default=1,
                         help='Relaxation parameter.',
                         dest='alpha')
 

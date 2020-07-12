@@ -24,4 +24,4 @@ def deterministic(patterns, color_extractor=center):
 
         return rendered
 
-    return render
+    return (render,)

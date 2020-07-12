@@ -18,4 +18,4 @@ def deterministic():
 
         return pat
 
-    return pattern_set, classify
+    return classify, pattern_set

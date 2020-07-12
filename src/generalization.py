@@ -43,7 +43,7 @@ def generalization(args):
     pprint(punique, indent=2, width=100)
     pprint(pindices, indent=2, width=200)
 
-    (_, classify) = getattr(classifiers, args.classifier)()
+    (classify, *_) = getattr(classifiers, args.classifier)()
 
     ppatterns = [classify(pattern) for pattern in punique]
     npatterns = [classify(pattern) for pattern in nunique]
@@ -51,14 +51,14 @@ def generalization(args):
     for index, pattern in enumerate(ppatterns):
         pattern.count = weights[index]
 
-    (process, valid) = getattr(validators, args.validator)(args.alpha)
+    (process, valid, *_) = getattr(validators, args.validator)(args.alpha)
     process(ppatterns, npatterns)
 
     core = Core(ppatterns, weights, valid, args.N)
 
     grid = generate(core, args.name, args.size, args.quiet, i2c)
 
-    render = getattr(renderers, args.renderer)(ppatterns)
+    (render, *_) = getattr(renderers, args.renderer)(ppatterns)
 
     rendered_grid = render(np.array(grid))
 

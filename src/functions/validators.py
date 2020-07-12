@@ -1,8 +1,15 @@
+import numpy as np
+
+from collections import defaultdict
+from sklearn.cluster import KMeans
+from sklearn.cluster import AffinityPropagation
+from scipy.spatial.distance import pdist
+
 from src.lookup_table import LookupTable
-from src.utils import dirs, compatible
+from src.utils import dirs, compatible, d2i
 
 
-def deterministic(*args, **kwargs):
+def validator(alpha):
     lookup_table = LookupTable()
 
     def fill_table(patterns, table):
@@ -31,11 +38,48 @@ def deterministic(*args, **kwargs):
 
         return lookup_table
 
+    def postprocess(patterns):
+        n = len(patterns)
+        matrix = lookup_table.get_matrix(n)
+
+        def init_kmeans():
+            """
+            alpha for KMeans
+            1 + (max - min) * alpha
+            """
+            param = int(1 + (n - 1) * alpha)
+            return KMeans(n_clusters=param)
+
+        def init_affinity():
+            m = np.max(pdist(matrix))
+            param = m * alpha
+            return AffinityPropagation(preference=param)
+
+        clustering = init_kmeans()
+
+        clustering.fit(matrix)
+
+        clusters = defaultdict(set)
+        for i in range(len(clustering.labels_)):
+            for j in range(len(clustering.labels_)):
+                if clustering.labels_[i] == clustering.labels_[j]:
+                    clusters[i].add(j)
+
+        for direction in dirs:
+            for p in range(n):
+                result = set()
+                for pattern in lookup_table[direction][p]:
+                    result |= clusters[pattern]
+
+                lookup_table[direction][p] = result
+
     def valid(direction, identifier):
         return lookup_table[direction][identifier]
 
     def process(positive, negative):
         learn(positive)
         prune(negative)
+        # TODO: Why are we using `ppaterns` here?
+        postprocess(positive)
 
     return process, valid
