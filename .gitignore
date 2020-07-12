@@ -25,7 +25,6 @@ wpaper/**/*
 
 bib
 config.py
-discussion.txt
 tests/test.txt
 results
 *.gif
