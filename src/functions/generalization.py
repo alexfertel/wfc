@@ -7,25 +7,22 @@ from src.functions.decorators import log
 
 
 @log(logging)
-def generate(core, name, size, quiet, i2c):
+def run(generate, name, quiet, i2c):
     if quiet:
-        for _ in enumerate(core.generate(size)):
-            continue
+        *_, grid = generate()
 
-        save(core.grid,
+        save(grid,
              f'results/{name}/{name}.png',
              i2c,
              slots_array=True)
     else:
-        for index, grid in enumerate(core.generate(size)):
+        for index, step in enumerate(generate()):
             print(f'Generated step #{index}.')
 
-            save(grid,
+            save(step,
                  f'results/{name}/{name}_{index}.png',
                  i2c,
                  slots_array=True)
-
-    return core.grid
 
 
 @log(logging)

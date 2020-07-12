@@ -1,6 +1,6 @@
-from src.core import Core
 from src.utils import extract_submatrices as es
 from src.utils import extract_wrapped_pattern as ewp
+from src.functions.core import wfc
 from src.functions.generalization import *
 from src.functions.decorators import log
 from src.functions import classifiers, validators, renderers
@@ -54,9 +54,9 @@ def generalization(args):
     (process, valid, *_) = getattr(validators, args.validator)(args.alpha)
     process(ppatterns, npatterns)
 
-    core = Core(ppatterns, weights, valid, args.N)
+    grid, generate = wfc(ppatterns, valid, args.size)
 
-    grid = generate(core, args.name, args.size, args.quiet, i2c)
+    run(generate, args.name, args.quiet, i2c)
 
     (render, *_) = getattr(renderers, args.renderer)(ppatterns)
 

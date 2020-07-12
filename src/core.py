@@ -1,12 +1,9 @@
 import numpy as np
 
-from collections import defaultdict
 from functools import reduce
-from pprint import pprint
 
-from .pattern import Pattern
 from .slot import Slot
-from .utils import dirs, compatible, in_range
+from .utils import dirs, in_range
 
 
 class Core:
