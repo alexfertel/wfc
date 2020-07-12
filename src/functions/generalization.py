@@ -11,6 +11,11 @@ def generate(core, name, size, quiet, i2c):
     if quiet:
         for _ in enumerate(core.generate(size)):
             continue
+
+        save(core.grid,
+             f'results/{name}/{name}.png',
+             i2c,
+             slots_array=True)
     else:
         for index, grid in enumerate(core.generate(size)):
             print(f'Generated step #{index}.')
@@ -22,6 +27,7 @@ def generate(core, name, size, quiet, i2c):
 
     return core.grid
 
+
 @log(logging)
 def save(grid, path, i2c, slots_array=False):
     rgb = grid
@@ -30,6 +36,7 @@ def save(grid, path, i2c, slots_array=False):
 
     data = np.uint8(rgb)
     im.imwrite(path, data)
+
 
 @log(logging)
 def transform(allow_rotations, allow_reflections, pattern):
@@ -81,10 +88,10 @@ def mergec2i(c2i1, c2i2):
 
 @log(logging)
 def get_color_map(image):
-    N, M, _ = image.shape
+    n, m, _ = image.shape
     colors = []
-    for i in range(N):
-        for j in range(M):
+    for i in range(n):
+        for j in range(m):
             colors.append(image[i][j])
 
     colors = np.lib.arraysetops.unique(colors, axis=0)
@@ -96,11 +103,11 @@ def get_color_map(image):
 
 @log(logging)
 def compute_sample(rgb, c2i):
-    N, M, _ = rgb.shape
+    n, m, _ = rgb.shape
 
-    sample = [[0 for _ in range(M)] for _ in range(N)]
-    for i in range(N):
-        for j in range(M):
+    sample = [[0 for _ in range(m)] for _ in range(n)]
+    for i in range(n):
+        for j in range(m):
             sample[i][j] = c2i[tuple(rgb[i][j])]
 
     return np.array(sample)
@@ -115,15 +122,14 @@ def compute_wave_colors(grid, i2c):
     for i in range(n):
         for j in range(m):
             red, green, blue = (0, 0, 0)
-            contributors = [p for p in grid[i]
-                            [j].patterns if grid[i][j].possibilities[p.index]]
+            contributors = [p for p in grid[i][j].patterns if grid[i][j].possibilities[p.index]]
 
             for allowed_pattern in contributors:
                 red += i2c[allowed_pattern.color][0]
                 green += i2c[allowed_pattern.color][1]
                 blue += i2c[allowed_pattern.color][2]
 
-            N = len(contributors)
-            rgb[i][j] = (red / N, green / N, blue / N)
+            clen = len(contributors)
+            rgb[i][j] = (red / clen, green / clen, blue / clen)
 
     return rgb

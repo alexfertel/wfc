@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 import argparse
 import os
+import random
 
 from pathlib import Path
+
 from src.generalization import generalization
 
 import logging
@@ -34,6 +36,8 @@ def main():
 
     args.path = os.path.join('images', f'{args.name}.png')
 
+    random.seed(args.seed)
+
     if not hasattr(args, 'func'):
         main_parser.print_help()
     else:
@@ -62,6 +66,9 @@ def add_flags(parser):
     parser.add_argument('--alpha', type=float, default=1,
                         help='Relaxation parameter.',
                         dest='alpha')
+    parser.add_argument('--seed', type=int, default=1,
+                        help='Random seed.',
+                        dest='seed')
 
 
 if __name__ == "__main__":

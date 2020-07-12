@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 
 
@@ -14,7 +16,7 @@ class Slot:
         # This masks the possibility space
         self.possibilities = [True for _ in self.patterns]
 
-        # We maintain a cummulative frequency array, where we store
+        # We maintain a cumulative frequency array, where we store
         # the relative frequencies, so when sampling the probability
         # distribution of the possibilities, choosing the slot
         # corresponding to a value is easier.
@@ -27,9 +29,9 @@ class Slot:
 
         # Applying noise to the entropy, so we don't have to break ties.
         # Initialize a tiny random value.
-        self.noise = np.random.ranf() / 1e5
+        self.noise = random.random() / 1e5
 
-        # Wether the cell is collapsed or not. A heap of the slots is
+        # Whether the cell is collapsed or not. A heap of the slots is
         # kept in order to quickly retrieve the slot with the minimum
         # entropy, each time a slot's entropy varies, we push it into
         # the heap, resulting in the possibility of having the same
@@ -64,7 +66,7 @@ class Slot:
         if self.collapsed:
             # Maybe this doesn't make sense, should be checked
             return float('inf')
-        return np.log(self.sumOfWeights) - (self.sumOfWeightsLogs) / self.sumOfWeights + self.noise
+        return np.log(self.sumOfWeights) - self.sumOfWeightsLogs / self.sumOfWeights + self.noise
 
     def remove_pattern(self, pattern, weights):
         if self.possibilities[pattern.index]:
@@ -86,7 +88,7 @@ class Slot:
                 for _ in range(weights[pattern.index]):
                     p.append(pattern.index)
 
-        return np.random.choice(p)
+        return random.choice(p)
 
     def update(self, index):
         # The slot is now collapsed.
