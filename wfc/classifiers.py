@@ -1,4 +1,4 @@
-from src.pattern import Pattern
+from wfc.pattern import Pattern
 
 
 def deterministic():

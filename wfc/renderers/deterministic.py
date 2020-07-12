@@ -1,9 +1,4 @@
-import numpy as np
-
-from .renderer import Renderer
-
-
-class DeterministicRenderer(Renderer):
+class DeterministicRenderer:
     def __init__(self, patterns):
         super().__init__()
 

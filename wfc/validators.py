@@ -5,8 +5,8 @@ from sklearn.cluster import KMeans
 from sklearn.cluster import AffinityPropagation
 from scipy.spatial.distance import pdist
 
-from src.lookup_table import LookupTable
-from src.utils import dirs, compatible, d2i
+from wfc.lookup_table import LookupTable
+from wfc.utils import dirs, compatible, d2i
 
 
 def validator(alpha):

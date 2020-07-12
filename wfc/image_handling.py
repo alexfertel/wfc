@@ -3,7 +3,7 @@ import imageio as im
 import logging
 
 from functools import reduce
-from src.functions.decorators import log
+from wfc.decorators import log
 
 
 @log(logging)

@@ -2,8 +2,8 @@ import numpy as np
 
 from functools import reduce
 
-from src.slot import Slot
-from src.utils import dirs, in_range
+from wfc.slot import Slot
+from wfc.utils import dirs, in_range
 
 
 def wfc(patterns, valid, output_size):

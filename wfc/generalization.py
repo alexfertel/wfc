@@ -1,20 +1,12 @@
-from src.utils import extract_submatrices as es
-from src.utils import extract_wrapped_pattern as ewp
-from src.functions.core import wfc
-from src.functions.generalization import *
-from src.functions.decorators import log
-from src.functions import classifiers, validators, renderers
-from functools import reduce, partial
+from wfc.utils import extract_submatrices as es, extract_patterns, transform_patterns
+from wfc.utils import extract_wrapped_pattern as ewp
+from wfc.core import wfc
+from wfc.image_handling import *
+from wfc.decorators import log
+from wfc import validators, renderers, classifiers
+from functools import partial
 
 from pprint import pprint
-
-
-def extract_patterns(samples, extractor):
-    return reduce(lambda x, y: x + extractor(y), samples, [])
-
-
-def transform_patterns(patterns, transformer):
-    return reduce(lambda x, y: x + transformer(y), patterns, [])
 
 
 @log(logging)

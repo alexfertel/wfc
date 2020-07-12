@@ -1,9 +1,12 @@
 # 4-neighbourhood
 import numpy as np
 
+from functools import reduce
 from pprint import pprint
 
 dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+
 # dirs = [(x, y) for x in (-1, 0, 1) for y in (-1, 0, 1) if x != 0 or y != 0]
 
 
@@ -90,6 +93,7 @@ def extract_submatrices(pattern_extractor, size, matrix):
 
     return submatrices
 
+
 # def extract_submatrices(pattern_extractor, size, ground, matrix):
 #     n, m = matrix.shape
 #     N = size
@@ -108,12 +112,14 @@ def extract_wrapped_pattern(matrix, X, Y, size):
     cols = [y % m for y in range(Y, Y + size)]
     return matrix[rows][:, cols]
 
+
 def find(elements, value):
     value = value.lower()
     for obj in elements:
         if obj.__name__.lower() == value:
             return obj
     raise ValueError(f"{value} not found in {[e.__name__ for e in elements]}")
+
 
 def d2v(direction):
     x, y = direction
@@ -126,8 +132,9 @@ def d2v(direction):
         return [0, 1, 0, 0]
     if y == -1:
         return [0, 0, 0, 1]
-    
+
     raise Exception(f'`direction` arg {direction} is not a valid direction.')
+
 
 def d2i(direction):
     x, y = direction
@@ -140,8 +147,16 @@ def d2i(direction):
         return 2
     if y == -1:
         return 3
-    
+
     raise Exception(f'`direction` arg {direction} is not a valid direction.')
+
+
+def extract_patterns(samples, extractor):
+    return reduce(lambda x, y: x + extractor(y), samples, [])
+
+
+def transform_patterns(patterns, transformer):
+    return reduce(lambda x, y: x + transformer(y), patterns, [])
 
 
 if __name__ == "__main__":
@@ -153,9 +168,9 @@ if __name__ == "__main__":
         [2, 2, 2, 2],
         [1, 1, 1, 1],
     ])
-    
-    patterns = extract_submatrices(arr, 3, extract_wrapped_pattern)
-    pprint(patterns)
+
+    pats = extract_submatrices(arr, 3, extract_wrapped_pattern)
+    pprint(pats)
 
     m1 = np.array([
         [1, 1, 1],
@@ -177,6 +192,3 @@ if __name__ == "__main__":
     pprint("Second test")
 
     pprint(compatible(m1, m2, (1, 0)))
-
-
-

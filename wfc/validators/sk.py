@@ -2,8 +2,7 @@ import numpy as np
 
 from pprint import pprint
 from collections import defaultdict
-from .validator import Validator
-from ..utils import compatible, dirs, d2v
+from wfc.utils import compatible, dirs, d2v
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
@@ -11,7 +10,7 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.model_selection import train_test_split
 
 
-class MonsterValidator(Validator):
+class MonsterValidator:
     def __init__(self, alpha=.0):
         super().__init__()
 

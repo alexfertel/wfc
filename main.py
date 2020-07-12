@@ -1,42 +1,25 @@
 #!/usr/bin/python3
 import argparse
 import os
+import random
 
-from pprint import pprint
 from pathlib import Path
-from src import Interface, Texture, CLASSIFIERS, VALIDATORS, RENDERERS
-from src.utils import find
-from src.dichotomic import dichotomic
-from src.generalization import generalization
+
+from wfc.generalization import generalization
+
+import logging
+
 
 def main():
-    # create the top-level parser
+    logging.basicConfig(level=logging.INFO)
     main_parser = argparse.ArgumentParser(prog="wfc")
-    subparsers = main_parser.add_subparsers()
 
-    # create the parser for the "simple" command
-    simple_parser = subparsers.add_parser('simple')
-    add_flags(simple_parser)
-    simple_parser.set_defaults(func=simple)
-
-    # create the parser for the "dichotomic" command
-    dichotomic_parser = subparsers.add_parser('dichotomic')
-    add_flags(dichotomic_parser)
-    dichotomic_parser.add_argument(
+    add_flags(main_parser)
+    main_parser.add_argument(
         'positive', default=['Colored City'], nargs='+')
-    dichotomic_parser.add_argument(
+    main_parser.add_argument(
         '--negative', default=[], nargs='*')
-    dichotomic_parser.set_defaults(func=dichotomic)
-
-    # create the parser for the "generalize" command
-    generalize_parser = subparsers.add_parser('generalize')
-    add_flags(generalize_parser)
-    generalize_parser.add_argument(
-        'positive', default=['Colored City'], nargs='+')
-    generalize_parser.add_argument(
-        '--negative', default=[], nargs='*')
-    generalize_parser.set_defaults(func=generalization)
-
+    main_parser.set_defaults(func=generalization)
 
     args = main_parser.parse_args()
     args.size = (args.size[0], args.size[1])
@@ -51,16 +34,9 @@ def main():
     args.negative = map(lambda pic_name: os.path.join(
         'images', f'{pic_name}.png'), args.negative)
 
-    if args.classifier:
-        args.classifier = find(CLASSIFIERS, args.classifier)
-
-    if args.validator:
-        args.validator = find(VALIDATORS, args.validator)
-
-    if args.renderer:
-        args.renderer = find(RENDERERS, args.renderer)
-
     args.path = os.path.join('images', f'{args.name}.png')
+
+    random.seed(args.seed)
 
     if not hasattr(args, 'func'):
         main_parser.print_help()
@@ -69,7 +45,7 @@ def main():
 
 
 def add_flags(parser):
-    parser.add_argument('name', default='Flowers1', help='Sample name.')
+    parser.add_argument('name', default='Flowers1', help='Image name.')
     parser.add_argument('-s', '--size', nargs=2, type=int, default=(28, 28),
                         help='Tuple representing the size of the output image.',
                         dest='size')
@@ -77,31 +53,22 @@ def add_flags(parser):
                         help="Allow rotations.", dest='rotate')
     parser.add_argument('--reflect', action='store_true',
                         help="Allow reflection.", dest='reflect')
-    parser.add_argument('-c', '--classifier', default='deterministicclassifier',
+    parser.add_argument('-c', '--classifier', default='deterministic',
                         help='Classifier to use.', dest='classifier')
-    parser.add_argument('-v', '--validator', default='deterministicvalidator',
+    parser.add_argument('-v', '--validator', default='validator',
                         help='Validator to use.', dest='validator')
-    parser.add_argument('-r', '--renderer', default='deterministicrenderer',
+    parser.add_argument('-r', '--renderer', default='deterministic',
                         help='Renderer to use.', dest='renderer')
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="Don't compute each step.", dest='quiet')
     parser.add_argument('-n', type=int, default=3,
                         help="Size of a pattern side.", dest='N')
-    parser.add_argument('-g', '--ground', type=int, default=0,
-                        help='The height in pixels of the ground.',
-                        dest='ground')
-    parser.add_argument('--alpha', type=float, default=.0,
+    parser.add_argument('--alpha', type=float, default=1,
                         help='Relaxation parameter.',
                         dest='alpha')
-
-
-def simple(args):
-    wfc = Texture(args.path, args.N, ground=args.ground, validator=args.validator,
-                  renderer=args.renderer, allow_rotations=args.rotate)
-
-    wfc.generate(args.name, args.size, quiet=args.quiet)
-
-    wfc.render(args.name)
+    parser.add_argument('--seed', type=int, default=1,
+                        help='Random seed.',
+                        dest='seed')
 
 
 if __name__ == "__main__":
