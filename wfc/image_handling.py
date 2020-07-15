@@ -7,29 +7,30 @@ from wfc.decorators import log
 
 
 @log(logging)
-def run(generate, name, quiet, i2c):
+def run(generate, name, quiet, i2c, patterns):
     if quiet:
-        *_, grid = generate()
+        *_, last = generate()
+        print(f'Generated #{last}.')
+        grid, wave = last
 
         save(grid,
+             wave,
              f'results/{name}/{name}.png',
-             i2c,
-             slots_array=True)
+             i2c, patterns)
     else:
         for index, step in enumerate(generate()):
             print(f'Generated step #{index}.')
 
-            save(step,
+            grid, wave = step
+            save(grid,
+                 wave,
                  f'results/{name}/{name}_{index}.png',
-                 i2c,
-                 slots_array=True)
+                 i2c, patterns)
 
 
 @log(logging)
-def save(grid, path, i2c, slots_array=False):
-    rgb = grid
-    if slots_array:
-        rgb = compute_wave_colors(grid, i2c)
+def save(grid, wave, path, i2c, patterns):
+    rgb = compute_wave_colors(grid, wave, i2c, patterns)
 
     data = np.uint8(rgb)
     im.imwrite(path, data)
@@ -63,6 +64,8 @@ def read_images(positive, negative):
     c2i = reduce(mergec2i, pcolors + ncolors, {})
     i2c = {v: k for k, v in c2i.items()}
 
+    print(f'i2c {i2c}')
+
     return pimages, nimages, c2i, i2c
 
 
@@ -75,7 +78,7 @@ def mergec2i(c2i1, c2i2):
     i = 1
     n = len(c2i1.keys())
     for color in c2i2.keys():
-        if not color in c2i1.keys():
+        if color not in c2i1.keys():
             c2i2[color] = n + i
             i += 1
 
@@ -111,20 +114,20 @@ def compute_sample(rgb, c2i):
 
 
 @log(logging)
-def compute_wave_colors(grid, i2c):
-    n, m = len(grid), len(grid[0])
+def compute_wave_colors(grid, wave, i2c, patterns):
+    n, m = grid.shape
 
     rgb = [[None for _ in range(m)] for _ in range(n)]
 
     for i in range(n):
         for j in range(m):
             red, green, blue = (0, 0, 0)
-            contributors = [p for p in grid[i][j].patterns if grid[i][j].possibilities[p.index]]
+            contributors = [identifier for identifier, is_possible in enumerate(wave[i][j]) if is_possible]
 
-            for allowed_pattern in contributors:
-                red += i2c[allowed_pattern.color][0]
-                green += i2c[allowed_pattern.color][1]
-                blue += i2c[allowed_pattern.color][2]
+            for c in contributors:
+                red += i2c[patterns[c].color][0]
+                green += i2c[patterns[c].color][1]
+                blue += i2c[patterns[c].color][2]
 
             clen = len(contributors)
             rgb[i][j] = (red / clen, green / clen, blue / clen)

@@ -73,8 +73,8 @@ def validator(alpha):
 
                 lookup_table[direction][p] = result
 
-    def valid(direction, identifier):
-        return lookup_table[direction][identifier]
+    def valid(direction, base_id, neighbor_id):
+        return neighbor_id in lookup_table[direction][base_id]
 
     def process(positive, negative):
         learn(positive)

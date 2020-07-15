@@ -48,10 +48,10 @@ def generalization(args):
 
     grid, generate = wfc(ppatterns, valid, args.size)
 
-    run(generate, args.name, args.quiet, i2c)
+    run(generate, args.name, args.quiet, i2c, ppatterns)
 
     (render, *_) = getattr(renderers, args.renderer)(ppatterns)
 
-    rendered_grid = render(np.array(grid))
+    rendered_grid = render(grid)
 
     pprint(rendered_grid, indent=2, width=200)

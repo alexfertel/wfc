@@ -38,13 +38,8 @@ def wfc(patterns, valid, output_size):
     # How likely a given module is to appear in any slot.
     weights = [pattern.count for pattern in patterns]
 
-    # This is the forward checking stack
-    # Maybe it's AC3, TODO: check this out.
+    # AC3 consistency set.
     consistency_set = set()
-
-    sow = sum(weights)
-    sowl = sum(map(lambda p: weights[p.index] * np.log(weights[p.index]), patterns))
-    initial_frequency = np.log(sow) - sowl / sow
 
     # Resulting grid.
     grid = np.array([[-1 for _ in range(m)] for _ in range(n)])
@@ -58,6 +53,20 @@ def wfc(patterns, valid, output_size):
     # having to break ties.
     # For now we'll use a matrix to store entropies.
     entropies = np.array([[Entropy(weights, patterns) for _ in range(m)] for _ in range(n)])
+
+    def remove_pattern(pos, identifier):
+        i, j = pos
+        if wave[i][j][identifier]:
+            # Remove pattern from possibility space.
+            wave[i][j][identifier] = False
+
+            # This is the relative frequency of the pattern.
+            frequency = weights[identifier]
+
+            # Update the entropy to maintain its computation constant.
+            entropy = entropies[i][j]
+            entropy.sow -= frequency
+            entropy.sowl -= frequency * np.log(frequency)
 
     def observe():
         # Get the slot with the least entropy.
@@ -85,7 +94,8 @@ def wfc(patterns, valid, output_size):
 
         # Since we locked in a pattern, remove all
         # other possibilities.
-        wave[x][y] = [False for index in range(len(patterns)) if index != identifier]
+        wave[x][y] = [False for _ in range(len(patterns))]
+        wave[x][y][identifier] = True
 
         # Schedule slot for a consistency update.
         consistency_set.add((x, y))
@@ -94,23 +104,8 @@ def wfc(patterns, valid, output_size):
         uncollapsed_count -= 1
 
     def propagate():
-        def remove_pattern(pos, pattern):
-            i, j = pos
-            if wave[i][j][pattern.index]:
-                # Remove pattern from possibility space.
-                wave[i][j][pattern.index] = False
-
-                # This is the relative frequency of the pattern.
-                frequency = weights[pattern.index]
-
-                # Update the entropy to maintain its computation constant.
-                entropy = entropies[i][j]
-                entropy.sow -= frequency
-                entropy.sowl -= frequency * np.log(frequency)
-
         while consistency_set:
             x, y = consistency_set.pop()
-            triggering_id = grid[x][y]
 
             # Get the possible patterns for the triggering_slot.
             base_domain = [index for index, is_possible in enumerate(wave[x][y]) if is_possible]
@@ -120,47 +115,55 @@ def wfc(patterns, valid, output_size):
                 dx, dy = d
 
                 # This slot is outside of the output grid borders.
+                # or
+                # This slot is already collapsed, so there's nothing to propagate.
                 if not in_range((x + dx, y + dy), grid):
                     continue
 
-                triggered_id = grid[x + dx][y + dy]
+                # Check arc consistency for arc (Xi, Xj)
+                if sum(wave[x][y]) != 1:  # Uncollapsed
+                    # Get the possible patterns for the triggered_slot.
+                    neighbor_domain = [index for index, is_possible in enumerate(wave[x + dx][y + dy]) if is_possible]
 
-                # This slot is already collapsed, so there's nothing to propagate.
-                if sum(wave[x + dx][y + dy]) == 1:
-                    continue
+                    for base_id in base_domain:
+                        if not any([valid(d, base_id, neighbor_id) for neighbor_id in neighbor_domain]):
+                            remove_pattern((x, y), base_id)
 
-                # Get the possible patterns for the triggered_slot.
-                neighboring_domain = [index for index, is_possible in enumerate(wave[x + dx][y + dy]) if is_possible]
+                            possibility_count = sum(wave[x][y])
+                            # There are no more possibilities: Contradiction.
+                            if not possibility_count:
+                                return False
 
-                # Union of the spaces.
-                space = ting_slot_patterns
+                            # We may collapse this cell.
+                            if possibility_count == 1:
+                                collapse((x, y))
+                                break
 
-                def check_validity(pattern):
-                    return valid(d, pattern.index)
+                            # Schedule slot for a consistency update.
+                            consistency_set.add((x, y))
 
-                domains_union = reduce(lambda a, b: a | check_validity(b), space, set())
+                # Check arc consistency for arc (Xj, Xi)
+                if sum(wave[x + dx][y + dy]) != 1:  # Uncollapsed
+                    # Get the possible patterns for the triggered_slot.
+                    neighbor_domain = [index for index, is_possible in enumerate(wave[x + dx][y + dy]) if is_possible]
 
-                # For each pattern of the triggered slot, check if
-                # that pattern has the possibility of appearing,
-                # which is an existence check in the union of domains.
-                for triggered in ted_slot_patterns:
-                    if triggered.index not in domains_union:
-                        remove_pattern((x + dx, y + dy), triggered)
+                    # Check arc consistency for arc (Xi, Xj)
+                    for neighbor_id in neighbor_domain:
+                        if not any([valid(d, neighbor_id, base_id) for base_id in base_domain]):
+                            remove_pattern((x + dx, y + dy), neighbor_id)
 
-                        # There are no more possibilities: Contradiction.
-                        if not sum(triggered_slot.possibilities):
-                            return False
+                            possibility_count = sum(wave[x + dx][y + dy])
+                            # There are no more possibilities: Contradiction.
+                            if not possibility_count:
+                                return False
 
-                        # We may collapse this cell.
-                        if sum(triggered_slot.possibilities) == 1:
-                            collapse(triggered_slot.pos)
-                            break
+                            # We may collapse this cell.
+                            if possibility_count == 1:
+                                collapse((x, y))
+                                break
 
-                        # Schedule slot for a consistency update.
-                        consistency_set.add((x + dx, y + dy))
-
-                # Update entropies.
-                entropies[x + dx][y + dy] = triggered_slot.entropy
+                            # Schedule slot for a consistency update.
+                            consistency_set.add((x + dx, y + dy))
 
         # Propagated correctly.
         return True
@@ -173,7 +176,7 @@ def wfc(patterns, valid, output_size):
         while propagated and uncollapsed_count:
             collapse(observe())
             propagated = propagate()
-            yield grid
+            yield grid, wave
 
         if not propagated:
             print("Contradiction")
