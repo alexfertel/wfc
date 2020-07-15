@@ -1,10 +1,9 @@
 import random
+import logging
+from functools import reduce
 
 import numpy as np
 
-from functools import reduce
-
-from wfc.slot import Slot
 from wfc.utils import dirs, in_range
 
 
@@ -68,14 +67,19 @@ def wfc(patterns, valid, output_size):
             entropy.sow -= frequency
             entropy.sowl -= frequency * np.log(frequency)
 
+    # Get the slot with the least entropy.
     def observe():
-        # Get the slot with the least entropy.
-        index = np.argmin(entropies)
+        minimum = float('inf')
+        min_pos = (0, 0)
+        for i in range(n):
+            for j in range(m):
+                if sum(wave[i][j]) > 1:
+                    entropy = entropies[i][j].entropy
+                    if entropy < minimum:
+                        minimum = entropy
+                        min_pos = (i, j)
 
-        # Map the 1d index to 2d.
-        x, y = np.unravel_index(index, entropies.shape)
-
-        return x, y
+        return min_pos
 
     def collapse(pos):
         nonlocal uncollapsed_count
@@ -107,63 +111,46 @@ def wfc(patterns, valid, output_size):
         while consistency_set:
             x, y = consistency_set.pop()
 
-            # Get the possible patterns for the triggering_slot.
-            base_domain = [index for index, is_possible in enumerate(wave[x][y]) if is_possible]
+            # Get the possible patterns for the origin.
+            origin_domain = [index for index, is_possible in enumerate(wave[x][y]) if is_possible]
 
             # Check each of the adjacent slots.
             for d in dirs:
                 dx, dy = d
 
                 # This slot is outside of the output grid borders.
-                # or
-                # This slot is already collapsed, so there's nothing to propagate.
                 if not in_range((x + dx, y + dy), grid):
                     continue
 
-                # Check arc consistency for arc (Xi, Xj)
-                if sum(wave[x][y]) != 1:  # Uncollapsed
-                    # Get the possible patterns for the triggered_slot.
-                    neighbor_domain = [index for index, is_possible in enumerate(wave[x + dx][y + dy]) if is_possible]
+                # For each possible pattern of the origin, get its compatible
+                # patterns in direction `d` and join them in a set.
+                origin_domains_union = reduce(lambda a, b: a | valid(d, b), origin_domain, set())
 
-                    for base_id in base_domain:
-                        if not any([valid(d, base_id, neighbor_id) for neighbor_id in neighbor_domain]):
-                            remove_pattern((x, y), base_id)
+                # Get the possible patterns for the neighbor in direction `d`.
+                neighbor_domain = [index for index, is_possible in enumerate(wave[x + dx][y + dy]) if is_possible]
 
-                            possibility_count = sum(wave[x][y])
-                            # There are no more possibilities: Contradiction.
-                            if not possibility_count:
-                                return False
+                # Each pattern in the neighbouring domain that doesn't exist in the
+                # union must be removed, that way constraints propagate properly.
+                removed = False
+                for neighbor_id in neighbor_domain:
+                    if neighbor_id not in origin_domains_union:
+                        remove_pattern((x + dx, y + dy), neighbor_id)
 
-                            # We may collapse this cell.
-                            if possibility_count == 1:
-                                collapse((x, y))
-                                break
+                        possibility_count = sum(wave[x + dx][y + dy])
+                        # There are no more possibilities: Contradiction.
+                        if not possibility_count:
+                            return False
 
-                            # Schedule slot for a consistency update.
-                            consistency_set.add((x, y))
+                        # We may collapse this cell.
+                        if possibility_count == 1:
+                            collapse((x + dx, y + dy))
+                            break
 
-                # Check arc consistency for arc (Xj, Xi)
-                if sum(wave[x + dx][y + dy]) != 1:  # Uncollapsed
-                    # Get the possible patterns for the triggered_slot.
-                    neighbor_domain = [index for index, is_possible in enumerate(wave[x + dx][y + dy]) if is_possible]
+                        removed = True
 
-                    # Check arc consistency for arc (Xi, Xj)
-                    for neighbor_id in neighbor_domain:
-                        if not any([valid(d, neighbor_id, base_id) for base_id in base_domain]):
-                            remove_pattern((x + dx, y + dy), neighbor_id)
-
-                            possibility_count = sum(wave[x + dx][y + dy])
-                            # There are no more possibilities: Contradiction.
-                            if not possibility_count:
-                                return False
-
-                            # We may collapse this cell.
-                            if possibility_count == 1:
-                                collapse((x, y))
-                                break
-
-                            # Schedule slot for a consistency update.
-                            consistency_set.add((x + dx, y + dy))
+                # Schedule slot for a consistency update if any pattern was removed.
+                if removed:
+                    consistency_set.add((x + dx, y + dy))
 
         # Propagated correctly.
         return True
