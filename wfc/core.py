@@ -1,9 +1,31 @@
+import random
+
 import numpy as np
 
 from functools import reduce
 
 from wfc.slot import Slot
 from wfc.utils import dirs, in_range
+
+
+class Entropy:
+    def __init__(self, weights, patterns):
+        self.sow = sum(weights)
+        self.sowl = sum(map(lambda p: weights[p.index] * np.log(weights[p.index]), patterns))
+        self.noise = random.random() / 1e5
+
+    @property
+    def entropy(self):
+        return np.log(self.sow) - self.sowl / self.sow + self.noise
+
+    def __lt__(self, other):
+        return self.entropy < other.entropy
+
+    def __str__(self):
+        return str(self.entropy)
+
+    def __repr__(self):
+        return self.__str__()
 
 
 def wfc(patterns, valid, output_size):
@@ -18,23 +40,24 @@ def wfc(patterns, valid, output_size):
 
     # This is the forward checking stack
     # Maybe it's AC3, TODO: check this out.
-    stack = []
+    consistency_set = set()
 
     sow = sum(weights)
     sowl = sum(map(lambda p: weights[p.index] * np.log(weights[p.index]), patterns))
+    initial_frequency = np.log(sow) - sowl / sow
 
     # Resulting grid.
-    grid = [[Slot((i, j), patterns, sow, sowl) for j in range(m)] for i in range(n)]
+    grid = np.array([[-1 for _ in range(m)] for _ in range(n)])
 
+    # What patterns can be collapsed in a given position
+    wave = np.array([[[True for _ in range(len(patterns))] for _ in range(m)] for _ in range(n)])
+
+    # This is the uncertainty for this slot, which is computed
+    # from the weights of each tile. We use here the simplified
+    # entropy definition and we apply a random noise to avoid
+    # having to break ties.
     # For now we'll use a matrix to store entropies.
-    # TODO: Check if using a heap is reasonable.
-    entropies = np.ones(output_size)
-
-    # Populate the grid with slots.
-    for i in range(n):
-        for j in range(m):
-            # Update the entropy.
-            entropies[i][j] = grid[i][j].entropy
+    entropies = np.array([[Entropy(weights, patterns) for _ in range(m)] for _ in range(n)])
 
     def observe():
         # Get the slot with the least entropy.
@@ -43,38 +66,54 @@ def wfc(patterns, valid, output_size):
         # Map the 1d index to 2d.
         x, y = np.unravel_index(index, entropies.shape)
 
-        # Retrieve slot.
-        slot: Slot = grid[x][y]
-
-        return slot
+        return x, y
 
     def collapse(pos):
         nonlocal uncollapsed_count
         x, y = pos
 
-        slot: Slot = grid[x][y]
-        index = slot.choose_pattern(weights)
+        # Sample the uniform distribution
+        f = []
+        for pattern in filter(lambda p: wave[x][y][p.index], patterns):
+            for _ in range(weights[pattern.index]):
+                f.append(pattern.index)
 
-        # Update the internal state of the slot
-        slot.update(index)
+        identifier = random.choice(f)
+
+        # The slot is now collapsed.
+        grid[x][y] = identifier
+
+        # Since we locked in a pattern, remove all
+        # other possibilities.
+        wave[x][y] = [False for index in range(len(patterns)) if index != identifier]
 
         # Schedule slot for a consistency update.
-        stack.append((x, y))
+        consistency_set.add((x, y))
 
         # 1 less uncollapsed slot.
         uncollapsed_count -= 1
 
-        # Update this slot's entropy.
-        entropies[x][y] = slot.entropy
-
     def propagate():
-        while stack:
-            x, y = stack.pop()
-            triggering_slot = grid[x][y]
+        def remove_pattern(pos, pattern):
+            i, j = pos
+            if wave[i][j][pattern.index]:
+                # Remove pattern from possibility space.
+                wave[i][j][pattern.index] = False
+
+                # This is the relative frequency of the pattern.
+                frequency = weights[pattern.index]
+
+                # Update the entropy to maintain its computation constant.
+                entropy = entropies[i][j]
+                entropy.sow -= frequency
+                entropy.sowl -= frequency * np.log(frequency)
+
+        while consistency_set:
+            x, y = consistency_set.pop()
+            triggering_id = grid[x][y]
 
             # Get the possible patterns for the triggering_slot.
-            ting_slot_patterns = [
-                p for p in triggering_slot.patterns if triggering_slot.possibilities[p.index]]
+            base_domain = [index for index, is_possible in enumerate(wave[x][y]) if is_possible]
 
             # Check each of the adjacent slots.
             for d in dirs:
@@ -84,15 +123,14 @@ def wfc(patterns, valid, output_size):
                 if not in_range((x + dx, y + dy), grid):
                     continue
 
-                triggered_slot = grid[x + dx][y + dy]
+                triggered_id = grid[x + dx][y + dy]
 
                 # This slot is already collapsed, so there's nothing to propagate.
-                if triggered_slot.collapsed:
+                if sum(wave[x + dx][y + dy]) == 1:
                     continue
 
                 # Get the possible patterns for the triggered_slot.
-                ted_slot_patterns = [
-                    p for p in triggered_slot.patterns if triggered_slot.possibilities[p.index]]
+                neighboring_domain = [index for index, is_possible in enumerate(wave[x + dx][y + dy]) if is_possible]
 
                 # Union of the spaces.
                 space = ting_slot_patterns
@@ -107,7 +145,7 @@ def wfc(patterns, valid, output_size):
                 # which is an existence check in the union of domains.
                 for triggered in ted_slot_patterns:
                     if triggered.index not in domains_union:
-                        triggered_slot.remove_pattern(triggered, weights)
+                        remove_pattern((x + dx, y + dy), triggered)
 
                         # There are no more possibilities: Contradiction.
                         if not sum(triggered_slot.possibilities):
@@ -119,7 +157,7 @@ def wfc(patterns, valid, output_size):
                             break
 
                         # Schedule slot for a consistency update.
-                        stack.append((x + dx, y + dy))
+                        consistency_set.add((x + dx, y + dy))
 
                 # Update entropies.
                 entropies[x + dx][y + dy] = triggered_slot.entropy
@@ -133,8 +171,7 @@ def wfc(patterns, valid, output_size):
 
         propagated = True
         while propagated and uncollapsed_count:
-            slot: Slot = observe()
-            collapse(slot.pos)
+            collapse(observe())
             propagated = propagate()
             yield grid
 
