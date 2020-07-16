@@ -37,8 +37,8 @@ def wfc(patterns, valid, output_size):
     # How likely a given module is to appear in any slot.
     weights = [pattern.count for pattern in patterns]
 
-    # AC3 consistency set.
-    consistency_set = set()
+    # AC3 consistency stack.
+    consistency_stack = []
 
     # Resulting grid.
     grid = np.array([[-1 for _ in range(m)] for _ in range(n)])
@@ -105,14 +105,14 @@ def wfc(patterns, valid, output_size):
 
         assert sum(wave[i][j]) > 0
         # Schedule slot for a consistency update.
-        consistency_set.add((i, j))
+        consistency_stack.append((i, j))
 
         # 1 less uncollapsed slot.
         uncollapsed_count -= 1
 
     def propagate():
-        while consistency_set:
-            x, y = consistency_set.pop()
+        while consistency_stack:
+            x, y = consistency_stack.pop()
 
             # Get the possible patterns for the origin.
             origin_domain = [index for index, is_possible in enumerate(wave[x][y]) if is_possible]
@@ -122,7 +122,7 @@ def wfc(patterns, valid, output_size):
                 dx, dy = d
 
                 # This slot is outside of the output grid borders.
-                if not in_range((x + dx, y + dy), grid):
+                if not in_range((x + dx, y + dy), grid) or sum(wave[x + dx][y + dy]) == 1:
                     continue
 
                 # For each possible pattern of the origin, get its compatible
@@ -154,7 +154,7 @@ def wfc(patterns, valid, output_size):
                             break
 
                         # Schedule slot for a consistency update if any pattern was removed.
-                        consistency_set.add((x + dx, y + dy))
+                        consistency_stack.append((x + dx, y + dy))
 
         # Propagated correctly.
         return True
