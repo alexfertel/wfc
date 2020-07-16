@@ -7,7 +7,7 @@ class Entropy:
     def __init__(self, weights, patterns):
         self.sow = sum(weights)
         self.sowl = sum(map(lambda p: weights[p.index] * np.log(weights[p.index]), patterns))
-        self.noise = random.random() / 1e5
+        self.noise = random() / 1e5
 
     @property
     def entropy(self):

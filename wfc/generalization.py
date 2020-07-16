@@ -8,7 +8,6 @@ from functools import partial
 from pprint import pprint
 
 
-@log(logging)
 def generalization(args):
     pimages, nimages, c2i, i2c = read_images(args.positive, args.negative)
     psamples = [compute_sample(rgb, c2i) for rgb in pimages]

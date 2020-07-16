@@ -2,18 +2,20 @@ import numpy as np
 import imageio as im
 
 from functools import reduce
+from time import time
 
 
 def run(generate, name, quiet, i2c, patterns):
     if quiet:
         *_, last = generate()
-        print(f'Generated #{last}.')
         grid, wave = last
 
+        timestamp = ''.join(str(time()).split('.'))
         save(grid,
              wave,
-             f'results/{name}/{name}.png',
+             f'results/{name}/{name}_{timestamp}.png',
              i2c, patterns)
+        print('Finished.')
     else:
         for index, step in enumerate(generate()):
             print(f'Generated step #{index}.')
