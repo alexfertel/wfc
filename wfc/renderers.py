@@ -18,7 +18,7 @@ def deterministic(patterns, color_extractor=upper_left_corner):
         rendered = [[-1 for _ in range(m)] for _ in range(n)]
         for i in range(n):
             for j in range(m):
-                identifier = grid[i][j].identifier
+                identifier = grid[i][j]
                 color = color_extractor(patterns[identifier])
                 rendered[i][j] = color
 

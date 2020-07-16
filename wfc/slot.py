@@ -16,12 +16,6 @@ class Slot:
         # This masks the possibility space
         self.possibilities = [True for _ in self.patterns]
 
-        # We maintain a cumulative frequency array, where we store
-        # the relative frequencies, so when sampling the probability
-        # distribution of the possibilities, choosing the slot
-        # corresponding to a value is easier.
-        self.cummulativeFrequencies = []
-
         # These properties aid when calculating entropy;
         # they are used to make entropy computation constant.
         self.sumOfWeights = sow
