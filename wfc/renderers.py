@@ -11,7 +11,7 @@ def center(pattern: Pattern):
     return pattern.matrix[i][j]
 
 
-def deterministic(patterns, color_extractor=center):
+def deterministic(patterns, color_extractor=upper_left_corner):
     def render(grid):
         n, m = grid.shape
 
