@@ -6,25 +6,34 @@ from time import time
 
 
 def run(generate, name, quiet, i2c, patterns):
+    grid, wave = None, None
+
     if quiet:
         *_, last = generate()
         grid, wave = last
-
-        timestamp = ''.join(str(time()).split('.'))
-        save(grid,
-             wave,
-             f'results/{name}/{name}_{timestamp}.png',
-             i2c, patterns)
-        print('Finished.')
     else:
-        for index, step in enumerate(generate()):
-            print(f'Generated step #{index}.')
+        generator = generate()
+        index = 1
+        while True:
+            try:
+                print(f'Generated step #{index}.')
+                grid, wave = next(generator)
 
-            grid, wave = step
-            save(grid,
-                 wave,
-                 f'results/{name}/{name}_{index}.png',
-                 i2c, patterns)
+                save(grid,
+                     wave,
+                     f'results/{name}/{name}_{index}.png',
+                     i2c, patterns)
+                index += 1
+
+            except StopIteration:
+                break
+
+    timestamp = ''.join(str(time()).split('.'))
+    save(grid,
+         wave,
+         f'results/{name}/{name}_{timestamp}.png',
+         i2c, patterns)
+    print('Finished.')
 
 
 def save(grid, wave, path, i2c, patterns):
