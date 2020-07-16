@@ -66,6 +66,9 @@ def add_flags(parser):
     parser.add_argument('--alpha', type=float, default=1,
                         help='Relaxation parameter.',
                         dest='alpha')
+    parser.add_argument('--delta', type=float, default=1,
+                        help='Restriction parameter.',
+                        dest='delta')
     parser.add_argument('--seed', type=int, default=1,
                         help='Random seed.',
                         dest='seed')

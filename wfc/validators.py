@@ -6,18 +6,24 @@ from sklearn.cluster import AffinityPropagation
 from scipy.spatial.distance import pdist
 
 from wfc.lookup_table import LookupTable
-from wfc.utils import dirs, compatible, d2i
+from wfc.utils import dirs, compatible
 
 
-def validator(alpha):
+def validator(alpha, delta=1):
     lookup_table = LookupTable()
+
+    def f(delta):
+        return 1
+
+    def g(p1, p2, d):
+        return 1 if compatible(p1.matrix, p2.matrix, d) else 0
 
     def fill_table(patterns, table):
         for p1 in patterns:
             for p2 in patterns:
                 for x, y in dirs:
                     d = (x, y)
-                    if compatible(p1.matrix, p2.matrix, d):
+                    if f(delta) * g(p1, p2, d):
                         table[d][p1.index].add(p2.index)
                         table[(-x, -y)][p2.index].add(p1.index)
 

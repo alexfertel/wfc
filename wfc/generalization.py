@@ -43,7 +43,7 @@ def generalization(args):
     for index, pattern in enumerate(ppatterns):
         pattern.count = weights[index]
 
-    (process, valid, *_) = getattr(validators, args.validator)(args.alpha)
+    (process, valid, *_) = getattr(validators, args.validator)(args.alpha, args.delta)
     process(ppatterns, npatterns)
 
     grid, generate = wfc(ppatterns, valid, args.size)
