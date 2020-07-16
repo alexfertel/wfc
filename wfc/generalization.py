@@ -2,7 +2,6 @@ from wfc.utils import extract_submatrices as es, extract_patterns, transform_pat
 from wfc.utils import extract_wrapped_pattern as ewp
 from wfc.core import wfc
 from wfc.image_handling import *
-from wfc.decorators import log
 from wfc import validators, renderers, classifiers
 from functools import partial
 

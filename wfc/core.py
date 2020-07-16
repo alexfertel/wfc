@@ -1,30 +1,9 @@
 import random
-import logging
-from functools import reduce
-
 import numpy as np
 
+from functools import reduce
+from wfc.entropy import Entropy
 from wfc.utils import dirs, in_range
-
-
-class Entropy:
-    def __init__(self, weights, patterns):
-        self.sow = sum(weights)
-        self.sowl = sum(map(lambda p: weights[p.index] * np.log(weights[p.index]), patterns))
-        self.noise = random.random() / 1e5
-
-    @property
-    def entropy(self):
-        return np.log(self.sow) - self.sowl / self.sow + self.noise
-
-    def __lt__(self, other):
-        return self.entropy < other.entropy
-
-    def __str__(self):
-        return str(self.entropy)
-
-    def __repr__(self):
-        return self.__str__()
 
 
 def wfc(patterns, valid, output_size):
@@ -121,7 +100,12 @@ def wfc(patterns, valid, output_size):
             for d in dirs:
                 dx, dy = d
 
-                # This slot is outside of the output grid borders.
+                # This slot is outside of the output grid borders
+                # or
+                # a very key thing to notice: when we relax constraints, patterns
+                # may appear collapsed where they were not supposed to, so
+                # we need to allow anything to be collapsed or we might
+                # create a contradiction on purpose (which is what we're doing).
                 if not in_range((x + dx, y + dy), grid) or sum(wave[x + dx][y + dy]) == 1:
                     continue
 
