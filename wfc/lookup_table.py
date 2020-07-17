@@ -1,6 +1,20 @@
 from collections import defaultdict
-from .utils import d2i
 from pprint import pformat, pprint
+
+
+def d2i(direction):
+    x, y = direction
+
+    if x == -1:
+        return 0
+    if y == 1:
+        return 1
+    if x == 1:
+        return 2
+    if y == -1:
+        return 3
+
+    raise Exception(f'`direction` arg {direction} is not a valid direction.')
 
 
 class LookupTable:

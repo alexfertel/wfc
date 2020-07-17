@@ -69,7 +69,7 @@ def read_images(positive, negative):
     c2i = reduce(mergec2i, pcolors + ncolors, {})
     i2c = {v: k for k, v in c2i.items()}
 
-    print(f'i2c {i2c}')
+    # print(f'i2c {i2c}')
 
     return pimages, nimages, c2i, i2c
 

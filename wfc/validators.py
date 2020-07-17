@@ -6,7 +6,7 @@ from sklearn.cluster import AffinityPropagation
 from scipy.spatial.distance import pdist
 
 from wfc.lookup_table import LookupTable
-from wfc.utils import dirs, compatible
+from wfc.extraction import dirs, compatible
 
 
 def validator(alpha, delta=1):

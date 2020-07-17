@@ -3,7 +3,7 @@ import numpy as np
 
 from functools import reduce
 from wfc.entropy import Entropy
-from wfc.utils import dirs, in_range
+from wfc.extraction import dirs
 
 
 def wfc(patterns, valid, output_size):
@@ -106,7 +106,8 @@ def wfc(patterns, valid, output_size):
                 # may appear collapsed where they were not supposed to, so
                 # we need to allow anything to be collapsed or we might
                 # create a contradiction on purpose (which is what we're doing).
-                if not in_range((x + dx, y + dy), grid) or sum(wave[x + dx][y + dy]) == 1:
+
+                if not (0 <= x + dx < n and 0 <= y + dy < m) or sum(wave[x + dx][y + dy]) == 1:
                     continue
 
                 # For each possible pattern of the origin, get its compatible

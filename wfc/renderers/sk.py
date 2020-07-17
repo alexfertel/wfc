@@ -4,7 +4,8 @@ import numpy as np
 # from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.model_selection import train_test_split
-from ..utils import extract_submatrices, extract_wrapped_pattern
+
+from wfc.extraction import extract_submatrices, extract_wrapped_pattern
 
 
 class MonsterRenderer:

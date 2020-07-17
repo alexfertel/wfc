@@ -2,12 +2,28 @@ import numpy as np
 
 from pprint import pprint
 from collections import defaultdict
-from wfc.utils import compatible, dirs, d2v
+
+from wfc.extraction import compatible, dirs
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.model_selection import train_test_split
+
+
+def d2v(direction):
+    x, y = direction
+
+    if x == 1:
+        return [1, 0, 0, 0]
+    if x == -1:
+        return [0, 0, 1, 0]
+    if y == 1:
+        return [0, 1, 0, 0]
+    if y == -1:
+        return [0, 0, 0, 1]
+
+    raise Exception(f'`direction` arg {direction} is not a valid direction.')
 
 
 class MonsterValidator:
