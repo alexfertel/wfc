@@ -17,11 +17,15 @@ def generalization(args):
     psamples = [compute_sample(rgb, c2i) for rgb in pimages]
     nsamples = [compute_sample(rgb, c2i) for rgb in nimages]
 
+    print("Computed Samples")
+
     extractor = partial(es, ewp, args.N)
     transformer = partial(transform, args.rotate, args.reflect)
 
     epsamples = extract_patterns(psamples, extractor)
     ensamples = extract_patterns(nsamples, extractor)
+
+    print("Extracted Patterns")
 
     ppatterns = concat(epsamples)
     npatterns = concat(ensamples)
@@ -29,9 +33,13 @@ def generalization(args):
     ppatterns = transform_patterns(ppatterns, transformer)
     npatterns = transform_patterns(npatterns, transformer)
 
+    print("Transformed Patterns")
+
     distance_table = measure(ppatterns, psamples, args.delta)
 
     (classify, pclassified, *_) = getattr(classifiers, args.classifier)(ppatterns)
+
+    print("Classified Patterns")
 
     nunique = np.lib.arraysetops.unique(
         npatterns, axis=0) if npatterns else []
@@ -41,12 +49,20 @@ def generalization(args):
     (process, valid, *_) = getattr(validators, args.validator)(args.alpha, distance_table)
     process(pclassified, nclassified)
 
+    print("Built Lookup Table")
+
     grid, generate = wfc(pclassified, valid, args.size)
 
+    print("Initialized Core")
+
     run(generate, args.name, args.quiet, i2c, pclassified)
+
+    print("Generated Output")
 
     (render, *_) = getattr(renderers, args.renderer)(pclassified)
 
     rendered_grid = render(grid)
+
+    print("Rendered Output")
 
     return rendered_grid

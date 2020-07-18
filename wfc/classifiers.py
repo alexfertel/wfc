@@ -9,7 +9,6 @@ def deterministic(ppatterns):
 
     def classify(pattern):
         nonlocal count
-        print(pattern)
 
         for p in pattern_set:
             if p == pattern:

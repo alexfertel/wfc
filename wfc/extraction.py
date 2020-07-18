@@ -108,7 +108,6 @@ def distance(p1, p2, sample):
 
 def measure(ppatterns, samples, delta):
     n = len(ppatterns)
-    print(ppatterns)
 
     deltas = []
     for sample in samples:
@@ -122,7 +121,6 @@ def measure(ppatterns, samples, delta):
 
     fill_table(ppatterns, lookup_table, can_overlap=compatible)
 
-    @lru_cache(maxsize=1024)
     def overlap_somehow(p1, p2):
         union = set()
         for x, y in dirs:
@@ -142,7 +140,6 @@ def measure(ppatterns, samples, delta):
                 distance_table[i][j] = (min(distance_table[i][j][0], dist), deltas[pi.sample])
                 distance_table[j][i] = (min(distance_table[j][i][0], dist), deltas[pi.sample])
 
-    print(samples)
     for r in distance_table:
         print(r)
 

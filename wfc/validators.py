@@ -42,8 +42,8 @@ def validator(alpha, distance_table):
         n = len(patterns)
         matrix = lookup_table.get_matrix(n)
 
-        for r in matrix:
-            print(r)
+        # for r in matrix:
+        #     print(r)
 
         def init_kmeans():
             """
@@ -82,7 +82,6 @@ def validator(alpha, distance_table):
     def process(positive, negative):
         learn(positive)
         prune(negative)
-        # TODO: Why are we using `ppaterns` here?
         postprocess(positive)
 
     return process, valid
