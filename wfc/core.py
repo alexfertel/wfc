@@ -114,9 +114,6 @@ def wfc(patterns, valid, output_size):
                 # patterns in direction `d` and join them in a set.
                 origin_domains_union = reduce(lambda a, b: a | valid(d, b), origin_domain, set())
 
-                if not origin_domains_union:
-                    raise Exception(f'There is no compatible pattern in direction {d} for slot {(x, y)}')
-
                 # Get the possible patterns for the neighbor in direction `d`.
                 neighbor_domain = [index for index, is_possible in enumerate(wave[x + dx][y + dy]) if is_possible]
 

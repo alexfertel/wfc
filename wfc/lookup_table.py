@@ -14,7 +14,7 @@ def d2i(direction):
     if y == -1:
         return 3
 
-    raise Exception(f'`direction` arg {direction} is not a valid direction.')
+    raise Exception('`direction` arg', direction, 'is not a valid direction.')
 
 
 class LookupTable:

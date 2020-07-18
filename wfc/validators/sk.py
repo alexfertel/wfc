@@ -23,7 +23,7 @@ def d2v(direction):
     if y == -1:
         return [0, 0, 0, 1]
 
-    raise Exception(f'`direction` arg {direction} is not a valid direction.')
+    raise Exception('`direction` arg', direction, 'is not a valid direction.')
 
 
 class MonsterValidator:

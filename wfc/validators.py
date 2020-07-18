@@ -15,7 +15,7 @@ def validator(alpha, distance_table):
 
     def f(p1, p2):
         dist, delta = distance_table[p1.index][p2.index]
-        return dist <= delta
+        return 1 if dist <= delta else 0
 
     def g(p1, p2, d):
         return 1 if compatible(p1, p2, d) else 0
