@@ -43,22 +43,6 @@ def save(grid, wave, path, i2c, patterns):
     im.imwrite(path, data)
 
 
-def transform(allow_rotations, allow_reflections, pattern):
-    patterns = [pattern]
-    if allow_rotations or allow_reflections:
-        sm = None
-        for _ in range(3):
-            if allow_rotations:
-                sm = np.rot90(pattern)
-                patterns.append(sm)
-
-            if allow_reflections:
-                sm = np.flip(sm)
-                patterns.append(sm)
-
-    return patterns
-
-
 def read_images(positive, negative):
     pimages = [im.imread(path) for path in positive]
     pcolors = [get_color_map(image) for image in pimages]

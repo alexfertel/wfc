@@ -8,6 +8,8 @@ from scipy.spatial.distance import pdist
 from wfc.lookup_table import LookupTable
 from wfc.extraction import dirs, compatible
 
+from pprint import pprint
+
 
 def validator(alpha, delta=1):
     lookup_table = LookupTable()
@@ -47,6 +49,9 @@ def validator(alpha, delta=1):
     def postprocess(patterns):
         n = len(patterns)
         matrix = lookup_table.get_matrix(n)
+
+        for r in matrix:
+            print(r)
 
         def init_kmeans():
             """

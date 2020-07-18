@@ -1,21 +1,30 @@
+import numpy as np
 from wfc.pattern import Pattern
 
 
-def deterministic():
-    pattern_set = set()
+def deterministic(ppatterns):
+    pattern_set = []
+
+    count = 0
 
     def classify(pattern):
+        nonlocal count
         pat = Pattern(pattern)
 
         for p in pattern_set:
             if p == pat:
-                p.count += pat.count
-                return p
+                pat = p.copy()
+                pat.count += 1
+                break
         else:
-            pat.index = len(pattern_set)
+            pattern_set.append(pat)
+            pat.index = count
+            count += 1
 
-        pattern_set.add(pat)
-
+        print(pat)
         return pat
+
+    for pp in ppatterns:
+        classify(pp)
 
     return classify, pattern_set
