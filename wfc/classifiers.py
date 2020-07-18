@@ -9,20 +9,19 @@ def deterministic(ppatterns):
 
     def classify(pattern):
         nonlocal count
-        pat = Pattern(pattern)
+        print(pattern)
 
         for p in pattern_set:
-            if p == pat:
+            if p == pattern:
                 pat = p.copy()
                 pat.count += 1
                 break
         else:
-            pattern_set.append(pat)
-            pat.index = count
+            pattern_set.append(pattern)
+            pattern.index = count
             count += 1
 
-        print(pat)
-        return pat
+        return pattern
 
     for pp in ppatterns:
         classify(pp)

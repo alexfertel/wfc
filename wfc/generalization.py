@@ -1,4 +1,4 @@
-from wfc.extraction import extract_submatrices as es, extract_patterns
+from wfc.extraction import extract_submatrices as es, extract_patterns, measure
 from wfc.extraction import extract_wrapped_pattern as ewp
 from wfc.extraction import transform_patterns, transform
 from wfc.core import wfc
@@ -23,22 +23,22 @@ def generalization(args):
     epsamples = extract_patterns(psamples, extractor)
     ensamples = extract_patterns(nsamples, extractor)
 
-    # distance_table = measure(epsamples)
-
     ppatterns = concat(epsamples)
     npatterns = concat(ensamples)
 
     ppatterns = transform_patterns(ppatterns, transformer)
     npatterns = transform_patterns(npatterns, transformer)
 
-    (classify, pclassified) = getattr(classifiers, args.classifier)(ppatterns)
+    distance_table = measure(ppatterns, psamples, args.delta)
+
+    (classify, pclassified, *_) = getattr(classifiers, args.classifier)(ppatterns)
 
     nunique = np.lib.arraysetops.unique(
         npatterns, axis=0) if npatterns else []
 
     nclassified = [classify(pattern) for pattern in nunique]
 
-    (process, valid, *_) = getattr(validators, args.validator)(args.alpha, args.delta)
+    (process, valid, *_) = getattr(validators, args.validator)(args.alpha, distance_table)
     process(pclassified, nclassified)
 
     grid, generate = wfc(pclassified, valid, args.size)

@@ -1,5 +1,8 @@
-from functools import reduce
+from functools import reduce, lru_cache
 import numpy as np
+
+from wfc.lookup_table import LookupTable
+from wfc.pattern import Pattern
 
 dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
@@ -19,21 +22,9 @@ def overlaps(matrix, direction):
 
 def compatible(p1, p2, d):
     x, y = d
-    m1 = overlaps(p1, (x, y))
-    m2 = overlaps(p2, (-x, -y))
+    m1 = overlaps(p1.matrix, (x, y))
+    m2 = overlaps(p2.matrix, (-x, -y))
     return (m1 == m2).all()
-
-
-def extract_submatrices(pattern_extractor, size, matrix):
-    n, m = matrix.shape
-
-    submatrices = []
-    for i in range(n):
-        for j in range(m):
-            sm = pattern_extractor(matrix, i, j, size)
-            submatrices.append(sm)
-
-    return submatrices
 
 
 def extract_wrapped_pattern(matrix, i, j, size):
@@ -43,8 +34,28 @@ def extract_wrapped_pattern(matrix, i, j, size):
     return matrix[rows][:, cols]
 
 
+def extract_submatrices(pattern_extractor, size, matrix):
+    n, m = matrix.shape
+
+    submatrices = []
+    for i in range(n):
+        for j in range(m):
+            sm = pattern_extractor(matrix, i, j, size)
+            submatrices.append(Pattern(sm, pos=(i, j)))
+
+    return submatrices
+
+
 def extract_patterns(samples, extractor):
-    return [extractor(sample) for sample in samples]
+    extracted = []
+    for index, sample in enumerate(samples):
+        submatrices = extractor(sample)
+        for submatrix in submatrices:
+            submatrix.sample = index
+
+        extracted.append(submatrices)
+
+    return extracted
 
 
 def transform(allow_rotations, allow_reflections, pattern):
@@ -67,12 +78,72 @@ def transform_patterns(patterns, transformer):
     return reduce(lambda x, y: x + transformer(y), patterns, [])
 
 
-def measure(patterns):
-    print(patterns)
+def fill_table(patterns, table, can_overlap):
+    for p1 in patterns:
+        for p2 in patterns:
+            for x, y in dirs:
+                d = (x, y)
+                if can_overlap(p1, p2, d):
+                    table[d][p1.index].add(p2.index)
+                    table[(-x, -y)][p2.index].add(p1.index)
 
-    def unravel_index(index):
-        n = len(patterns)
+    return table
 
-        return index / n
 
-        # for index, pattern in enumerate(patterns):
+def distance(p1, p2, sample):
+    n, m = sample.shape
+    x1, y1 = p1.pos
+    x2, y2 = p2.pos
+
+    dx = abs(x1 - x2)
+    if dx > n / 2:
+        dx = n - dx
+
+    dy = abs(y1 - y2)
+    if dy > m / 2:
+        dy = m - dy
+
+    return dx + dy
+
+
+def measure(ppatterns, samples, delta):
+    n = len(ppatterns)
+    print(ppatterns)
+
+    deltas = []
+    for sample in samples:
+        height, width = sample.shape
+        diameter = (height + width) / 2
+        deltas.append(1 + delta * (diameter - 1))
+
+    lookup_table = LookupTable()
+
+    distance_table = [[(float('inf'), 0) for _ in range(n)] for _ in range(n)]
+
+    fill_table(ppatterns, lookup_table, can_overlap=compatible)
+
+    @lru_cache(maxsize=1024)
+    def overlap_somehow(p1, p2):
+        union = set()
+        for x, y in dirs:
+            d = (x, y)
+            union |= lookup_table[d][p1.index]
+
+        return p2.index in union
+
+    for i in range(n):
+        for j in range(n):
+            pi = ppatterns[i]
+            pj = ppatterns[j]
+            if i == j:
+                distance_table[i][i] = (0, 0)
+            elif i != j and pi.sample == pj.sample and overlap_somehow(pi, pj):
+                dist = distance(pi, pj, samples[pi.sample])
+                distance_table[i][j] = (min(distance_table[i][j][0], dist), deltas[pi.sample])
+                distance_table[j][i] = (min(distance_table[j][i][0], dist), deltas[pi.sample])
+
+    print(samples)
+    for r in distance_table:
+        print(r)
+
+    return distance_table

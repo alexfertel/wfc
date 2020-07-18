@@ -19,7 +19,7 @@ def d2i(direction):
 
 class LookupTable:
     def __init__(self):
-        self.tables = [defaultdict(set) for i in range(4)]
+        self.tables = [defaultdict(set) for _ in range(4)]
 
     def __getitem__(self, key):
         return self.tables[d2i(key)]
@@ -28,7 +28,7 @@ class LookupTable:
         self.tables[d2i(key)] = value
 
     def __str__(self):
-        result = f'North:\n{pformat(self.tables[0], width=100, indent=2)}\n'
+        result = f'North: \n{pformat(self.tables[0], width=100, indent=2)}\n'
         result += f'East: \n{pformat(self.tables[1], width=100, indent=2)}\n'
         result += f'South:\n{pformat(self.tables[2], width=100, indent=2)}\n'
         result += f'West: \n{pformat(self.tables[3], width=100, indent=2)}\n'

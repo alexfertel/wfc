@@ -4,39 +4,31 @@ from collections import defaultdict
 from sklearn.cluster import KMeans
 from sklearn.cluster import AffinityPropagation
 from scipy.spatial.distance import pdist
+from functools import lru_cache
 
 from wfc.lookup_table import LookupTable
-from wfc.extraction import dirs, compatible
-
-from pprint import pprint
+from wfc.extraction import dirs, compatible, fill_table
 
 
-def validator(alpha, delta=1):
+def validator(alpha, distance_table):
     lookup_table = LookupTable()
 
-    def f(delta):
-        return 1
+    def f(p1, p2):
+        dist, delta = distance_table[p1.index][p2.index]
+        return dist <= delta
 
     def g(p1, p2, d):
-        return 1 if compatible(p1.matrix, p2.matrix, d) else 0
+        return 1 if compatible(p1, p2, d) else 0
 
-    def fill_table(patterns, table):
-        for p1 in patterns:
-            for p2 in patterns:
-                for x, y in dirs:
-                    d = (x, y)
-                    if f(delta) * g(p1, p2, d):
-                        table[d][p1.index].add(p2.index)
-                        table[(-x, -y)][p2.index].add(p1.index)
-
-        return table
+    def can_overlap(p1, p2, d):
+        return f(p1, p2) * g(p1, p2, d)
 
     def learn(patterns):
-        fill_table(patterns, lookup_table)
+        fill_table(patterns, lookup_table, can_overlap)
         return lookup_table
 
     def prune(patterns):
-        local_table = fill_table(patterns, LookupTable())
+        local_table = fill_table(patterns, LookupTable(), can_overlap)
 
         # Prune the adjacency
         for x, y in dirs:
