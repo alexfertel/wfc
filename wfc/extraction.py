@@ -145,5 +145,4 @@ def measure(ppatterns, samples, delta):
                 distance_table[i][j] = dist, deltas[pi.sample]
                 distance_table[j][i] = dist, deltas[pi.sample]
 
-
     return distance_table
