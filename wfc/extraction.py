@@ -131,9 +131,19 @@ def measure(ppatterns, samples, delta):
         for j in range(n):
             pi = ppatterns[i]
             pj = ppatterns[j]
-            if pi.sample == pj.sample and overlap_somehow(pi, pj):
+            overlap = overlap_somehow(pi, pj)
+            if not overlap:
+                continue
+            if pi.sample != pj.sample:
+                deltai = deltas[pi.sample]
+                deltaj = deltas[pj.sample]
+                min_delta = min(deltai, deltaj)
+                distance_table[i][j] = min_delta, min_delta
+                distance_table[j][i] = min_delta, min_delta
+            elif pi.sample == pj.sample:
                 dist = distance(pi, pj, samples[pi.sample])
                 distance_table[i][j] = dist, deltas[pi.sample]
                 distance_table[j][i] = dist, deltas[pi.sample]
+
 
     return distance_table
