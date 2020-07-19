@@ -12,11 +12,12 @@ def deterministic(ppatterns):
 
         for p in pattern_set:
             if p == pattern:
-                pat = p.copy()
-                pat.count += 1
+                p.count += 1
+                p.family.append(pattern.index)
                 break
         else:
             pattern_set.append(pattern)
+            pattern.family.append(pattern.index)
             pattern.index = count
             count += 1
 

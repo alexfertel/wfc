@@ -4,7 +4,6 @@ from collections import defaultdict
 from sklearn.cluster import KMeans
 from sklearn.cluster import AffinityPropagation
 from scipy.spatial.distance import pdist
-from functools import lru_cache
 
 from wfc.lookup_table import LookupTable
 from wfc.extraction import dirs, compatible, fill_table
@@ -14,7 +13,13 @@ def validator(alpha, distance_table):
     lookup_table = LookupTable()
 
     def f(p1, p2):
-        dist, delta = distance_table[p1.index][p2.index]
+        dist = float('inf')
+        delta = 0
+        for id1 in p1.family:
+            for id2 in p2.family:
+                d, delta = distance_table[id1][id2]
+                dist = min(dist, d)
+
         return 1 if dist <= delta else 0
 
     def g(p1, p2, d):
@@ -41,9 +46,6 @@ def validator(alpha, distance_table):
     def postprocess(patterns):
         n = len(patterns)
         matrix = lookup_table.get_matrix(n)
-
-        # for r in matrix:
-        #     print(r)
 
         def init_kmeans():
             """
@@ -84,4 +86,4 @@ def validator(alpha, distance_table):
         prune(negative)
         postprocess(positive)
 
-    return process, valid
+    return process, valid, lookup_table

@@ -109,38 +109,31 @@ def distance(p1, p2, sample):
 def measure(ppatterns, samples, delta):
     n = len(ppatterns)
 
+    for index, pp in enumerate(ppatterns):
+        pp.index = index
+
     deltas = []
     for sample in samples:
         height, width = sample.shape
         diameter = (height + width) / 2
         deltas.append(1 + delta * (diameter - 1))
 
-    lookup_table = LookupTable()
-
     distance_table = [[(float('inf'), 0) for _ in range(n)] for _ in range(n)]
 
-    fill_table(ppatterns, lookup_table, can_overlap=compatible)
-
     def overlap_somehow(p1, p2):
-        union = set()
-        for x, y in dirs:
-            d = (x, y)
-            union |= lookup_table[d][p1.index]
+        overlapped = False
+        for d in dirs:
+            overlapped = overlapped or compatible(p1, p2, d)
 
-        return p2.index in union
+        return overlapped
 
     for i in range(n):
         for j in range(n):
             pi = ppatterns[i]
             pj = ppatterns[j]
-            if i == j:
-                distance_table[i][i] = (0, 0)
-            elif i != j and pi.sample == pj.sample and overlap_somehow(pi, pj):
+            if pi.sample == pj.sample and overlap_somehow(pi, pj):
                 dist = distance(pi, pj, samples[pi.sample])
-                distance_table[i][j] = (min(distance_table[i][j][0], dist), deltas[pi.sample])
-                distance_table[j][i] = (min(distance_table[j][i][0], dist), deltas[pi.sample])
-
-    for r in distance_table:
-        print(r)
+                distance_table[i][j] = dist, deltas[pi.sample]
+                distance_table[j][i] = dist, deltas[pi.sample]
 
     return distance_table
