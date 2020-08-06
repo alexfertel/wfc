@@ -46,7 +46,7 @@ def main():
 
 def add_flags(parser):
     parser.add_argument('name', default='Flowers1', help='Image name.')
-    parser.add_argument('-s', '--size', nargs=2, type=int, default=(28, 28),
+    parser.add_argument('-s', '--size', nargs=2, type=int, default=(16, 16),
                         help='Tuple representing the size of the output image.',
                         dest='size')
     parser.add_argument('--rotate', action='store_true',

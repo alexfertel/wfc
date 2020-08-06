@@ -28,3 +28,4 @@ config.py
 tests/test.txt
 results
 *.gif
+**/scaled

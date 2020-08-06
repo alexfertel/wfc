@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import sys
 import imageio as im
 from ast import literal_eval as make_tuple
@@ -28,6 +29,7 @@ def read(path):
     return image
     # return sample
 
+
 def swap(old, new, image):
     N, M, _ = image.shape
 
@@ -38,11 +40,14 @@ def swap(old, new, image):
 
     return image
 
+
 def save(image, path):
     im.imwrite(path, image)
 
+
 if len(sys.argv) != 5:
-    print("Usage: python swapper.py path/to/image path/to/output old_color new_color \nExample: python swapper.py ../images/Flowers1.png ../images/Flowers2.png (0, 0, 0) (0, 0, 255)")
+    print(
+        "Usage: python swapper.py path/to/image path/to/output old_color new_color \nExample: python swapper.py ../images/Flowers1.png ../images/Flowers2.png (0, 0, 0) (0, 0, 255)")
     exit()
 
 print(sys.argv)
@@ -59,4 +64,3 @@ new_image = swap(old_color, new_color, image)
 
 # print(new_image)
 save(new_image, output_path)
-
