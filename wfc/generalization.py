@@ -11,6 +11,15 @@ def concat(items):
     return reduce(lambda a, b: a + b, items, [])
 
 
+def unique(patterns):
+    result = []
+    for pattern in patterns:
+        if pattern not in result:
+            result.append(pattern)
+
+    return result
+
+
 def generalization(args):
     pimages, nimages, c2i, i2c = read_images(args.positive, args.negative)
 
@@ -41,8 +50,7 @@ def generalization(args):
 
     print("Classified Patterns")
 
-    nunique = np.lib.arraysetops.unique(
-        npatterns, axis=0) if npatterns else []
+    nunique = unique(npatterns)
 
     nclassified = [classify(pattern) for pattern in nunique]
 

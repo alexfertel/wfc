@@ -12,7 +12,7 @@ from wfc.extraction import dirs, compatible, fill_table
 def validator(alpha, distance_table):
     lookup_table = LookupTable()
 
-    def f(p1, p2):
+    def g(p1, p2):
         dist = float('inf')
         delta = 0
         for id1 in p1.family:
@@ -22,11 +22,11 @@ def validator(alpha, distance_table):
 
         return 1 if dist <= delta else 0
 
-    def g(p1, p2, d):
+    def f(p1, p2, d):
         return 1 if compatible(p1, p2, d) else 0
 
     def can_overlap(p1, p2, d):
-        return f(p1, p2) * g(p1, p2, d)
+        return f(p1, p2, d) * g(p1, p2)
 
     def learn(patterns):
         fill_table(patterns, lookup_table, can_overlap)

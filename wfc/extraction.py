@@ -75,7 +75,7 @@ def transform(allow_rotations, allow_reflections, pattern):
 
 
 def transform_patterns(patterns, transformer):
-    return reduce(lambda x, y: x + transformer(y), patterns, [])
+    return np.array(reduce(lambda x, y: x + transformer(y), patterns, []))
 
 
 def fill_table(patterns, table, can_overlap):
