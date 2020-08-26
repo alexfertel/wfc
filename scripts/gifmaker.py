@@ -13,7 +13,7 @@ print(sys.argv)
 filenames = glob.glob(sys.argv[1] + '*')  # Get all the files in the current directory
 
 for name in filenames.copy():
-    if not '_' in name:
+    if '_' not in name:
         filenames.remove(name)
 
 # print(filenames)

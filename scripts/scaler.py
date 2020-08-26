@@ -1,25 +1,22 @@
 #!/usr/bin/python3
 import sys
 import imageio as im
-import numpy as np
+import glob
 
-if len(sys.argv) != 4:
-    print(
-        "Usage: python swapper.py path/to/image path/to/output scale_factor \nExample: python swapper.py "
-        "../images/Flowers1.png ../images/Flowers2.png 2")
-    exit()
+# if len(sys.argv) != 4:
+#     print(
+#         "Usage: python swapper.py path/to/image path/to/output scale_factor \nExample: python swapper.py "
+#         "../images/Flowers1.png ../images/Flowers2.png 2")
+#     exit()
 
-print(sys.argv)
+filenames = glob.glob(sys.argv[1] + '*')  # Get all the files in the directory
+output_path = '../scaled/'
+factor = int(sys.argv[2]) if len(sys.argv) > 2 else 32
 
-image_path = sys.argv[1]
-output_path = sys.argv[2]
-factor = int(sys.argv[3])
-read_image = im.imread(image_path)
+print(filenames)
 
-print(read_image)
+for filename in filenames:
+    read_image = im.imread(filename)
+    new_image = read_image.repeat(factor, axis=0).repeat(factor, axis=1)
+    im.imwrite(output_path + filename.split('/')[-1], new_image)
 
-new_image = read_image.repeat(factor, axis=0).repeat(factor, axis=1)
-
-print(new_image)
-
-im.imwrite(output_path, new_image)

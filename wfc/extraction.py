@@ -115,13 +115,14 @@ def measure(ppatterns, samples, delta):
     deltas = []
     for sample in samples:
         height, width = sample.shape
-        diameter = (height + width) / 2
+        diameter = height + width
         deltas.append(1 + delta * (diameter - 1))
 
-    distance_table = [[(float('inf'), 0) for _ in range(n)] for _ in range(n)]
+    distance_table = [[(delta, 0) for _ in range(n)] for _ in range(n)]
 
     def overlap_somehow(p1, p2):
         overlapped = False
+
         for d in dirs:
             overlapped = overlapped or compatible(p1, p2, d)
 
@@ -131,8 +132,7 @@ def measure(ppatterns, samples, delta):
         for j in range(n):
             pi = ppatterns[i]
             pj = ppatterns[j]
-            overlap = overlap_somehow(pi, pj)
-            if not overlap:
+            if not overlap_somehow(pi, pj):
                 continue
             if pi.sample != pj.sample:
                 deltai = deltas[pi.sample]

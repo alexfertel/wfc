@@ -62,7 +62,7 @@ def validator(alpha, distance_table):
             param = -(min_dist + (max_dist - min_dist) * (1 - alpha)) + 1
             return AffinityPropagation(preference=param)
 
-        clustering = init_affinity()
+        clustering = init_kmeans()
     
         clustering.fit(matrix)
 
