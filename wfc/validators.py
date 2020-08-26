@@ -56,13 +56,14 @@ def validator(alpha, distance_table):
             return KMeans(n_clusters=param)
 
         def init_affinity():
-            m = np.max(pdist(matrix))
-            param = m * alpha
-            print(param)
+            distance_matrix = pdist(matrix, metric='sqeuclidean')
+            max_dist = np.max(distance_matrix)
+            min_dist = np.min(distance_matrix)
+            param = -(min_dist + (max_dist - min_dist) * (1 - alpha)) + 1
             return AffinityPropagation(preference=param)
 
         clustering = init_affinity()
-
+    
         clustering.fit(matrix)
 
         clusters = defaultdict(set)
