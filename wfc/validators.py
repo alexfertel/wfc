@@ -58,9 +58,10 @@ def validator(alpha, distance_table):
         def init_affinity():
             m = np.max(pdist(matrix))
             param = m * alpha
+            print(param)
             return AffinityPropagation(preference=param)
 
-        clustering = init_kmeans()
+        clustering = init_affinity()
 
         clustering.fit(matrix)
 
