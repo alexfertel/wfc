@@ -6,7 +6,19 @@ from sklearn.cluster import AffinityPropagation
 from scipy.spatial.distance import pdist
 
 from wfc.lookup_table import LookupTable
-from wfc.extraction import dirs, compatible, fill_table
+from wfc.extraction import dirs, compatible
+
+
+def fill_table(patterns, table, can_overlap):
+    for p1 in patterns:
+        for p2 in patterns:
+            for x, y in dirs:
+                d = (x, y)
+                if can_overlap(p1, p2, d):
+                    table[d][p1.index].add(p2.index)
+                    table[(-x, -y)][p2.index].add(p1.index)
+
+    return table
 
 
 def validator(alpha, distance_table):
@@ -63,7 +75,7 @@ def validator(alpha, distance_table):
             return AffinityPropagation(preference=param)
 
         clustering = init_kmeans()
-    
+
         clustering.fit(matrix)
 
         clusters = defaultdict(set)

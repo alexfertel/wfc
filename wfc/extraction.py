@@ -78,18 +78,6 @@ def transform_patterns(patterns, transformer):
     return np.array(reduce(lambda x, y: x + transformer(y), patterns, []))
 
 
-def fill_table(patterns, table, can_overlap):
-    for p1 in patterns:
-        for p2 in patterns:
-            for x, y in dirs:
-                d = (x, y)
-                if can_overlap(p1, p2, d):
-                    table[d][p1.index].add(p2.index)
-                    table[(-x, -y)][p2.index].add(p1.index)
-
-    return table
-
-
 def distance(p1, p2, sample):
     n, m = sample.shape
     x1, y1 = p1.pos
@@ -118,7 +106,7 @@ def measure(ppatterns, samples, delta):
         diameter = height + width
         deltas.append(1 + delta * (diameter - 1))
 
-    distance_table = [[(delta, 0) for _ in range(n)] for _ in range(n)]
+    distance_table = [[(1, 0) for _ in range(n)] for _ in range(n)]
 
     def overlap_somehow(p1, p2):
         overlapped = False
