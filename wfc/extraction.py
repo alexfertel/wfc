@@ -38,8 +38,8 @@ def extract_submatrices(pattern_extractor, size, matrix):
     n, m = matrix.shape
 
     submatrices = []
-    for i in range(n):
-        for j in range(m):
+    for i in range(n - size + 1):
+        for j in range(m - size + 1):
             sm = pattern_extractor(matrix, i, j, size)
             submatrices.append(Pattern(sm, pos=(i, j)))
 
@@ -64,12 +64,12 @@ def transform(allow_rotations, allow_reflections, pattern):
         sm = None
         for _ in range(3):
             if allow_rotations:
-                sm = np.rot90(pattern)
-                patterns.append(sm)
+                sm = np.rot90(pattern.matrix)
+                patterns.append(Pattern(sm, sample=pattern.sample))
 
             if allow_reflections:
                 sm = np.flip(sm)
-                patterns.append(sm)
+                patterns.append(Pattern(sm, sample=pattern.sample))
 
     return patterns
 
@@ -101,9 +101,11 @@ def measure(ppatterns, samples, delta):
         pp.index = index
 
     deltas = []
+    diameters = []
     for sample in samples:
         height, width = sample.shape
         diameter = height + width
+        diameters.append(diameter)
         deltas.append(1 + delta * (diameter - 1))
 
     distance_table = [[(1, 0) for _ in range(n)] for _ in range(n)]
@@ -129,8 +131,12 @@ def measure(ppatterns, samples, delta):
                 distance_table[i][j] = min_delta, min_delta
                 distance_table[j][i] = min_delta, min_delta
             elif pi.sample == pj.sample:
-                dist = distance(pi, pj, samples[pi.sample])
-                distance_table[i][j] = dist, deltas[pi.sample]
-                distance_table[j][i] = dist, deltas[pi.sample]
+                if pi.pos and pj.pos:
+                    dist = distance(pi, pj, samples[pi.sample])
+                    distance_table[i][j] = dist, deltas[pi.sample]
+                    distance_table[j][i] = dist, deltas[pi.sample]
+                else:
+                    distance_table[i][j] = diameters[pi.sample], deltas[pi.sample]
+                    distance_table[j][i] = diameters[pi.sample], deltas[pi.sample]
 
     return distance_table
