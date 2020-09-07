@@ -36,7 +36,8 @@ def main():
 
     args.path = os.path.join('images', f'{args.name}.png')
 
-    random.seed(args.seed)
+    if args.seed != 1: 
+        random.seed(args.seed)
 
     if not hasattr(args, 'func'):
         main_parser.print_help()

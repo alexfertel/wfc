@@ -33,6 +33,10 @@ def run(generate, name, quiet, i2c, patterns):
          wave,
          f'results/{name}/{name}_{timestamp}.png',
          i2c, patterns)
+    save(grid,
+         wave,
+         f'../selection/{name}_{timestamp}.png',
+         i2c, patterns)
     print('Finished.')
 
 
