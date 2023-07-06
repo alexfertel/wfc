@@ -99,4 +99,4 @@ pprint~=0.1
 imageio~=2.6.1
 scikit-learn~=0.22.1
 Pillow~=9.3.0
-scipy~=1.4.1
+scipy~=1.10.0
