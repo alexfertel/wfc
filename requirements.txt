@@ -130,5 +130,5 @@ numpy~=1.18.1
 pprint~=0.1
 imageio~=2.6.1
 scikit-learn~=0.22.1
-Pillow~=10.0.1
+Pillow~=10.2.0
 scipy~=1.10.0
